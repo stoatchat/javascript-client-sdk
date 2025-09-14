@@ -39,7 +39,7 @@ await build({
       },
     },
     engines: {
-      node: ">=22.0.0",
+      node: ">=22.19.0",
     },
   },
   compilerOptions: {

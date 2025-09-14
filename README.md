@@ -6,6 +6,13 @@
 **revolt.js** is a JavaScript library for interacting with the entire Revolt
 API.
 
+## Requirements
+
+To use this module, you must be using at least:
+
+- Node.js v22.19.0 (LTS) with ESM
+- Deno v2.2 (LTS)
+
 ## Example Usage
 
 ```javascript

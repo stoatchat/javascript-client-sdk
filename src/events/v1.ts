@@ -17,6 +17,7 @@ import type {
 
 import type { Client } from "../Client.ts";
 import { MessageEmbed } from "../classes/MessageEmbed.ts";
+import { ServerRole } from "../classes/ServerRole.ts";
 import { hydrate } from "../hydration/index.ts";
 
 /**
@@ -25,6 +26,10 @@ import { hydrate } from "../hydration/index.ts";
 export type ProtocolV1 = {
   client: ClientMessage;
   server: ServerMessage;
+
+  types: {
+    policyChange: PolicyChange;
+  };
 };
 
 /**
@@ -170,6 +175,16 @@ type ServerMessage =
   );
 
 /**
+ * Policy change type
+ */
+type PolicyChange = {
+  created_time: string;
+  effective_time: string;
+  description: string;
+  url: string;
+};
+
+/**
  * Initial synchronisation packet
  */
 type ReadyData = {
@@ -178,6 +193,7 @@ type ReadyData = {
   channels: Channel[];
   members: Member[];
   emojis: Emoji[];
+  policy_changes: PolicyChange[];
 };
 
 /**
@@ -234,6 +250,14 @@ export async function handleEvent(
       setReady(true);
       client.emit("ready");
 
+      if (event.policy_changes.length) {
+        client.emit(
+          "policyChanges",
+          event.policy_changes,
+          () => client.api.post("/policy/acknowledge"),
+        );
+      }
+
       break;
     }
     case "Message": {
@@ -250,11 +274,22 @@ export async function handleEvent(
         delete event.user;
 
         client.messages.getOrCreate(event._id, event, true);
-        client.channels.setUnderlyingKey(
-          event.channel,
-          "lastMessageId",
-          event._id,
-        );
+
+        if (
+          event.mentions?.includes(client.user!.id) &&
+          client.options.syncUnreads
+        ) {
+          const channel = client.channels.get(event.channel);
+          if (!channel) return;
+
+          const unread = client.channelUnreads.for(channel);
+          unread.messageMentionIds.add(event._id);
+          client.channels.setUnderlyingKey(
+            event.channel,
+            "lastMessageId",
+            event._id,
+          );
+        }
       }
       break;
     }
@@ -355,7 +390,14 @@ export async function handleEvent(
       if (message) {
         const set = message.reactions.get(event.emoji_id);
         if (set?.has(event.user_id)) {
-          set.delete(event.user_id);
+          if (
+            set.size === 1 &&
+            !message.interactions?.reactions?.includes(event.emoji_id)
+          ) {
+            message.reactions.delete(event.emoji_id);
+          } else {
+            set.delete(event.user_id);
+          }
         } else if (!client.messages.isPartial(event.id)) {
           return;
         }
@@ -466,15 +508,24 @@ export async function handleEvent(
       if (channel) {
         if (!channel.typingIds.has(event.user)) {
           channel.typingIds.add(event.user);
-        } else if (!client.channels.isPartial(event.id)) {
-          return;
-        }
 
-        client.emit(
-          "channelStartTyping",
-          channel,
-          client.users.getOrPartial(event.user)!,
-        );
+          clearTimeout(channel._typingTimers[event.user]);
+          channel._typingTimers[event.user] = setTimeout(
+            () =>
+              handleEvent(
+                client,
+                { ...event, type: "ChannelStopTyping" },
+                setReady,
+              ),
+            1000,
+          ) as never;
+
+          client.emit(
+            "channelStartTyping",
+            channel,
+            client.users.getOrPartial(event.user)!,
+          );
+        }
       }
       break;
     }
@@ -483,15 +534,16 @@ export async function handleEvent(
       if (channel) {
         if (channel.typingIds.has(event.user)) {
           channel.typingIds.delete(event.user);
-        } else if (!client.channels.isPartial(event.id)) {
-          return;
-        }
 
-        client.emit(
-          "channelStopTyping",
-          channel,
-          client.users.getOrPartial(event.user)!,
-        );
+          clearTimeout(channel._typingTimers[event.user]);
+          delete channel._typingTimers[event.user];
+
+          client.emit(
+            "channelStopTyping",
+            channel,
+            client.users.getOrPartial(event.user)!,
+          );
+        }
       }
       break;
     }
@@ -558,10 +610,13 @@ export async function handleEvent(
       const server = client.servers.getOrPartial(event.id);
       if (server) {
         const role = server.roles.get(event.role_id) ?? {};
-        server.roles.set(event.role_id, {
-          ...role,
-          ...event.data,
-        } as Role);
+        server.roles.set(
+          event.role_id,
+          new ServerRole(client, server.id, event.role_id, {
+            ...role,
+            ...event.data,
+          } as never),
+        );
 
         client.emit("serverRoleUpdate", server, event.role_id, role as never);
       }

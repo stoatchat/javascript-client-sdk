@@ -7,3 +7,4 @@ export { BotFlags } from "./hydration/bot.ts";
 export { ServerFlags } from "./hydration/server.ts";
 export { UserBadges, UserFlags } from "./hydration/user.ts";
 export * from "./lib/regex.ts";
+export * from "./permissions/definitions.ts";

@@ -28,6 +28,7 @@ import type { File } from "./File.ts";
 import { ChannelInvite } from "./Invite.ts";
 import { ServerBan } from "./ServerBan.ts";
 import { ServerMember } from "./ServerMember.ts";
+import { ServerRole } from "./ServerRole.ts";
 import { User } from "./User.ts";
 
 /**
@@ -83,6 +84,13 @@ export class Server {
     return this.#collection.client.users.get(
       this.#collection.getUnderlyingObject(this.id).ownerId,
     );
+  }
+
+  /**
+   * Absolute pathname to this server in the client
+   */
+  get path(): string {
+    return `/server/${this.id}`;
   }
 
   /**
@@ -148,7 +156,7 @@ export class Server {
   /**
    * Roles
    */
-  get roles(): Map<string, Role> {
+  get roles(): Map<string, ServerRole> {
     return this.#collection.getUnderlyingObject(this.id).roles;
   }
 
@@ -224,21 +232,22 @@ export class Server {
       }
     }
 
-    if (uncategorised.size > 0) {
-      const channels = [...uncategorised].map(
-        (key) => this.#collection.client.channels.get(key)!,
-      );
+    // force Default category for client logic
+    // if (uncategorised.size > 0) {
+    const channels = [...uncategorised].map(
+      (key) => this.#collection.client.channels.get(key)!,
+    );
 
-      if (defaultCategory) {
-        defaultCategory.channels = [...defaultCategory.channels, ...channels];
-      } else {
-        elements.unshift({
-          id: "default",
-          title: "Default",
-          channels,
-        });
-      }
+    if (defaultCategory) {
+      defaultCategory.channels = [...defaultCategory.channels, ...channels];
+    } else {
+      elements.unshift({
+        id: "default",
+        title: "Default",
+        channels,
+      });
     }
+    // }
 
     return elements;
   }
@@ -259,9 +268,7 @@ export class Server {
   get orderedRoles(): Role[] {
     const roles = this.roles;
     return roles
-      ? [...roles.entries()]
-        .map(([id, role]) => ({ id, ...role }))
-        .sort((a, b) => (a.rank || 0) - (b.rank || 0))
+      ? [...roles.values()].sort((a, b) => (a.rank || 0) - (b.rank || 0))
       : [];
   }
 
@@ -386,6 +393,27 @@ export class Server {
         await this.#collection.client.api.patch(
           `/servers/${this.id as ""}`,
           data,
+        ),
+        this.#collection.client,
+        false,
+      ),
+    );
+  }
+
+  /**
+   * Set ordering of roles
+   * @param roleIds Role IDs
+   */
+  async setRoleOrdering(roleIds: string[]): Promise<void> {
+    this.#collection.setUnderlyingObject(
+      this.id,
+      hydrate(
+        "server",
+        await this.#collection.client.api.patch(
+          `/servers/${this.id as ""}/roles/ranks`,
+          {
+            ranks: roleIds,
+          },
         ),
         this.#collection.client,
         false,
@@ -556,11 +584,22 @@ export class Server {
    * @param roleId Role ID
    * @param data Role editing route data
    */
-  async editRole(roleId: string, data: DataEditRole): Promise<Role> {
-    return await this.#collection.client.api.patch(
+  async editRole(roleId: string, data: DataEditRole): Promise<ServerRole> {
+    const updated = await this.#collection.client.api.patch(
       `/servers/${this.id as ""}/roles/${roleId as ""}`,
       data,
     );
+
+    const role = new ServerRole(
+      this.#collection.client,
+      this.id,
+      roleId,
+      updated,
+    );
+
+    this.roles.set(roleId, role);
+
+    return role;
   }
 
   /**
@@ -716,6 +755,15 @@ export class Server {
 
     return emojis.map((emoji) =>
       this.#collection.client.emojis.getOrCreate(emoji._id, emoji)
+    );
+  }
+
+  /**
+   * All emojis tied to this server
+   */
+  get emojis(): Emoji[] {
+    return this.#collection.client.emojis.filter(
+      (emoji) => emoji.parent.type === "Server" && emoji.parent.id === this.id,
     );
   }
 

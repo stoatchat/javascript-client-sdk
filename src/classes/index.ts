@@ -10,6 +10,7 @@ export * from "./Message.ts";
 export * from "./MessageEmbed.ts";
 export * from "./PublicBot.ts";
 export * from "./PublicInvite.ts";
+export * from "./ServerRole.ts";
 export * from "./Server.ts";
 export * from "./ServerBan.ts";
 export * from "./ServerMember.ts";

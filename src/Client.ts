@@ -24,7 +24,7 @@ import {
   EventClient,
   type EventClientOptions,
 } from "./events/EventClient.ts";
-import { handleEvent } from "./events/v1.ts";
+import { handleEvent, type ProtocolV1 } from "./events/v1.ts";
 import type { HydratedChannel } from "./hydration/channel.ts";
 import type { HydratedEmoji } from "./hydration/emoji.ts";
 import type { HydratedMessage } from "./hydration/message.ts";
@@ -47,6 +47,11 @@ export type Events = {
   disconnected: [];
   ready: [];
   logout: [];
+
+  policyChanges: [
+    policyChanges: ProtocolV1["types"]["policyChange"][],
+    acknowledge: () => Promise<void>,
+  ];
 
   messageCreate: [message: Message];
   messageUpdate: [message: Message, previousMessage: HydratedMessage];
@@ -139,10 +144,18 @@ export type ClientOptions = Partial<EventClientOptions> & {
   /**
    * Check whether a channel is muted
    * @param channel Channel
-   * @return Whether it is muted
+   * @return Whether it is muted or through inheritance
    * @default false
    */
   channelIsMuted(channel: Channel): boolean;
+
+  /**
+   * Check whether a channel is exclusively muted (irrespective of server)
+   * @param channel Channel
+   * @return Whether it is exclusively muted
+   * @default false
+   */
+  channelExclusiveMuted(channel: Channel): boolean;
 };
 
 /**
@@ -205,6 +218,15 @@ export class Client extends AsyncEventEmitter<Events> {
        * @return Whether it is muted
        */
       channelIsMuted() {
+        return false;
+      },
+      /**
+       * Check whether a channel is exclusively muted (irrespective of server)
+       * @param channel Channel
+       * @return Whether it is exclusively muted
+       * @default false
+       */
+      channelExclusiveMuted() {
         return false;
       },
       ...options,
@@ -381,5 +403,34 @@ export class Client extends AsyncEventEmitter<Events> {
     } else {
       return url;
     }
+  }
+
+  /**
+   * Upload a file
+   * @param tag Tag
+   * @param file File
+   * @param uploadUrl Media server upload route
+   */
+  async uploadFile(
+    tag: string,
+    file: File,
+    uploadUrl?: string,
+  ): Promise<string> {
+    const body = new FormData();
+    body.append("file", file);
+
+    const [key, value] = this.authenticationHeader;
+    const data: { id: string } = await fetch(
+      `${uploadUrl ?? this.configuration?.features.autumn.url}/${tag}`,
+      {
+        method: "POST",
+        body,
+        headers: {
+          [key]: value,
+        },
+      },
+    ).then((res) => res.json());
+
+    return data.id;
   }
 }

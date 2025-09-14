@@ -9,12 +9,14 @@ import { decodeTime } from "ulid";
 
 import type { Client } from "../Client.ts";
 import type { MessageCollection } from "../collections/MessageCollection.ts";
+import { MessageFlags } from "../hydration/message.ts";
 
 import type { Channel } from "./Channel.ts";
 import { File } from "./File.ts";
 import type { MessageEmbed } from "./MessageEmbed.ts";
 import type { Server } from "./Server.ts";
 import type { ServerMember } from "./ServerMember.ts";
+import type { ServerRole } from "./ServerRole.ts";
 import type { SystemMessage } from "./SystemMessage.ts";
 import type { User } from "./User.ts";
 
@@ -134,6 +136,13 @@ export class Message {
   }
 
   /**
+   * Content converted to plain text
+   */
+  get contentPlain(): string {
+    return this.#collection.client.markdownToText(this.content);
+  }
+
+  /**
    * System message content
    */
   get systemMessage(): SystemMessage | undefined {
@@ -169,10 +178,32 @@ export class Message {
   }
 
   /**
+   * IDs of roles this message mentions
+   */
+  get roleMentionIds(): string[] | undefined {
+    return this.#collection.getUnderlyingObject(this.id).roleMentionIds;
+  }
+
+  /**
+   * Roles this message mentions
+   */
+  get roleMentions(): ServerRole[] | undefined {
+    return this.roleMentionIds
+      ?.map((roleId) => this.server?.roles.get(roleId) as ServerRole)
+      .filter((role) => role);
+  }
+
+  /**
    * Whether this message mentions us
    */
   get mentioned(): boolean {
-    return this.mentionIds?.includes(this.#collection.client.user!.id) ?? false;
+    return (
+      !!(this.flags & MessageFlags.MentionsEveryone) ||
+      !!(this.flags & MessageFlags.MentionsOnline) ||
+      this.mentionIds?.includes(this.#collection.client.user!.id) ||
+      this.roleMentions?.some((role) => role.assigned) ||
+      false
+    );
   }
 
   /**
@@ -201,6 +232,13 @@ export class Message {
    */
   get masquerade(): Masquerade | undefined {
     return this.#collection.getUnderlyingObject(this.id).masquerade;
+  }
+
+  /**
+   * Whether this message is pinned
+   */
+  get pinned(): boolean {
+    return this.#collection.getUnderlyingObject(this.id).pinned || false;
   }
 
   /**
@@ -349,6 +387,24 @@ export class Message {
     return await this.#collection.client.api.delete(
       `/channels/${this.channelId as ""}/messages/${this
         .id as ""}/reactions/${emoji as ""}`,
+    );
+  }
+
+  /**
+   * Pin the message
+   */
+  pin(): Promise<void> {
+    return this.#collection.client.api.post(
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}/pin`,
+    );
+  }
+
+  /**
+   * Unpin the message
+   */
+  unpin(): Promise<void> {
+    return this.#collection.client.api.delete(
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}/pin`,
     );
   }
 }

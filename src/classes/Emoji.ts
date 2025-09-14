@@ -82,6 +82,13 @@ export class Emoji {
   }
 
   /**
+   * URL to emoji
+   */
+  get url(): string {
+    return `${this.#collection.client.configuration?.features.autumn.url}/emojis/${this.id}`;
+  }
+
+  /**
    * Delete Emoji
    */
   async delete(): Promise<void> {

@@ -78,11 +78,8 @@ export class ChannelWebhook {
 
   /**
    * Edit this webhook
-   * TODO: not in production
    */
-  async edit(
-    data: DataEditWebhook,
-  ): Promise<void> {
+  async edit(data: DataEditWebhook): Promise<void> {
     const webhook = await this.#collection.client.api.patch(
       `/webhooks/${this.id as ""}/${this.token as ""}`,
       data,
@@ -96,7 +93,6 @@ export class ChannelWebhook {
 
   /**
    * Delete this webhook
-   * TODO: not in production
    */
   async delete(): Promise<void> {
     await this.#collection.client.api.delete(

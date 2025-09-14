@@ -33,6 +33,8 @@ export class Channel {
   readonly #collection: ChannelCollection;
   readonly id: string;
 
+  _typingTimers: Record<string, number> = {};
+
   /**
    * Construct Channel
    * @param collection Collection
@@ -279,24 +281,30 @@ export class Channel {
   }
 
   /**
-   * Get whether this channel is unread.
+   * Whether this channel is unread
    */
   get unread(): boolean {
     if (
       !this.lastMessageId ||
       this.type === "SavedMessages" ||
       this.type === "VoiceChannel" ||
-      this.#collection.client.options.channelIsMuted(this)
+      this.#collection.client.options.channelExclusiveMuted(this)
     ) {
       return false;
     }
 
+    const unread = this.#collection.client.channelUnreads.for(this);
     return (
-      (
-        this.#collection.client.channelUnreads.get(this.id)?.lastMessageId ??
-          "0"
-      ).localeCompare(this.lastMessageId) === -1
+      (unread.lastMessageId ?? "0").localeCompare(this.lastMessageId) === -1 ||
+      unread.messageMentionIds.size > 0
     );
+  }
+
+  /**
+   * Whether this channel is muted
+   */
+  get muted(): boolean {
+    return this.#collection.client.options.channelIsMuted(this);
   }
 
   /**
@@ -391,6 +399,25 @@ export class Channel {
 
     return members.map((user) =>
       this.#collection.client.users.getOrCreate(user._id, user)
+    );
+  }
+
+  /**
+   * Create a webhook
+   * @param name Webhook name
+   * @returns The newly-created webhook
+   */
+  async createWebhook(name: string): Promise<ChannelWebhook> {
+    const webhook = await this.#collection.client.api.post(
+      `/channels/${this.id as ""}/webhooks`,
+      {
+        name,
+      },
+    );
+
+    return this.#collection.client.channelWebhooks.getOrCreate(
+      webhook.id,
+      webhook,
     );
   }
 
@@ -697,19 +724,19 @@ export class Channel {
         this.lastMessageId ??
         ulid();
 
-    const unreads = this.#collection.client.channelUnreads;
-    const channelUnread = unreads.get(this.id);
-    if (channelUnread) {
-      unreads.setUnderlyingObject(this.id, {
-        ...unreads.getUnderlyingObject(this.id),
-        lastMessageId,
-        messageMentionIds: unreads.getUnderlyingObject(this.id)
-          .messageMentionIds,
-      });
+    const channelUnread = this.#collection.client.channelUnreads.for(this);
 
-      if (channelUnread.messageMentionIds.size) {
-        channelUnread.messageMentionIds.clear();
-      }
+    this.#collection.client.channelUnreads.setUnderlyingObject(
+      this.id,
+      {
+        ...channelUnread,
+        lastMessageId,
+        messageMentionIds: channelUnread.messageMentionIds,
+      },
+    );
+
+    if (channelUnread.messageMentionIds.size) {
+      channelUnread.messageMentionIds.clear();
     }
 
     // Skip request if not needed
@@ -748,11 +775,11 @@ export class Channel {
    */
   async setPermissions(
     role_id = "default",
-    permissions: Override,
+    permissions: Override | number,
   ): Promise<APIChannel> {
     return await this.#collection.client.api.put(
       `/channels/${this.id as ""}/permissions/${role_id as ""}`,
-      { permissions },
+      { permissions: permissions as Override },
     );
   }
 

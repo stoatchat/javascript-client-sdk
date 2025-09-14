@@ -57,17 +57,17 @@ export class File {
   }
 
   /**
-   * Direct URL to the file
+   * Preview URL for the file
    */
-  get url(): string {
-    return `${this.#client.configuration?.features.autumn.url}/${this.tag}/${this.id}/${this.filename}`;
+  get previewUrl(): string {
+    return `${this.#client.configuration?.features.autumn.url}/${this.tag}/${this.id}`;
   }
 
   /**
-   * Download URL for the file
+   * Original download URL for the file
    */
-  get downloadURL(): string {
-    return `${this.#client.configuration?.features.autumn.url}/${this.tag}/download/${this.id}/${this.filename}`;
+  get originalUrl(): string {
+    return `${this.#client.configuration?.features.autumn.url}/${this.tag}/${this.id}/original`;
   }
 
   /**
