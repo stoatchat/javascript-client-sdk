@@ -142,8 +142,7 @@ export class AccountCollection {
    * @param timestamp Timestamp
    */
   async setSettings(
-    // deno-lint-ignore no-explicit-any
-    settings: Record<string, any>,
+    settings: Record<string, string>,
     timestamp: number = new Date().getTime(),
   ): Promise<void> {
     return await this.client.api.post("/sync/settings/set", {

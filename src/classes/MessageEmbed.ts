@@ -169,7 +169,7 @@ export class WebsiteEmbed extends MessageEmbed {
       }
       case "Twitch":
         return `https://player.twitch.tv/?${this.specialContent.content_type.toLowerCase()}=${this.specialContent.id}&parent=${
-          (globalThis ?? {})?.location?.hostname
+          (location ?? {})?.hostname
         }&autoplay=false`;
       case "Lightspeed":
         return `https://new.lightspeed.tv/embed/${this.specialContent.id}/stream`;

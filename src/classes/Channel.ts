@@ -1,4 +1,5 @@
 import type {
+  API,
   Channel as APIChannel,
   DataEditChannel,
   DataMessageSearch,
@@ -8,7 +9,6 @@ import type {
   Override,
   User as APIUser,
 } from "revolt-api";
-import type { APIRoutes } from "revolt-api/lib/routes";
 import { decodeTime, ulid } from "ulid";
 
 import type { ChannelCollection } from "../collections/ChannelCollection.ts";
@@ -552,10 +552,7 @@ export class Channel {
    */
   async fetchMessages(
     params?: Omit<
-      (APIRoutes & {
-        method: "get";
-        path: "/channels/{target}/messages";
-      })["params"],
+      (Parameters<API["get"]> & ["/channels//messages", { method: "get" }])[1],
       "include_users"
     >,
   ): Promise<Message[]> {
@@ -577,10 +574,7 @@ export class Channel {
    */
   async fetchMessagesWithUsers(
     params?: Omit<
-      (APIRoutes & {
-        method: "get";
-        path: "/channels/{target}/messages";
-      })["params"],
+      (Parameters<API["get"]> & ["/channels//messages", { method: "get" }])[1],
       "include_users"
     >,
   ): Promise<{

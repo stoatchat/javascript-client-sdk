@@ -9,7 +9,7 @@
   },
   "tasks": {
     "docs": "deno run -A npm:typedoc --name revolt.js --readme README.md src/",
-    "npm": "deno run -A .github/workflows/npmPublish.ts"
+    "npm": "deno run -A .github/workflows/publish.ts"
   },
   "fmt": {
     "indentWidth": 2,
@@ -21,7 +21,7 @@
     }
   },
   "publish": {
-    "exclude": [".github", ".vscode"]
+    "exclude": [".github", ".vscode", "tsconfig.json"]
   },
   "nodeModulesDir": "none",
   "lock": false

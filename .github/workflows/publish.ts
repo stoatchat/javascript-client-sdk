@@ -1,6 +1,6 @@
-import { build, emptyDir } from "jsr:@deno/dnt";
+/// <reference lib="deno.ns" />
+import { build, emptyDir } from "jsr:@deno/dnt@^0.42.3";
 import pkg from "../../deno.json" with { type: "json" };
-import tsc from "../../tsconfig.json" with { type: "json" };
 
 await emptyDir("npm");
 
@@ -43,7 +43,6 @@ await build({
     },
   },
   compilerOptions: {
-    ...tsc.compilerOptions,
     lib: ["ES2022", "DOM"],
     target: "ES2022",
   },
@@ -52,17 +51,5 @@ await build({
     Deno.removeSync("npm/.npmignore");
     Deno.copyFileSync("README.md", "npm/README.md");
     Deno.copyFileSync("LICENSE", "npm/LICENSE");
-
-    const messageEmbedCode = Deno.readTextFileSync(
-      "npm/lib/classes/MessageEmbed.js",
-    ).replace(
-      'import * as dntShim from "../_dnt.shims.js";\n',
-      "",
-    ).replace("dntShim.dntGlobalThis", "globalThis");
-
-    Deno.writeTextFileSync("npm/lib/classes/MessageEmbed.js", messageEmbedCode);
-
-    Deno.removeSync("npm/lib/_dnt.shims.js");
-    Deno.removeSync("npm/lib/_dnt.shims.d.ts");
   },
 });

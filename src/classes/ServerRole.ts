@@ -1,6 +1,7 @@
 import type { OverrideField, Role as APIRole } from "revolt-api";
 
 import type { Client } from "../Client.ts";
+
 import type { Server } from "./Server.ts";
 
 /**

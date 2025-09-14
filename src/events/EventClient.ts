@@ -63,7 +63,7 @@ export interface EventClientOptions {
  * Events provided by the client.
  */
 type Events<T extends AvailableProtocols, P extends EventProtocol<T>> = {
-  error: [error: Error];
+  error: [error: Error | Event];
   event: [event: P["server"]];
   state: [state: ConnectionState];
 };
@@ -87,8 +87,10 @@ export class EventClient<
   #pongTimeoutReference: number | undefined;
   #connectTimeoutReference: number | undefined;
 
-  // deno-lint-ignore no-explicit-any
-  #lastError?: { type: "socket"; data: any } | { type: "revolt"; data: Error };
+  #lastError?: { type: "socket"; data: Event } | {
+    type: "revolt";
+    data: Error;
+  };
 
   /**
    * Create a new event client.
@@ -258,7 +260,7 @@ export class EventClient<
    * Last error encountered by events client
    */
   get lastError():
-    | { type: "socket"; data: unknown }
+    | { type: "socket"; data: Event }
     | { type: "revolt"; data: Error }
     | undefined {
     return this.#lastError;

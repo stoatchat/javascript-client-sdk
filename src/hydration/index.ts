@@ -81,11 +81,11 @@ const hydrators = {
 
 export type Hydrators = typeof hydrators;
 
-// deno-lint-ignore no-explicit-any
-type ExtractInput<T> = T extends Hydrate<infer I, any> ? I : never;
+type ExtractIO<T> = T extends Hydrate<infer I, infer O> ? [I, O] : never;
 
-// deno-lint-ignore no-explicit-any
-type ExtractOutput<T> = T extends Hydrate<any, infer O> ? O : never;
+type ExtractInput<T> = ExtractIO<T>[0];
+
+type ExtractOutput<T> = ExtractIO<T>[1];
 
 /**
  * Hydrate some input with a given type

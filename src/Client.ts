@@ -1,6 +1,6 @@
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import type { DataLogin, RevoltConfig } from "revolt-api";
-import { API, type Role } from "revolt-api";
+import { API, type Error, type Role } from "revolt-api";
 
 import type { Channel } from "./classes/Channel.ts";
 import type { Emoji } from "./classes/Emoji.ts";
@@ -39,8 +39,7 @@ export type Session = { _id: string; token: string; user_id: string } | string;
  * Events provided by the client
  */
 export type Events = {
-  // deno-lint-ignore no-explicit-any
-  error: [any];
+  error: [Event | Error];
 
   connected: [];
   connecting: [];
@@ -420,7 +419,7 @@ export class Client extends AsyncEventEmitter<Events> {
     body.append("file", file);
 
     const [key, value] = this.authenticationHeader;
-    const data: { id: string } = await fetch(
+    const data: { id: string } = await (await fetch(
       `${uploadUrl ?? this.configuration?.features.autumn.url}/${tag}`,
       {
         method: "POST",
@@ -429,7 +428,7 @@ export class Client extends AsyncEventEmitter<Events> {
           [key]: value,
         },
       },
-    ).then((res) => res.json());
+    )).json();
 
     return data.id;
   }

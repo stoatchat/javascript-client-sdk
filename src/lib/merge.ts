@@ -1,5 +1,5 @@
 // Merge type provided by https://dev.to/lucianbc/union-type-merging-in-typescript-9al
-export type Merge<T extends object> =
+export type Merge<T> =
   & {
     [k in CommonKeys<T>]: PickTypeOf<T, k>;
   }
@@ -11,13 +11,11 @@ type PickTypeOf<T, K extends string | number | symbol> = K extends AllKeys<T>
   ? PickType<T, K>
   : never;
 
-// deno-lint-ignore no-explicit-any
-type PickType<T, K extends AllKeys<T>> = T extends { [k in K]?: any } ? T[K]
+type PickType<T, K extends AllKeys<T>> = T extends { [k in K]?: unknown } ? T[K]
   : undefined;
 
 type Subtract<A, C> = A extends C ? never : A;
-type NonCommonKeys<T extends object> = Subtract<AllKeys<T>, CommonKeys<T>>;
+type NonCommonKeys<T> = Subtract<AllKeys<T>, CommonKeys<T>>;
 
-// deno-lint-ignore no-explicit-any
-type AllKeys<T> = T extends any ? keyof T : never;
-type CommonKeys<T extends object> = keyof T;
+type AllKeys<T> = T extends unknown ? keyof T : never;
+type CommonKeys<T> = keyof T;
