@@ -8,7 +8,7 @@ import type {
   Override,
   User as APIUser,
 } from "revolt-api";
-import type { APIRoutes } from "revolt-api/dist/routes";
+import type { APIRoutes } from "revolt-api/lib/routes";
 import { decodeTime, ulid } from "ulid";
 
 import type { ChannelCollection } from "../collections/ChannelCollection.ts";

@@ -10,15 +10,14 @@ await build({
   outDir: "npm",
   scriptModule: false,
   shims: {},
-  skipNpmInstall: true,
   skipSourceOutput: true,
   test: false,
   package: {
     name: "revolt.js",
     version: pkg.version,
     type: "module",
-    module: "lib/index.js",
-    types: "lib/index.d.ts",
+    module: "./lib/index.js",
+    types: "./lib/index.d.ts",
     repository: {
       type: "git",
       url: "git+https://github.com/revoltchat/revolt.js.git",
@@ -34,6 +33,11 @@ await build({
         return [dep.slice(0, lastAtIndex), dep.slice(lastAtIndex + 1)];
       }),
     ),
+    exports: {
+      ".": {
+        import: "./lib/index.js",
+      },
+    },
     engines: {
       node: ">=22.0.0",
     },
