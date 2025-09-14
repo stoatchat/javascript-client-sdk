@@ -1,16 +1,10 @@
-import { ReactiveMap } from "@solid-primitives/map";
-import { ReactiveSet } from "@solid-primitives/set";
-import type {
-  Server as APIServer,
-  Category,
-  SystemMessageChannels,
-} from "revolt-api";
+import type { Category, Server, SystemMessageChannels } from "revolt-api";
 
-import type { Client } from "../Client.js";
-import { File } from "../classes/File.js";
-import { ServerRole } from "../classes/ServerRole.js";
+import type { Client } from "../Client.ts";
+import { File } from "../classes/File.ts";
+import { ServerRole } from "../classes/ServerRole.ts";
 
-import type { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.ts";
 
 export type HydratedServer = {
   id: string;
@@ -22,11 +16,11 @@ export type HydratedServer = {
   icon?: File;
   banner?: File;
 
-  channelIds: ReactiveSet<string>;
+  channelIds: Set<string>;
   categories?: Category[];
 
   systemMessages?: SystemMessageChannels;
-  roles: ReactiveMap<string, ServerRole>;
+  roles: Map<string, ServerRole>;
   defaultPermissions: number;
 
   flags: ServerFlags;
@@ -35,7 +29,7 @@ export type HydratedServer = {
   nsfw: boolean;
 };
 
-export const serverHydration: Hydrate<APIServer, HydratedServer> = {
+export const serverHydration: Hydrate<Server, HydratedServer> = {
   keyMapping: {
     _id: "id",
     owner: "ownerId",
@@ -48,11 +42,11 @@ export const serverHydration: Hydrate<APIServer, HydratedServer> = {
     ownerId: (server) => server.owner,
     name: (server) => server.name,
     description: (server) => server.description!,
-    channelIds: (server) => new ReactiveSet(server.channels),
+    channelIds: (server) => new Set(server.channels),
     categories: (server) => server.categories ?? [],
     systemMessages: (server) => server.system_messages ?? {},
     roles: (server, ctx) =>
-      new ReactiveMap(
+      new Map(
         Object.keys(server.roles!).map((id) => [
           id,
           new ServerRole(ctx as Client, server._id, id, server.roles![id]),
@@ -67,8 +61,8 @@ export const serverHydration: Hydrate<APIServer, HydratedServer> = {
     nsfw: (server) => server.nsfw || false,
   },
   initialHydration: () => ({
-    channelIds: new ReactiveSet(),
-    roles: new ReactiveMap(),
+    channelIds: new Set(),
+    roles: new Map(),
   }),
 };
 

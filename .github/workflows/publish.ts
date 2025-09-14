@@ -1,0 +1,55 @@
+/// <reference lib="deno.ns" />
+import { build, emptyDir } from "jsr:@deno/dnt@^0.42.3";
+import pkg from "../../deno.json" with { type: "json" };
+
+await emptyDir("npm");
+
+await build({
+  entryPoints: ["src/index.ts"],
+  esModule: true,
+  outDir: "npm",
+  scriptModule: false,
+  shims: {},
+  skipSourceOutput: true,
+  test: false,
+  package: {
+    name: "revolt.js",
+    version: pkg.version,
+    type: "module",
+    module: "./lib/index.js",
+    types: "./lib/index.d.ts",
+    repository: {
+      type: "git",
+      url: "git+https://github.com/revoltchat/revolt.js.git",
+    },
+    author: "Paul Makles <insrt.uk>",
+    license: "MIT",
+    description: "Library for interacting with the Revolt API.",
+    dependencies: Object.fromEntries(
+      Object.values(pkg.imports).map((dep) => {
+        dep = dep.replace("npm:", "");
+
+        const lastAtIndex = dep.lastIndexOf("@");
+        return [dep.slice(0, lastAtIndex), dep.slice(lastAtIndex + 1)];
+      }),
+    ),
+    exports: {
+      ".": {
+        import: "./lib/index.js",
+      },
+    },
+    engines: {
+      node: ">=22.19.0",
+    },
+  },
+  compilerOptions: {
+    lib: ["ES2022", "DOM"],
+    target: "ES2022",
+  },
+  postBuild() {
+    Deno.renameSync("npm/esm", "npm/lib");
+    Deno.removeSync("npm/.npmignore");
+    Deno.copyFileSync("README.md", "npm/README.md");
+    Deno.copyFileSync("LICENSE", "npm/LICENSE");
+  },
+});

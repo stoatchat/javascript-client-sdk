@@ -1,10 +1,10 @@
-import { DataEditWebhook } from "revolt-api";
+import type { DataEditWebhook } from "revolt-api";
 
-import type { ChannelWebhookCollection } from "../collections/ChannelWebhookCollection.js";
-import { hydrate } from "../hydration/index.js";
+import type { ChannelWebhookCollection } from "../collections/ChannelWebhookCollection.ts";
+import { hydrate } from "../hydration/index.ts";
 
-import type { Channel } from "./Channel.js";
-import type { File } from "./File.js";
+import type { Channel } from "./Channel.ts";
+import type { File } from "./File.ts";
 
 /**
  * Channel Webhook Class
@@ -85,7 +85,7 @@ export class ChannelWebhook {
       data,
     );
 
-    this.#collection.updateUnderlyingObject(
+    this.#collection.setUnderlyingObject(
       this.id,
       hydrate("channelWebhook", webhook, this.#collection.client),
     );

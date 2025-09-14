@@ -1,6 +1,8 @@
-import type { Role as APIRole, OverrideField } from "revolt-api";
+import type { OverrideField, Role as APIRole } from "revolt-api";
 
-import type { Client } from "../Client.js";
+import type { Client } from "../Client.ts";
+
+import type { Server } from "./Server.ts";
 
 /**
  * Server Role
@@ -46,21 +48,21 @@ export class ServerRole {
   /**
    * Server attached to this role
    */
-  get server() {
+  get server(): Server | undefined {
     return this.client.servers.get(this.serverId);
   }
 
   /**
    * Whether this role is assigned to our server member
    */
-  get assigned() {
+  get assigned(): boolean {
     return this.server?.member?.roles.includes(this.id) || false;
   }
 
   /**
    * Delete this role
    */
-  delete() {
+  delete(): Promise<void> {
     return this.server!.deleteRole(this.id);
   }
 }

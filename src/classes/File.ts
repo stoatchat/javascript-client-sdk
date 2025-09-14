@@ -1,6 +1,6 @@
 import type { File as APIFile, Metadata } from "revolt-api";
 
-import type { Client } from "../Client.js";
+import type { Client } from "../Client.ts";
 
 /**
  * Uploaded File
@@ -57,32 +57,17 @@ export class File {
   }
 
   /**
-   * Direct URL to the file
-   */
-  // get url(): string {
-  //   if (!this.filename) return this.previewUrl;
-  //
-  //   return `${this.#client.configuration?.features.autumn.url}/${this.tag}/${
-  //     this.id
-  //   }/${this.filename}`;
-  // }
-
-  /**
    * Preview URL for the file
    */
   get previewUrl(): string {
-    return `${this.#client.configuration?.features.autumn.url}/${
-      this.tag
-    }/${this.id}`;
+    return `${this.#client.configuration?.features.autumn.url}/${this.tag}/${this.id}`;
   }
 
   /**
    * Original download URL for the file
    */
   get originalUrl(): string {
-    return `${this.#client.configuration?.features.autumn.url}/${
-      this.tag
-    }/${this.id}/original`;
+    return `${this.#client.configuration?.features.autumn.url}/${this.tag}/${this.id}/original`;
   }
 
   /**

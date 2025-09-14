@@ -1,11 +1,11 @@
 import type { DataEditBot } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import type { BotCollection } from "../collections/BotCollection.js";
-import type { BotFlags } from "../hydration/bot.js";
+import type { BotCollection } from "../collections/BotCollection.ts";
+import type { BotFlags } from "../hydration/bot.ts";
 
-import { PublicBot } from "./PublicBot.js";
-import type { User } from "./User.js";
+import { PublicBot } from "./PublicBot.ts";
+import type { User } from "./User.ts";
 
 /**
  * Bot Class

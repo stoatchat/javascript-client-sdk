@@ -1,26 +1,24 @@
-import type { ReactiveMap } from "@solid-primitives/map";
-import type { ReactiveSet } from "@solid-primitives/set";
 import type {
-  Message as APIMessage,
-  MessageWebhook as APIMessageWebhook,
   DataEditMessage,
   DataMessageSend,
   Masquerade,
+  Message as APIMessage,
+  MessageWebhook as APIMessageWebhook,
 } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import type { Client } from "../Client.js";
-import type { MessageCollection } from "../collections/MessageCollection.js";
-import { MessageFlags } from "../hydration/message.js";
+import type { Client } from "../Client.ts";
+import type { MessageCollection } from "../collections/MessageCollection.ts";
+import { MessageFlags } from "../hydration/message.ts";
 
-import type { Channel } from "./Channel.js";
-import { File } from "./File.js";
-import type { MessageEmbed } from "./MessageEmbed.js";
-import type { Server } from "./Server.js";
-import type { ServerMember } from "./ServerMember.js";
-import { ServerRole } from "./ServerRole.js";
-import type { SystemMessage } from "./SystemMessage.js";
-import type { User } from "./User.js";
+import type { Channel } from "./Channel.ts";
+import { File } from "./File.ts";
+import type { MessageEmbed } from "./MessageEmbed.ts";
+import type { Server } from "./Server.ts";
+import type { ServerMember } from "./ServerMember.ts";
+import type { ServerRole } from "./ServerRole.ts";
+import type { SystemMessage } from "./SystemMessage.ts";
+import type { User } from "./User.ts";
 
 /**
  * Message Class
@@ -63,7 +61,7 @@ export class Message {
   /**
    * URL to this message
    */
-  get url(): string | undefined {
+  get url(): string {
     return this.#collection.client.configuration?.app + this.path;
   }
 
@@ -218,7 +216,7 @@ export class Message {
   /**
    * Reactions
    */
-  get reactions(): ReactiveMap<string, ReactiveSet<string>> {
+  get reactions(): Map<string, Set<string>> {
     return this.#collection.getUnderlyingObject(this.id).reactions;
   }
 
@@ -258,9 +256,9 @@ export class Message {
 
     return (
       this.masquerade?.name ??
-      (webhook
-        ? webhook.name
-        : (this.member?.nickname ?? this.author?.username))
+        (webhook
+          ? webhook.name
+          : (this.member?.nickname ?? this.author?.username))
     );
   }
 
@@ -279,9 +277,9 @@ export class Message {
 
     return (
       this.masqueradeAvatarURL ??
-      (webhook
-        ? webhook.avatarURL
-        : (this.member?.avatarURL ?? this.author?.avatarURL))
+        (webhook
+          ? webhook.avatarURL
+          : (this.member?.avatarURL ?? this.author?.avatarURL))
     );
   }
 
@@ -293,9 +291,9 @@ export class Message {
 
     return (
       this.masqueradeAvatarURL ??
-      (webhook
-        ? webhook.avatarURL
-        : this.member
+        (webhook
+          ? webhook.avatarURL
+          : this.member
           ? this.member?.animatedAvatarURL
           : this.author?.animatedAvatarURL)
     );
@@ -350,8 +348,8 @@ export class Message {
     data:
       | string
       | (Omit<DataMessageSend, "nonce"> & {
-          nonce?: string;
-        }),
+        nonce?: string;
+      }),
     mention = true,
   ): Promise<Message> | undefined {
     const obj = typeof data === "string" ? { content: data } : data;
@@ -376,9 +374,8 @@ export class Message {
    */
   async react(emoji: string): Promise<void> {
     return await this.#collection.client.api.put(
-      `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
-        emoji as ""
-      }`,
+      `/channels/${this.channelId as ""}/messages/${this
+        .id as ""}/reactions/${emoji as ""}`,
     );
   }
 
@@ -388,9 +385,8 @@ export class Message {
    */
   async unreact(emoji: string): Promise<void> {
     return await this.#collection.client.api.delete(
-      `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
-        emoji as ""
-      }`,
+      `/channels/${this.channelId as ""}/messages/${this
+        .id as ""}/reactions/${emoji as ""}`,
     );
   }
 
@@ -434,14 +430,14 @@ export class MessageWebhook {
     this.name = webhook.name;
     this.avatar = webhook.avatar
       ? new File(client, {
-          _id: webhook.avatar,
-          tag: "avatars",
-          metadata: {
-            type: "Image",
-            width: 256,
-            height: 256,
-          },
-        })
+        _id: webhook.avatar,
+        tag: "avatars",
+        metadata: {
+          type: "Image",
+          width: 256,
+          height: 256,
+        },
+      })
       : undefined;
   }
 
@@ -451,7 +447,7 @@ export class MessageWebhook {
   get avatarURL(): string {
     return (
       this.avatar?.createFileURL() ??
-      `${this.#client.options.baseURL}/users/${this.id}/default_avatar`
+        `${this.#client.options.baseURL}/users/${this.id}/default_avatar`
     );
   }
 }
