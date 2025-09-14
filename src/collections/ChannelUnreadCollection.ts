@@ -1,6 +1,7 @@
 import type { ChannelUnread as APIChannelUnread } from "revolt-api";
 
 import { ChannelUnread } from "../classes/ChannelUnread.js";
+import { Channel } from "../classes/index.js";
 import type { HydratedChannelUnread } from "../hydration/channelUnread.js";
 
 import { Collection } from "./Collection.js";
@@ -45,5 +46,21 @@ export class ChannelUnreadCollection extends Collection<
       this.create(id, "channelUnread", instance, this.client, data);
       return instance;
     }
+  }
+
+  /**
+   * Get channel unread data for a specific Channel
+   * @param channel Channel
+   * @returns Unread
+   */
+  for(channel: Channel): ChannelUnread {
+    return this.getOrCreate(channel.id, {
+      _id: {
+        channel: channel.id,
+        user: this.client.user!.id,
+      },
+      last_id: null,
+      mentions: [],
+    });
   }
 }

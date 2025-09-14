@@ -144,10 +144,18 @@ export type ClientOptions = Partial<EventClientOptions> & {
   /**
    * Check whether a channel is muted
    * @param channel Channel
-   * @return Whether it is muted
+   * @return Whether it is muted or through inheritance
    * @default false
    */
   channelIsMuted(channel: Channel): boolean;
+
+  /**
+   * Check whether a channel is exclusively muted (irrespective of server)
+   * @param channel Channel
+   * @return Whether it is exclusively muted
+   * @default false
+   */
+  channelExclusiveMuted(channel: Channel): boolean;
 };
 
 /**
@@ -206,6 +214,15 @@ export class Client extends AsyncEventEmitter<Events> {
        * @return Whether it is muted
        */
       channelIsMuted() {
+        return false;
+      },
+      /**
+       * Check whether a channel is exclusively muted (irrespective of server)
+       * @param channel Channel
+       * @return Whether it is exclusively muted
+       * @default false
+       */
+      channelExclusiveMuted() {
         return false;
       },
       ...options,

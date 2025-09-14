@@ -12,8 +12,8 @@ importers:
         specifier: ^2.4.6
         version: 2.4.6
       revolt-api:
-        specifier: 0.8.8
-        version: 0.8.8
+        specifier: 0.8.8-2
+        version: 0.8.8-2
       ulid:
         specifier: ^2.4.0
         version: 2.4.0
@@ -823,8 +823,8 @@ packages:
     resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
 
-  revolt-api@0.8.8:
-    resolution: {integrity: sha512-/DLA9qaljrnf6LeksdgO7hKWF4oNny672ywyxCxvivmVkOYZuQkhtgdYanvFBUJKngbCecLAjD6IaC6GJ01Xag==}
+  revolt-api@0.8.8-2:
+    resolution: {integrity: sha512-xfQQ2aGbjeVbNHE+J6VlsOmZFGXD3FpYvcBTmFRC4TqZonGwqNtzIbkZidmiUehJ97nYMu8fXGJVWnM63BxAcA==}
 
   router@2.2.0:
     resolution: {integrity: sha512-nLTrUKm2UyiL7rlhapu/Zl45FwNgkZGaCpZbIHajDYgwlJCOzLSk+cIPAnsEqV955GjILJnKbdQC1nVPz+gAYQ==}
@@ -1768,7 +1768,7 @@ snapshots:
 
   reusify@1.1.0: {}
 
-  revolt-api@0.8.8: {}
+  revolt-api@0.8.8-2: {}
 
   router@2.2.0:
     dependencies:

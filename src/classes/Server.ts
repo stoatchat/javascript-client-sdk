@@ -232,21 +232,22 @@ export class Server {
       }
     }
 
-    if (uncategorised.size > 0) {
-      const channels = [...uncategorised].map(
-        (key) => this.#collection.client.channels.get(key)!,
-      );
+    // force Default category for client logic
+    // if (uncategorised.size > 0) {
+    const channels = [...uncategorised].map(
+      (key) => this.#collection.client.channels.get(key)!,
+    );
 
-      if (defaultCategory) {
-        defaultCategory.channels = [...defaultCategory.channels, ...channels];
-      } else {
-        elements.unshift({
-          id: "default",
-          title: "Default",
-          channels,
-        });
-      }
+    if (defaultCategory) {
+      defaultCategory.channels = [...defaultCategory.channels, ...channels];
+    } else {
+      elements.unshift({
+        id: "default",
+        title: "Default",
+        channels,
+      });
     }
+    // }
 
     return elements;
   }
@@ -591,11 +592,22 @@ export class Server {
    * @param roleId Role ID
    * @param data Role editing route data
    */
-  async editRole(roleId: string, data: DataEditRole): Promise<Role> {
-    return await this.#collection.client.api.patch(
+  async editRole(roleId: string, data: DataEditRole): Promise<ServerRole> {
+    const updated = await this.#collection.client.api.patch(
       `/servers/${this.id as ""}/roles/${roleId as ""}`,
       data,
     );
+
+    const role = new ServerRole(
+      this.#collection.client,
+      this.id,
+      roleId,
+      updated,
+    );
+
+    this.roles.set(roleId, role);
+
+    return role;
   }
 
   /**

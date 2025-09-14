@@ -4,6 +4,7 @@ import { decodeTime } from "ulid";
 import type { BotCollection } from "../collections/BotCollection.js";
 import type { BotFlags } from "../hydration/bot.js";
 
+import { PublicBot } from "./PublicBot.js";
 import type { User } from "./User.js";
 
 /**
@@ -120,6 +121,17 @@ export class Bot {
    */
   get flags(): BotFlags {
     return this.#collection.getUnderlyingObject(this.id).flags;
+  }
+
+  /**
+   * Instantiate `PublicBot` class from this bot
+   */
+  get publicBot(): PublicBot {
+    return new PublicBot(this.#collection.client, {
+      _id: this.id,
+      username: this.user?.username ?? "",
+      avatar: this.user?.avatar?.id,
+    });
   }
 
   /**

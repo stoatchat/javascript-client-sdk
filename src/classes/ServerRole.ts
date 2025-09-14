@@ -44,12 +44,23 @@ export class ServerRole {
   }
 
   /**
+   * Server attached to this role
+   */
+  get server() {
+    return this.client.servers.get(this.serverId);
+  }
+
+  /**
    * Whether this role is assigned to our server member
    */
   get assigned() {
-    return (
-      this.client.servers.get(this.serverId)?.member?.roles.includes(this.id) ||
-      false
-    );
+    return this.server?.member?.roles.includes(this.id) || false;
+  }
+
+  /**
+   * Delete this role
+   */
+  delete() {
+    return this.server!.deleteRole(this.id);
   }
 }

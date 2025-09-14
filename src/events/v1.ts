@@ -269,11 +269,22 @@ export async function handleEvent(
         delete event.user;
 
         client.messages.getOrCreate(event._id, event, true);
-        client.channels.setUnderlyingKey(
-          event.channel,
-          "lastMessageId",
-          event._id,
-        );
+
+        if (
+          event.mentions?.includes(client.user!.id) &&
+          client.options.syncUnreads
+        ) {
+          const channel = client.channels.get(event.channel);
+          if (!channel) return;
+
+          const unread = client.channelUnreads.for(channel);
+          unread.messageMentionIds.add(event._id);
+          client.channels.setUnderlyingKey(
+            event.channel,
+            "lastMessageId",
+            event._id,
+          );
+        }
       }
       break;
     }
@@ -494,15 +505,24 @@ export async function handleEvent(
       if (channel) {
         if (!channel.typingIds.has(event.user)) {
           channel.typingIds.add(event.user);
-        } else if (!client.channels.isPartial(event.id)) {
-          return;
-        }
 
-        client.emit(
-          "channelStartTyping",
-          channel,
-          client.users.getOrPartial(event.user)!,
-        );
+          clearTimeout(channel._typingTimers[event.user]);
+          channel._typingTimers[event.user] = setTimeout(
+            () =>
+              handleEvent(
+                client,
+                { ...event, type: "ChannelStopTyping" },
+                setReady,
+              ),
+            1000,
+          ) as never;
+
+          client.emit(
+            "channelStartTyping",
+            channel,
+            client.users.getOrPartial(event.user)!,
+          );
+        }
       }
       break;
     }
@@ -511,15 +531,16 @@ export async function handleEvent(
       if (channel) {
         if (channel.typingIds.has(event.user)) {
           channel.typingIds.delete(event.user);
-        } else if (!client.channels.isPartial(event.id)) {
-          return;
-        }
 
-        client.emit(
-          "channelStopTyping",
-          channel,
-          client.users.getOrPartial(event.user)!,
-        );
+          clearTimeout(channel._typingTimers[event.user]);
+          delete channel._typingTimers[event.user];
+
+          client.emit(
+            "channelStopTyping",
+            channel,
+            client.users.getOrPartial(event.user)!,
+          );
+        }
       }
       break;
     }
