@@ -524,7 +524,7 @@ export async function handleEvent(
                 { ...event, type: "ChannelStopTyping" },
                 setReady,
               ),
-            1000,
+            4000,
           ) as never;
 
           client.emit(
