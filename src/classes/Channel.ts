@@ -327,7 +327,7 @@ export class Channel {
    * NB. subject to change as vc(2) goes to production
    */
   get isVoice(): boolean {
-    return this.#collection.getUnderlyingObject(this.id).voice;
+    return this.type === 'Group' || this.type === 'DirectMessage' || this.#collection.getUnderlyingObject(this.id).voice;
   }
 
   /**
