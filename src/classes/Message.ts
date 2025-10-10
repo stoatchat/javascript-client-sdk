@@ -395,7 +395,7 @@ export class Message {
    * @param emoji Unicode or emoji ID
    * @param deleteAll Remove all reactions
    */
-  async unreact(emoji: string, deleteAll: boolean): Promise<void> {
+  async unreact(emoji: string, deleteAll = false): Promise<void> {
     return await this.#collection.client.api.delete(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
         emoji as ""
