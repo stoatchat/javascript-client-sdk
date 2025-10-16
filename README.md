@@ -1,8 +1,8 @@
-# revolt.js
+# stoat.js
 
-![revolt.js](https://img.shields.io/npm/v/revolt.js) ![revolt-api](https://img.shields.io/npm/v/revolt-api?label=Revolt%20API)
+![stoat.js](https://img.shields.io/npm/v/stoat.js) ![stoat-api](https://img.shields.io/npm/v/stoat-api?label=Stoat%20API)
 
-**revolt.js** is a JavaScript library for interacting with the entire Revolt API.
+**stoat.js** is a JavaScript library for interacting with the Stoat API
 
 ## Requirements
 
@@ -14,7 +14,7 @@ To use this module, you must be using at least:
 ## Example Usage
 
 ```javascript
-import { Client } from "revolt.js";
+import { Client } from "stoat.js";
 
 let client = new Client();
 
@@ -46,15 +46,15 @@ function MyApp() {
 }
 ```
 
-## Revolt API Types
+## Stoat API Types
 
 > [!WARNING]
 > It is advised you do not use this unless necessary. If you find somewhere that isn't covered by the library, please open an issue as this library aims to transform all objects.
 
-All `revolt-api` types are re-exported from this library under `API`.
+All `stoat-api` types are re-exported from this library under `API`.
 
 ```typescript
-import { API } from "revolt.js";
+import { API } from "stoat.js";
 
 // API.Channel;
 // API.[..];

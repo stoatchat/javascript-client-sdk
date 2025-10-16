@@ -162,7 +162,7 @@ export type ClientOptions = Partial<EventClientOptions> & {
 };
 
 /**
- * Revolt.js Clients
+ * Stoat.js Clients
  */
 export class Client extends AsyncEventEmitter<Events> {
   readonly account;
@@ -193,13 +193,13 @@ export class Client extends AsyncEventEmitter<Events> {
   #reconnectTimeout: number | undefined;
 
   /**
-   * Create Revolt.js Client
+   * Create Stoat.js Client
    */
   constructor(options?: Partial<ClientOptions>, configuration?: RevoltConfig) {
     super();
 
     this.options = {
-      baseURL: "https://api.revolt.chat",
+      baseURL: "https://stoat.chat/api",
       partials: false,
       eagerFetching: true,
       syncUnreads: false,
@@ -279,7 +279,7 @@ export class Client extends AsyncEventEmitter<Events> {
             this.#reconnectTimeout = setTimeout(
               () => this.connect(),
               this.options.retryDelayFunction(this.connectionFailureCount()) *
-                1e3,
+              1e3,
             ) as never;
 
             this.#setConnectionFailureCount((count) => count + 1);
@@ -317,7 +317,7 @@ export class Client extends AsyncEventEmitter<Events> {
     this.events.disconnect();
     this.#setReady(false);
     this.events.connect(
-      this.configuration?.ws ?? "wss://ws.revolt.chat",
+      this.configuration?.ws ?? "wss://stoat.chat/events",
       typeof this.#session === "string" ? this.#session : this.#session!.token,
     );
   }
