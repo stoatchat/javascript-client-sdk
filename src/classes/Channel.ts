@@ -173,8 +173,8 @@ export class Channel {
   get recipient(): User | undefined {
     return this.type === "DirectMessage"
       ? this.recipients?.find(
-          (user) => user?.id !== this.#collection.client.user!.id,
-        )
+        (user) => user?.id !== this.#collection.client.user!.id,
+      )
       : undefined;
   }
 
@@ -769,11 +769,10 @@ export class Channel {
       performAck();
     }
 
-    // We need to use setTimeout here for both Node.js and browser.
-    this.#ackTimeout = setTimeout(performAck, 5000) as unknown as number;
+    this.#ackTimeout = setTimeout(performAck, 1500) as unknown as number;
 
     if (!this.#ackLimit) {
-      this.#ackLimit = +new Date() + 15e3;
+      this.#ackLimit = +new Date() + 4e3;
     }
   }
 
