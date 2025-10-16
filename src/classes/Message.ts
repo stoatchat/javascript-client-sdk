@@ -6,7 +6,7 @@ import type {
   DataEditMessage,
   DataMessageSend,
   Masquerade,
-} from "revolt-api";
+} from "stoat-api";
 import { decodeTime } from "ulid";
 
 import type { Client } from "../Client.js";

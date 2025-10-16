@@ -1,4 +1,4 @@
-import type { EmojiParent } from "revolt-api";
+import type { EmojiParent } from "stoat-api";
 import { decodeTime } from "ulid";
 
 import type { EmojiCollection } from "../collections/EmojiCollection.js";

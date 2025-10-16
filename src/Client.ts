@@ -2,8 +2,8 @@ import type { Accessor, Setter } from "solid-js";
 import { batch, createSignal } from "solid-js";
 
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
-import { API } from "revolt-api";
-import type { DataLogin, RevoltConfig, Role } from "revolt-api";
+import { API } from "stoat-api";
+import type { DataLogin, RevoltConfig, Role } from "stoat-api";
 
 import type { Channel } from "./classes/Channel.js";
 import type { Emoji } from "./classes/Emoji.js";

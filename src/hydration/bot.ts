@@ -1,4 +1,4 @@
-import type { Bot as APIBot } from "revolt-api";
+import type { Bot as APIBot } from "stoat-api";
 
 import type { Hydrate } from "./index.js";
 
@@ -41,4 +41,4 @@ export const botHydration: Hydrate<APIBot, HydratedBot> = {
 /**
  * Flags attributed to users
  */
-export enum BotFlags {}
+export enum BotFlags { }

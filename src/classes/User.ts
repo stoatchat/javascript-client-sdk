@@ -1,4 +1,4 @@
-import type { User as APIUser, DataEditUser, Presence } from "revolt-api";
+import type { User as APIUser, DataEditUser, Presence } from "stoat-api";
 import { decodeTime } from "ulid";
 
 import type { UserCollection } from "../collections/UserCollection.js";

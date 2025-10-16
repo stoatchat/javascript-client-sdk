@@ -1,6 +1,6 @@
 import { batch } from "solid-js";
 
-import type { Bot as APIBot, OwnedBotsResponse } from "revolt-api";
+import type { Bot as APIBot, OwnedBotsResponse } from "stoat-api";
 
 import { Bot } from "../classes/Bot.js";
 import { PublicBot } from "../classes/PublicBot.js";

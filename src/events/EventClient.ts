@@ -2,7 +2,7 @@ import type { Accessor, Setter } from "solid-js";
 import { createSignal } from "solid-js";
 
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
-import type { Error } from "revolt-api";
+import type { Error } from "stoat-api";
 
 import type { ProtocolV1 } from "./v1.js";
 

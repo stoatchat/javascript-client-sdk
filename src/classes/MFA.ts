@@ -6,7 +6,7 @@ import type {
   MFAResponse,
   MultiFactorStatus,
   MFATicket as TicketType,
-} from "revolt-api";
+} from "stoat-api";
 
 import type { Client } from "../Client.js";
 

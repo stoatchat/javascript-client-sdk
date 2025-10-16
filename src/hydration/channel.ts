@@ -1,5 +1,5 @@
 import { ReactiveSet } from "@solid-primitives/set";
-import type { Channel as APIChannel, OverrideField } from "revolt-api";
+import type { Channel as APIChannel, OverrideField } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";

@@ -1,4 +1,4 @@
-import type { Embed, ImageSize, Special } from "revolt-api";
+import type { Embed, ImageSize, Special } from "stoat-api";
 
 import type { Client } from "../Client.js";
 

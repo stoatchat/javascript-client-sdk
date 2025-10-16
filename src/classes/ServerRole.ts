@@ -1,4 +1,4 @@
-import type { Role as APIRole, OverrideField } from "revolt-api";
+import type { Role as APIRole, OverrideField } from "stoat-api";
 
 import type { Client } from "../Client.js";
 

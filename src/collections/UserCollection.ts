@@ -1,4 +1,4 @@
-import type { User as APIUser } from "revolt-api";
+import type { User as APIUser } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { User } from "../classes/User.js";

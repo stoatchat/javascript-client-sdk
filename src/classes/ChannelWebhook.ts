@@ -1,4 +1,4 @@
-import { DataEditWebhook, DataMessageSend } from "revolt-api";
+import { DataEditWebhook, DataMessageSend } from "stoat-api";
 
 import type { ChannelWebhookCollection } from "../collections/ChannelWebhookCollection.js";
 import { hydrate } from "../hydration/index.js";

@@ -15,7 +15,7 @@ import type {
   Override,
   OverrideField,
   Role,
-} from "revolt-api";
+} from "stoat-api";
 import { decodeTime } from "ulid";
 
 import type { ServerCollection } from "../collections/ServerCollection.js";

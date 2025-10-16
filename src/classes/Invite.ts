@@ -1,4 +1,4 @@
-import type { Invite } from "revolt-api";
+import type { Invite } from "stoat-api";
 
 import type { Client } from "../Client.js";
 

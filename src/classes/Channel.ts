@@ -11,8 +11,8 @@ import type {
   DataMessageSend,
   Invite,
   Override,
-} from "revolt-api";
-import type { APIRoutes } from "revolt-api/lib/routes";
+} from "stoat-api";
+import type { APIRoutes } from "stoat-api/lib/routes";
 import { decodeTime, ulid } from "ulid";
 
 import { ChannelCollection } from "../collections/index.js";
@@ -291,7 +291,6 @@ export class Channel {
     if (
       !this.lastMessageId ||
       this.type === "SavedMessages" ||
-      this.type === "VoiceChannel" ||
       this.#collection.client.options.channelExclusiveMuted(this)
     )
       return false;
@@ -314,7 +313,7 @@ export class Channel {
    * Get mentions in this channel for user.
    */
   get mentions(): ReactiveSet<string> | undefined {
-    if (this.type === "SavedMessages" || this.type === "VoiceChannel")
+    if (this.type === "SavedMessages")
       return undefined;
 
     return this.#collection.client.channelUnreads.get(this.id)
@@ -473,7 +472,7 @@ export class Channel {
   /**
    * Delete or leave a channel
    * @param leaveSilently Whether to not send a message on leave
-   * @requires `DirectMessage`, `Group`, `TextChannel`, `VoiceChannel`
+   * @requires `DirectMessage`, `Group`, `TextChannel`
    */
   async delete(leaveSilently?: boolean): Promise<void> {
     await this.#collection.client.api.delete(`/channels/${this.id as ""}`, {
@@ -694,7 +693,7 @@ export class Channel {
 
   /**
    * Create an invite to the channel
-   * @requires `TextChannel`, `VoiceChannel`
+   * @requires `TextChannel`
    * @returns Newly created invite code
    */
   async createInvite(): Promise<Invite> {
@@ -780,7 +779,7 @@ export class Channel {
    * Set role permissions
    * @param role_id Role Id, set to 'default' to affect all users
    * @param permissions Permission value
-   * @requires `Group`, `TextChannel`, `VoiceChannel`
+   * @requires `Group`, `TextChannel`
    */
   async setPermissions(
     role_id = "default",

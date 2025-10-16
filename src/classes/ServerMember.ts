@@ -3,7 +3,7 @@ import type {
   DataMemberEdit,
   MemberCompositeKey,
   Role,
-} from "revolt-api";
+} from "stoat-api";
 
 import type { ServerMemberCollection } from "../collections/ServerMemberCollection.js";
 import {

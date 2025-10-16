@@ -17,7 +17,7 @@ import type {
   Role,
   Server,
   User,
-} from "revolt-api";
+} from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { MessageEmbed } from "../classes/MessageEmbed.js";

@@ -1,6 +1,6 @@
 import { batch } from "solid-js";
 
-import type { Invite, InviteResponse } from "revolt-api";
+import type { Invite, InviteResponse } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import type { ServerFlags } from "../hydration/server.js";

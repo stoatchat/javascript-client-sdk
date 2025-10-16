@@ -1,4 +1,4 @@
-import type { SystemMessage as APISystemMessage } from "revolt-api";
+import type { SystemMessage as APISystemMessage } from "stoat-api";
 
 import type { Client } from "../Client.js";
 

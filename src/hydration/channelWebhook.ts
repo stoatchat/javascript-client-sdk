@@ -1,4 +1,4 @@
-import type { Webhook } from "revolt-api";
+import type { Webhook } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";

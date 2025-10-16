@@ -1,4 +1,4 @@
-import type { DataCreateAccount, WebPushSubscription } from "revolt-api";
+import type { DataCreateAccount, WebPushSubscription } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { MFA } from "../classes/MFA.js";

@@ -1,4 +1,4 @@
-export * as API from "revolt-api";
+export * as API from "stoat-api";
 export { Client } from "./Client.js";
 export type { ClientOptions, Session as PrivateSession } from "./Client.js";
 export * from "./classes/index.js";

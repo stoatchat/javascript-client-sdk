@@ -99,8 +99,7 @@ export function calculatePermission(
           return target.permissions ?? DEFAULT_PERMISSION_DIRECT_MESSAGE;
         }
       }
-      case "TextChannel":
-      case "VoiceChannel": {
+      case "TextChannel": {
         // 2. Get server.
         const server = target.server;
         if (typeof server === "undefined") return 0;
