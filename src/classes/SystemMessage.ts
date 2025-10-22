@@ -1,9 +1,10 @@
-import type { SystemMessage as APISystemMessage } from "stoat-api";
+import type { SystemMessage as APISystemMessage, Message as APIMessage } from "stoat-api";
 
 import type { Client } from "../Client.js";
 
 import type { User } from "./User.js";
 import { Message } from "./index.js";
+import { decodeTime } from "ulid";
 
 /**
  * System Message
@@ -28,7 +29,7 @@ export abstract class SystemMessage {
    * @param embed Data
    * @returns System Message
    */
-  static from(client: Client, message: APISystemMessage): SystemMessage {
+  static from(client: Client, parent: APIMessage, message: APISystemMessage): SystemMessage {
     switch (message.type) {
       case "text":
         return new TextSystemMessage(client, message);
@@ -50,6 +51,8 @@ export abstract class SystemMessage {
       case "message_pinned":
       case "message_unpinned":
         return new MessagePinnedSystemMessage(client, message);
+      case "call_started":
+        return new CallStartedSystemMessage(client, parent, message);
       default:
         return new TextSystemMessage(client, {
           type: "text",
@@ -267,6 +270,40 @@ export class MessagePinnedSystemMessage extends SystemMessage {
 
   /**
    * User that pinned/unpinned
+   */
+  get by(): User | undefined {
+    return this.client!.users.get(this.byId);
+  }
+}
+
+/**
+ * Call Started System Message
+ */
+export class CallStartedSystemMessage extends SystemMessage {
+  readonly byId: string;
+  readonly startedAt: Date;
+  readonly finishedAt: Date | null;
+  /**
+   * Construct System Message
+   * @param client Client
+   * @param parent Message
+   * @param systemMessage System Message
+   */
+  constructor(
+    client: Client,
+    parent: APIMessage,
+    systemMessage: APISystemMessage & {
+      type: "call_started";
+    },
+  ) {
+    super(client, systemMessage.type);
+    this.byId = systemMessage.by;
+    this.startedAt = new Date(decodeTime(parent._id));
+    this.finishedAt = systemMessage.finished_at != null ? new Date(systemMessage.finished_at) : null;
+  }
+
+  /**
+   * User that started the call
    */
   get by(): User | undefined {
     return this.client!.users.get(this.byId);
