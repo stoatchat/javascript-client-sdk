@@ -796,6 +796,22 @@ export class Channel {
   }
 
   /**
+   * Join a call
+   * @param node Target node 
+   * @param forceDisconnect Whether to disconnect existing call
+   * @param recipients Ring targets
+   * @returns LiveKit URL and Token
+   */
+  async joinCall(node = undefined, forceDisconnect = true, recipients: (User | string)[]) {
+    return await this.#collection.client.api.post(
+      `/channels/${this.id as ''}/join_call`, {
+      node,
+      recipients: recipients.map(entry => typeof entry === 'string' ? entry : entry.id),
+      force_disconnect: forceDisconnect
+    });
+  }
+
+  /**
    * Start typing in this channel
    * @requires `DirectMessage`, `Group`, `TextChannel`
    */
