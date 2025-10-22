@@ -53,7 +53,7 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
         : undefined,
     content: (message) => message.content!,
     systemMessage: (message, ctx) =>
-      SystemMessage.from(ctx as Client, message.system!),
+      SystemMessage.from(ctx as Client, message, message.system!),
     attachments: (message, ctx) =>
       message.attachments!.map((file) => new File(ctx as Client, file)),
     editedAt: (message) => new Date(message.edited!),
