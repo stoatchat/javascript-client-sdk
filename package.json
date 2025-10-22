@@ -1,6 +1,6 @@
 {
   "name": "stoat.js",
-  "version": "7.3.1",
+  "version": "7.3.3",
   "type": "module",
   "exports": {
     ".": "./lib/index.js"
@@ -29,8 +29,9 @@
     "@solid-primitives/map": "^0.7.1",
     "@solid-primitives/set": "^0.7.1",
     "@vladfrangu/async_event_emitter": "^2.4.6",
-    "stoat-api": "0.8.9-3",
+    "json-with-bigint": "^3.4.4",
     "solid-js": "^1.9.6",
+    "stoat-api": "0.8.9-4",
     "ulid": "^2.4.0"
   },
   "devDependencies": {

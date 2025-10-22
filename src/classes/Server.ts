@@ -167,7 +167,7 @@ export class Server {
   /**
    * Default permissions
    */
-  get defaultPermissions(): number {
+  get defaultPermissions(): bigint {
     return this.#collection.getUnderlyingObject(this.id).defaultPermissions;
   }
 
@@ -271,7 +271,7 @@ export class Server {
    */
   get orderedRoles(): {
     name: string;
-    permissions: OverrideField;
+    permissions: { a: bigint, d: bigint };
     colour?: string | null;
     hoist?: boolean;
     rank?: number;
@@ -337,7 +337,7 @@ export class Server {
   /**
    * Permission the currently authenticated user has against this server
    */
-  get permission(): number {
+  get permission(): bigint {
     return calculatePermission(this.#collection.client, this);
   }
 
@@ -514,12 +514,11 @@ export class Server {
    */
   async kickUser(user: string | User | ServerMember): Promise<void> {
     return await this.#collection.client.api.delete(
-      `/servers/${this.id as ""}/members/${
-        typeof user === "string"
-          ? user
-          : user instanceof User
-            ? user.id
-            : user.id.user
+      `/servers/${this.id as ""}/members/${typeof user === "string"
+        ? user
+        : user instanceof User
+          ? user.id
+          : user.id.user
       }`,
     );
   }
@@ -723,8 +722,7 @@ export class Server {
     query: string,
   ): Promise<{ members: ServerMember[]; users: User[] }> {
     const data = (await this.#collection.client.api.get(
-      `/servers/${
-        this.id as ""
+      `/servers/${this.id as ""
       }/members_experimental_query?experimental_api=true&query=${encodeURIComponent(
         query,
       )}` as never,

@@ -1,6 +1,6 @@
 import { ReactiveMap } from "@solid-primitives/map";
 import { ReactiveSet } from "@solid-primitives/set";
-import type { Interactions, Masquerade, Message } from "stoat-api";
+import type { Embed, Interactions, Masquerade, Message } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";

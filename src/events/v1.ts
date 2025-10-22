@@ -641,7 +641,7 @@ export async function handleEvent(
         let role = {};
         const roles = server.roles;
         if (roles.has(event.role_id)) {
-          role = roles.get(event.role_id) as Role;
+          role = roles.get(event.role_id) as never;
           roles.delete(event.role_id);
         } else if (!client.servers.isPartial(event.id)) {
           return;

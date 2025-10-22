@@ -6,6 +6,8 @@ import type { Error } from "stoat-api";
 
 import type { ProtocolV1 } from "./v1.js";
 
+import { JSONParse, JSONStringify } from 'json-with-bigint';
+
 /**
  * Available protocols to connect with
  */
@@ -94,7 +96,7 @@ export class EventClient<
   #connectTimeoutReference: number | undefined;
 
   #lastError: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  { type: "socket"; data: any } | { type: "revolt"; data: Error } | undefined;
+    { type: "socket"; data: any } | { type: "revolt"; data: Error } | undefined;
 
   /**
    * Create a new event client.
@@ -179,7 +181,7 @@ export class EventClient<
 
       if (this.#transportFormat === "json") {
         if (typeof event.data === "string") {
-          this.handle(JSON.parse(event.data));
+          this.handle(JSONParse(event.data));
         }
       }
     };
@@ -214,7 +216,7 @@ export class EventClient<
   send(event: EventProtocol<T>["client"]): void {
     if (this.options.debug) console.debug("[C->S]", event);
     if (!this.#socket) throw "Socket closed, trying to send.";
-    this.#socket.send(JSON.stringify(event));
+    this.#socket.send(JSONStringify(event));
   }
 
   /**
@@ -273,14 +275,14 @@ export class EventClient<
    */
   get lastError():
     | {
-        type: "socket";
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data: any;
-      }
+      type: "socket";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: any;
+    }
     | {
-        type: "revolt";
-        data: Error;
-      }
+      type: "revolt";
+      data: Error;
+    }
     | undefined {
     return this.#lastError;
   }

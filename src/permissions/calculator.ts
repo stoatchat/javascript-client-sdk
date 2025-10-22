@@ -13,9 +13,9 @@ import {
  * @param a Input A
  * @param b Inputs (OR'd together)
  */
-export function bitwiseAndEq(a: number, ...b: number[]): boolean {
-  const value = b.reduce((prev, cur) => prev | BigInt(cur), 0n);
-  return (value & BigInt(a)) === value;
+export function bitwiseAndEq(a: bigint, ...b: bigint[]): boolean {
+  const value = b.reduce((prev, cur) => prev | cur, 0n);
+  return (value & a) === value;
 }
 
 /**
@@ -32,7 +32,7 @@ export function calculatePermission(
      */
     member?: ServerMember;
   },
-): number {
+): bigint {
   const user = options?.member ? options?.member.user : client.user;
   if (user?.privileged) {
     return Permission.GrantAllSafe;
@@ -50,7 +50,7 @@ export function calculatePermission(
           server: target.id,
         }) ?? { roles: null, timeout: null };
 
-      if (!member) return 0;
+      if (!member) return 0n;
 
       // 3. Apply allows from default_permissions.
       let perm = BigInt(target.defaultPermissions);
@@ -72,7 +72,7 @@ export function calculatePermission(
         perm = perm & BigInt(ALLOW_IN_TIMEOUT);
       }
 
-      return Number(perm);
+      return perm;
     }
   } else {
     // 1. Check channel type.
@@ -102,7 +102,7 @@ export function calculatePermission(
       case "TextChannel": {
         // 2. Get server.
         const server = target.server;
-        if (typeof server === "undefined") return 0;
+        if (typeof server === "undefined") return 0n;
 
         // 3. If server owner, just grant all permissions.
         if (server.ownerId === user?.id) {
@@ -115,7 +115,7 @@ export function calculatePermission(
               server: server.id,
             }) ?? { roles: null, timeout: null };
 
-          if (!member) return 0;
+          if (!member) return 0n;
 
           // 5. Calculate server base permissions.
           let perm = BigInt(calculatePermission(client, server, options));
@@ -145,9 +145,11 @@ export function calculatePermission(
             perm = perm & BigInt(ALLOW_IN_TIMEOUT);
           }
 
-          return Number(perm);
+          return perm;
         }
       }
     }
+
+    return 0n;
   }
 }

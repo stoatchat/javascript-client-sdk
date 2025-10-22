@@ -17,12 +17,15 @@ importers:
       '@vladfrangu/async_event_emitter':
         specifier: ^2.4.6
         version: 2.4.6
+      json-with-bigint:
+        specifier: ^3.4.4
+        version: 3.4.4
       solid-js:
         specifier: ^1.9.6
         version: 1.9.6
       stoat-api:
-        specifier: 0.8.9-3
-        version: 0.8.9-3
+        specifier: 0.8.9-4
+        version: 0.8.9-4
       ulid:
         specifier: ^2.4.0
         version: 2.4.0
@@ -718,6 +721,9 @@ packages:
   json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
 
+  json-with-bigint@3.4.4:
+    resolution: {integrity: sha512-AhpYAAaZsPjU7smaBomDt1SOQshi9rEm6BlTbfVwsG1vNmeHKtEedJi62sHZzJTyKNtwzmNnrsd55kjwJ7054A==}
+
   kebab-case@1.0.2:
     resolution: {integrity: sha512-7n6wXq4gNgBELfDCpzKc+mRrZFs7D+wgfF5WRFLNAr4DA/qtr9Js8uOAVAfHhuLMfAcQ0pRKqbpjx+TcJVdE1Q==}
 
@@ -975,8 +981,8 @@ packages:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
     engines: {node: '>= 0.8'}
 
-  stoat-api@0.8.9-3:
-    resolution: {integrity: sha512-cuw6+5HUQScBxjtA11bELCCBUaio2eESUfAZHYi9qj29VFlAalJ63GEZKF6U8h1UydqcQ7YNx/Q9TU5D/rWNhA==}
+  stoat-api@0.8.9-4:
+    resolution: {integrity: sha512-6N4kfE1x+j/XYVaBuvYqzbWxjgqbxSarvNjMv8GEcBaqbkiyPzUwsCj12NJsNNp4uyZmsqoUYUj2jIq018uqiA==}
 
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
@@ -1811,6 +1817,8 @@ snapshots:
 
   json-stable-stringify-without-jsonify@1.0.1: {}
 
+  json-with-bigint@3.4.4: {}
+
   kebab-case@1.0.2: {}
 
   keyv@4.5.4:
@@ -2060,7 +2068,9 @@ snapshots:
 
   statuses@2.0.1: {}
 
-  stoat-api@0.8.9-3: {}
+  stoat-api@0.8.9-4:
+    dependencies:
+      json-with-bigint: 3.4.4
 
   strip-json-comments@3.1.1: {}
 

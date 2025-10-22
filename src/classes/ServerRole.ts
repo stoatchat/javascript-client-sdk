@@ -1,4 +1,4 @@
-import type { Role as APIRole, OverrideField } from "stoat-api";
+import type { Role as APIRole } from "stoat-api";
 
 import type { Client } from "../Client.js";
 
@@ -11,7 +11,10 @@ export class ServerRole {
 
   readonly id: string;
   readonly name: string;
-  readonly permissions: OverrideField;
+  readonly permissions: {
+    a: bigint,
+    d: bigint
+  };
   readonly colour?: string;
   readonly hoist: boolean;
   readonly rank: number;
@@ -29,7 +32,10 @@ export class ServerRole {
 
     this.id = id;
     this.name = data.name;
-    this.permissions = data.permissions;
+    this.permissions = {
+      a: BigInt(data.permissions.a),
+      d: BigInt(data.permissions.d)
+    };
     this.colour = data.colour ?? undefined;
     this.hoist = data.hoist || false;
     this.rank = data.rank ?? 0;

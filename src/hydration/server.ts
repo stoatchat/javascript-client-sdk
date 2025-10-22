@@ -27,7 +27,7 @@ export type HydratedServer = {
 
   systemMessages?: SystemMessageChannels;
   roles: ReactiveMap<string, ServerRole>;
-  defaultPermissions: number;
+  defaultPermissions: bigint;
 
   flags: ServerFlags;
   analytics: boolean;
@@ -58,7 +58,7 @@ export const serverHydration: Hydrate<APIServer, HydratedServer> = {
           new ServerRole(ctx as Client, server._id, id, server.roles![id]),
         ]),
       ),
-    defaultPermissions: (server) => server.default_permissions,
+    defaultPermissions: (server) => BigInt(server.default_permissions),
     icon: (server, ctx) => new File(ctx as Client, server.icon!),
     banner: (server, ctx) => new File(ctx as Client, server.banner!),
     flags: (server) => server.flags!,

@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ES6",
-    "moduleResolution": "node",
+    "module": "es6",
+    "moduleResolution": "bundler",
     "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,

@@ -14,79 +14,81 @@ export const UserPermission = {
 export const Permission = {
   // * Generic permissions
   /// Manage the channel or channels on the server
-  ManageChannel: 2 ** 0,
+  ManageChannel: 2n ** 0n,
   /// Manage the server
-  ManageServer: 2 ** 1,
+  ManageServer: 2n ** 1n,
   /// Manage permissions on servers or channels
-  ManagePermissions: 2 ** 2,
+  ManagePermissions: 2n ** 2n,
   /// Manage roles on server
-  ManageRole: 2 ** 3,
+  ManageRole: 2n ** 3n,
   /// Manage server customisation (includes emoji)
-  ManageCustomisation: 2 ** 4,
+  ManageCustomisation: 2n ** 4n,
 
   // % 1 bits reserved
 
   // * Member permissions
   /// Kick other members below their ranking
-  KickMembers: 2 ** 6,
+  KickMembers: 2n ** 6n,
   /// Ban other members below their ranking
-  BanMembers: 2 ** 7,
+  BanMembers: 2n ** 7n,
   /// Timeout other members below their ranking
-  TimeoutMembers: 2 ** 8,
+  TimeoutMembers: 2n ** 8n,
   /// Assign roles to members below their ranking
-  AssignRoles: 2 ** 9,
+  AssignRoles: 2n ** 9n,
   /// Change own nickname
-  ChangeNickname: 2 ** 10,
+  ChangeNickname: 2n ** 10n,
   /// Change or remove other's nicknames below their ranking
-  ManageNicknames: 2 ** 11,
+  ManageNicknames: 2n ** 11n,
   /// Change own avatar
-  ChangeAvatar: 2 ** 12,
+  ChangeAvatar: 2n ** 12n,
   /// Remove other's avatars below their ranking
-  RemoveAvatars: 2 ** 13,
+  RemoveAvatars: 2n ** 13n,
 
   // % 7 bits reserved
 
   // * Channel permissions
   /// View a channel
-  ViewChannel: 2 ** 20,
+  ViewChannel: 2n ** 20n,
   /// Read a channel's past message history
-  ReadMessageHistory: 2 ** 21,
+  ReadMessageHistory: 2n ** 21n,
   /// Send a message in a channel
-  SendMessage: 2 ** 22,
+  SendMessage: 2n ** 22n,
   /// Delete messages in a channel
-  ManageMessages: 2 ** 23,
+  ManageMessages: 2n ** 23n,
   /// Manage webhook entries on a channel
-  ManageWebhooks: 2 ** 24,
+  ManageWebhooks: 2n ** 24n,
   /// Create invites to this channel
-  InviteOthers: 2 ** 25,
+  InviteOthers: 2n ** 25n,
   /// Send embedded content in this channel
-  SendEmbeds: 2 ** 26,
+  SendEmbeds: 2n ** 26n,
   /// Send attachments and media in this channel
-  UploadFiles: 2 ** 27,
+  UploadFiles: 2n ** 27n,
   /// Masquerade messages using custom nickname and avatar
-  Masquerade: 2 ** 28,
+  Masquerade: 2n ** 28n,
   /// React to messages with emoji
-  React: 2 ** 29,
+  React: 2n ** 29n,
 
   // * Voice permissions
   /// Connect to a voice channel
-  Connect: 2 ** 30,
+  Connect: 2n ** 30n,
   /// Speak in a voice call
-  Speak: 2 ** 31,
+  Speak: 2n ** 31n,
   /// Share video in a voice call
-  Video: 2 ** 32,
+  Video: 2n ** 32n,
   /// Mute other members with lower ranking in a voice call
-  MuteMembers: 2 ** 33,
+  MuteMembers: 2n ** 33n,
   /// Deafen other members with lower ranking in a voice call
-  DeafenMembers: 2 ** 34,
+  DeafenMembers: 2n ** 34n,
   /// Move members between voice channels
-  MoveMembers: 2 ** 35,
+  MoveMembers: 2n ** 35n,
+  /// Move members between voice channels
+  Listen: 2n ** 36n,
 
   // * Mention permissions
   /// Mention @everyone or @online
-  MentionEveryone: 2 ** 37,
+  MentionEveryone: 2n ** 37n,
   /// Mention a role
-  MentionRoles: 2 ** 38,
+  MentionRoles: 2n ** 38n,
 
   // * Misc. permissions
   // % Bits 39 to 52: free area
@@ -94,7 +96,7 @@ export const Permission = {
 
   // * Grant all permissions
   /// Safely grant all permissions
-  GrantAllSafe: 0x000f_ffff_ffff_ffff,
+  GrantAllSafe: 0x000f_ffff_ffff_ffffn,
 };
 
 /**
@@ -124,7 +126,9 @@ export const DEFAULT_PERMISSION =
   Permission.SendEmbeds +
   Permission.UploadFiles +
   Permission.Connect +
-  Permission.Speak;
+  Permission.Speak +
+  Permission.Video +
+  Permission.Listen;
 
 /**
  * Permissions in saved messages channel
