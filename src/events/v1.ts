@@ -4,6 +4,7 @@ import { batch } from "solid-js";
 import { ReactiveSet } from "@solid-primitives/set";
 import type {
   Channel,
+  ChannelUnread,
   Emoji,
   Error,
   FieldsChannel,
@@ -22,6 +23,7 @@ import type {
 import type { Client } from "../Client.js";
 import { MessageEmbed } from "../classes/MessageEmbed.js";
 import { ServerRole } from "../classes/ServerRole.js";
+import { VoiceParticipant } from "../classes/VoiceParticipant.js";
 import { hydrate } from "../hydration/index.js";
 
 /**
@@ -173,7 +175,35 @@ type ServerMessage =
         user_id: string;
         exclude_session_id: string;
       }
-    ));
+    ))
+  | {
+    type: "VoiceChannelJoin";
+    id: string;
+    state: UserVoiceState;
+  }
+  | {
+    type: "VoiceChannelLeave";
+    id: string;
+    user: string;
+  }
+  | {
+    type: "VoiceChannelMove";
+    user: string;
+    from: string;
+    to: string;
+    state: UserVoiceState;
+  }
+  | {
+    type: "UserVoiceStateUpdate";
+    id: string;
+    channel_id: string;
+    data: Partial<UserVoiceState>;
+  }
+  | {
+    type: "UserMoveVoiceChannel";
+    node: string;
+    token: string;
+  };
 
 /**
  * Policy change type
@@ -186,6 +216,26 @@ type PolicyChange = {
 };
 
 /**
+ * Voice state for a user
+ */
+export type UserVoiceState = {
+  id: string;
+  joined_at: number;
+  is_receiving: boolean;
+  is_publishing: boolean;
+  screensharing: boolean;
+  camera: boolean;
+};
+
+/**
+ * Voice state for a channel
+ */
+type ChannelVoiceState = {
+  id: string;
+  participants: UserVoiceState[];
+};
+
+/**
  * Initial synchronisation packet
  */
 type ReadyData = {
@@ -194,6 +244,11 @@ type ReadyData = {
   channels: Channel[];
   members: Member[];
   emojis: Emoji[];
+  voice_states: ChannelVoiceState[];
+
+  user_settings: Record<string, unknown>;
+  channel_unreads: ChannelUnread[];
+
   policy_changes: PolicyChange[];
 };
 
@@ -241,6 +296,20 @@ export async function handleEvent(
           client.channels.getOrCreate(channel._id, channel);
         }
 
+        for (const state of event.voice_states) {
+          const channel = client.channels.get(state.id);
+          if (channel) {
+            channel.voiceParticipants.clear();
+
+            for (const participant of state.participants) {
+              channel.voiceParticipants.set(
+                participant.id,
+                new VoiceParticipant(client, participant),
+              );
+            }
+          }
+        }
+
         for (const emoji of event.emojis) {
           client.emojis.getOrCreate(emoji._id, emoji);
         }
@@ -280,7 +349,11 @@ export async function handleEvent(
           const channel = client.channels.get(event.channel);
           if (!channel) return;
 
-          client.channels.updateUnderlyingObject(channel.id, "lastMessageId", event._id);
+          client.channels.updateUnderlyingObject(
+            channel.id,
+            "lastMessageId",
+            event._id,
+          );
 
           if (
             event.mentions?.includes(client.user!.id) &&
@@ -863,6 +936,41 @@ export async function handleEvent(
     }
     case "Auth": {
       // TODO: implement DeleteSession and DeleteAllSessions
+      break;
+    }
+    case "VoiceChannelJoin": {
+      const channel = client.channels.getOrPartial(event.id);
+      if (channel) {
+        channel.voiceParticipants.set(
+          event.state.id,
+          new VoiceParticipant(client, event.state),
+        );
+        // todo: event
+      }
+      break;
+    }
+    case "VoiceChannelLeave": {
+      const channel = client.channels.getOrPartial(event.id);
+      if (channel) {
+        channel.voiceParticipants.delete(event.user);
+        // todo: event
+      }
+      break;
+    }
+    case "VoiceChannelMove": {
+      // todo
+      break;
+    }
+    case "UserVoiceStateUpdate": {
+      const channel = client.channels.getOrPartial(event.channel_id);
+      if (channel) {
+        channel.voiceParticipants.get(event.id)?.update(event.data);
+        // todo: event
+      }
+      break;
+    }
+    case "UserMoveVoiceChannel": {
+      // todo
       break;
     }
   }

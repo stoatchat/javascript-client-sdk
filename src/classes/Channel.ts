@@ -29,6 +29,8 @@ import type { Message } from "./Message.js";
 import type { Server } from "./Server.js";
 import type { ServerMember } from "./ServerMember.js";
 import type { User } from "./User.js";
+import { ReactiveMap } from "@solid-primitives/map";
+import { VoiceParticipant } from "./VoiceParticipant.js";
 
 /**
  * Channel Class
@@ -38,6 +40,8 @@ export class Channel {
   readonly id: string;
 
   _typingTimers: Record<string, number> = {};
+
+  voiceParticipants = new ReactiveMap<string, VoiceParticipant>();
 
   /**
    * Construct Channel
@@ -326,7 +330,7 @@ export class Channel {
    * NB. subject to change as vc(2) goes to production
    */
   get isVoice(): boolean {
-    return this.type === 'Group' || this.type === 'DirectMessage' || this.#collection.getUnderlyingObject(this.id).voice;
+    return typeof this.#collection.getUnderlyingObject(this.id).voice === 'object';
   }
 
   /**

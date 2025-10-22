@@ -1,11 +1,13 @@
 import { ReactiveSet } from "@solid-primitives/set";
-import type { Channel as APIChannel, OverrideField } from "stoat-api";
+import type { Channel as APIChannel } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";
 import type { Merge } from "../lib/merge.js";
 
 import type { Hydrate } from "./index.js";
+import { VoiceParticipant } from "../classes/VoiceParticipant.js";
+import { ReactiveMap } from "@solid-primitives/map";
 
 export type HydratedChannel = {
   id: string;
@@ -24,13 +26,13 @@ export type HydratedChannel = {
   serverId?: string;
 
   permissions?: bigint;
-  defaultPermissions?: { a: bigint, d: bigint };
-  rolePermissions?: Record<string, { a: bigint, d: bigint }>;
+  defaultPermissions?: { a: bigint; d: bigint };
+  rolePermissions?: Record<string, { a: bigint; d: bigint }>;
   nsfw: boolean;
 
   lastMessageId?: string;
 
-  voice: boolean;
+  voice?: { maxUsers?: number };
 };
 
 export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
@@ -62,19 +64,22 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
       a: BigInt(channel.default_permissions?.a ?? 0),
       d: BigInt(channel.default_permissions?.d ?? 0),
     }),
-    rolePermissions: (channel) => Object.fromEntries(
-      Object.entries(channel.role_permissions ?? {})
-        .map(([k, v]) => [k, {
-          a: BigInt(v.a),
-          d: BigInt(v.d)
-        }])
-    ),
+    rolePermissions: (channel) =>
+      Object.fromEntries(
+        Object.entries(channel.role_permissions ?? {}).map(([k, v]) => [
+          k,
+          {
+            a: BigInt(v.a),
+            d: BigInt(v.d),
+          },
+        ]),
+      ),
     nsfw: (channel) => channel.nsfw || false,
     lastMessageId: (channel) => channel.last_message_id!,
-    voice: (channel) => {
-      console.info(channel);
-      return typeof (channel as never as { voice: object }).voice === "object";
-    },
+    voice: (channel) =>
+      !!channel.voice || channel.channel_type === 'DirectMessage' || channel.channel_type === 'Group' ? ({
+        maxUsers: channel.voice?.max_users || undefined,
+      }) : undefined,
   },
   initialHydration: () => ({
     typingIds: new ReactiveSet(),

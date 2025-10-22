@@ -2,11 +2,10 @@ import type { Accessor, Setter } from "solid-js";
 import { createSignal } from "solid-js";
 
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
+import { JSONParse, JSONStringify } from "json-with-bigint";
 import type { Error } from "stoat-api";
 
 import type { ProtocolV1 } from "./v1.js";
-
-import { JSONParse, JSONStringify } from 'json-with-bigint';
 
 /**
  * Available protocols to connect with
@@ -157,9 +156,26 @@ export class EventClient<
       this.options.pongTimeout * 1e3,
     ) as never;
 
-    this.#socket = new WebSocket(
-      `${uri}?version=${this.#protocolVersion}&format=${this.#transportFormat}&token=${token}`,
-    );
+    const url = new URL(uri);
+    url.searchParams.set("version", this.#protocolVersion.toString());
+    url.searchParams.set("format", this.#transportFormat);
+    url.searchParams.set("token", token);
+
+    // todo: pass-through ts as a configuration option
+    // todo: then remove /settings/fetch from web client
+    // todo: do the same for unreads
+    // url.searchParams.append("ready", "users");
+    // url.searchParams.append("ready", "servers");
+    // url.searchParams.append("ready", "channels");
+    // url.searchParams.append("ready", "members");
+    // url.searchParams.append("ready", "emojis");
+    // url.searchParams.append("ready", "voice_states");
+    // url.searchParams.append("ready", "user_settings[ordering]");
+    // url.searchParams.append("ready", "user_settings[notifications]");
+    // url.searchParams.append("ready", "unreads or something");
+    // url.searchParams.append("ready", "policy_changes");
+
+    this.#socket = new WebSocket(url);
 
     this.#socket.onopen = () => {
       this.#heartbeatIntervalReference = setInterval(() => {

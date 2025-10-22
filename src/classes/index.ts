@@ -19,3 +19,4 @@ export * from "./SystemMessage.js";
 export * from "./User.js";
 export * from "./MFA.js";
 export * from "./UserProfile.js";
+export * from "./VoiceParticipant.js";
