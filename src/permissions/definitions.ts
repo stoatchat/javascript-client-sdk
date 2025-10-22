@@ -126,7 +126,9 @@ export const DEFAULT_PERMISSION =
   Permission.SendEmbeds +
   Permission.UploadFiles +
   Permission.Connect +
-  Permission.Speak;
+  Permission.Speak +
+  Permission.Video +
+  Permission.Listen;
 
 /**
  * Permissions in saved messages channel
