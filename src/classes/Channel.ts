@@ -12,7 +12,7 @@ import type {
   Invite,
   Override,
 } from "stoat-api";
-import type { APIRoutes } from "stoat-api/lib/routes";
+import type { APIRoutes } from "stoat-api";
 import { decodeTime, ulid } from "ulid";
 
 import { ChannelCollection } from "../collections/index.js";
@@ -229,21 +229,21 @@ export class Channel {
   /**
    * Permissions allowed for users in this group
    */
-  get permissions(): number | undefined {
+  get permissions(): bigint | undefined {
     return this.#collection.getUnderlyingObject(this.id).permissions;
   }
 
   /**
    * Default permissions for this server channel
    */
-  get defaultPermissions(): { a: number; d: number } | undefined {
+  get defaultPermissions(): { a: bigint; d: bigint } | undefined {
     return this.#collection.getUnderlyingObject(this.id).defaultPermissions;
   }
 
   /**
    * Role permissions for this server channel
    */
-  get rolePermissions(): Record<string, { a: number; d: number }> | undefined {
+  get rolePermissions(): Record<string, { a: bigint; d: bigint }> | undefined {
     return this.#collection.getUnderlyingObject(this.id).rolePermissions;
   }
 
@@ -349,16 +349,16 @@ export class Channel {
   get potentiallyRestrictedChannel(): string | boolean | undefined {
     if (!this.serverId) return false;
     return (
-      bitwiseAndEq(this.defaultPermissions?.d ?? 0, Permission.ViewChannel) ||
+      bitwiseAndEq(this.defaultPermissions?.d ?? 0n, Permission.ViewChannel) ||
       !bitwiseAndEq(this.server!.defaultPermissions, Permission.ViewChannel) ||
       [...(this.server?.roles.keys() ?? [])].find(
         (role) =>
           bitwiseAndEq(
-            this.rolePermissions?.[role]?.d ?? 0,
+            this.rolePermissions?.[role]?.d ?? 0n,
             Permission.ViewChannel,
           ) ||
           bitwiseAndEq(
-            this.server?.roles.get(role)?.permissions.d ?? 0,
+            this.server?.roles.get(role)?.permissions.d ?? 0n,
             Permission.ViewChannel,
           ),
       )
@@ -368,7 +368,7 @@ export class Channel {
   /**
    * Permission the currently authenticated user has against this channel
    */
-  get permission(): number {
+  get permission(): bigint {
     return calculatePermission(this.#collection.client, this);
   }
 

@@ -110,7 +110,7 @@ export class ServerMember {
   /**
    * Ordered list of roles for this member, from lowest to highest priority.
    */
-  get orderedRoles(): (Partial<Role> & { id: string })[] {
+  get orderedRoles(): (Partial<Omit<Role, 'permissions'> & { permissions: { a: bigint, d: bigint } }> & { id: string })[] {
     const server = this.server!;
     return (
       this.roles
@@ -125,7 +125,7 @@ export class ServerMember {
   /**
    * Member's currently hoisted role.
    */
-  get hoistedRole(): Partial<Role> | null {
+  get hoistedRole(): Partial<Omit<Role, 'permissions'> & { permissions: { a: bigint, d: bigint } }> | null {
     const roles = this.orderedRoles.filter((x) => x.hoist);
     if (roles.length > 0) {
       return roles[roles.length - 1];
@@ -168,7 +168,7 @@ export class ServerMember {
    * @param target Target object to check permissions against
    * @returns Permissions that this member has
    */
-  getPermissions(target: Server | Channel): number {
+  getPermissions(target: Server | Channel): bigint {
     return calculatePermission(this.#collection.client, target, {
       member: this,
     });

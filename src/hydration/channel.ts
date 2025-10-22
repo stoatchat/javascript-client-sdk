@@ -23,9 +23,9 @@ export type HydratedChannel = {
   ownerId?: string;
   serverId?: string;
 
-  permissions?: number;
-  defaultPermissions?: OverrideField;
-  rolePermissions?: Record<string, OverrideField>;
+  permissions?: bigint;
+  defaultPermissions?: { a: bigint, d: bigint };
+  rolePermissions?: Record<string, { a: bigint, d: bigint }>;
   nsfw: boolean;
 
   lastMessageId?: string;
@@ -57,9 +57,18 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
     userId: (channel) => channel.user,
     ownerId: (channel) => channel.owner,
     serverId: (channel) => channel.server,
-    permissions: (channel) => channel.permissions!,
-    defaultPermissions: (channel) => channel.default_permissions!,
-    rolePermissions: (channel) => channel.role_permissions,
+    permissions: (channel) => BigInt(channel.permissions!),
+    defaultPermissions: (channel) => ({
+      a: BigInt(channel.default_permissions?.a ?? 0),
+      d: BigInt(channel.default_permissions?.d ?? 0),
+    }),
+    rolePermissions: (channel) => Object.fromEntries(
+      Object.entries(channel.role_permissions ?? {})
+        .map(([k, v]) => [k, {
+          a: BigInt(v.a),
+          d: BigInt(v.d)
+        }])
+    ),
     nsfw: (channel) => channel.nsfw || false,
     lastMessageId: (channel) => channel.last_message_id!,
     voice: (channel) => {
