@@ -1,5 +1,6 @@
 import { batch } from "solid-js";
 
+import { ReactiveMap } from "@solid-primitives/map";
 import type { ReactiveSet } from "@solid-primitives/set";
 import type {
   Channel as APIChannel,
@@ -29,7 +30,6 @@ import type { Message } from "./Message.js";
 import type { Server } from "./Server.js";
 import type { ServerMember } from "./ServerMember.js";
 import type { User } from "./User.js";
-import { ReactiveMap } from "@solid-primitives/map";
 import { VoiceParticipant } from "./VoiceParticipant.js";
 
 /**
@@ -317,8 +317,7 @@ export class Channel {
    * Get mentions in this channel for user.
    */
   get mentions(): ReactiveSet<string> | undefined {
-    if (this.type === "SavedMessages")
-      return undefined;
+    if (this.type === "SavedMessages") return undefined;
 
     return this.#collection.client.channelUnreads.get(this.id)
       ?.messageMentionIds;
@@ -330,7 +329,11 @@ export class Channel {
    * NB. subject to change as vc(2) goes to production
    */
   get isVoice(): boolean {
-    return typeof this.#collection.getUnderlyingObject(this.id).voice === 'object';
+    return (
+      this.type === "DirectMessage" ||
+      this.type === "Group" ||
+      typeof this.#collection.getUnderlyingObject(this.id).voice === "object"
+    );
   }
 
   /**
@@ -797,18 +800,26 @@ export class Channel {
 
   /**
    * Join a call
-   * @param node Target node 
+   * @param node Target node
    * @param forceDisconnect Whether to disconnect existing call
    * @param recipients Ring targets
    * @returns LiveKit URL and Token
    */
-  async joinCall(node?: string, forceDisconnect = true, recipients?: (User | string)[]) {
+  async joinCall(
+    node?: string,
+    forceDisconnect = true,
+    recipients?: (User | string)[],
+  ) {
     return await this.#collection.client.api.post(
-      `/channels/${this.id as ''}/join_call`, {
-      node,
-      recipients: recipients?.map(entry => typeof entry === 'string' ? entry : entry.id),
-      force_disconnect: forceDisconnect
-    });
+      `/channels/${this.id as ""}/join_call`,
+      {
+        node,
+        recipients: recipients?.map((entry) =>
+          typeof entry === "string" ? entry : entry.id,
+        ),
+        force_disconnect: forceDisconnect,
+      },
+    );
   }
 
   /**
