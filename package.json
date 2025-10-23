@@ -1,6 +1,6 @@
 {
   "name": "stoat.js",
-  "version": "7.3.3",
+  "version": "7.3.4",
   "type": "module",
   "exports": {
     ".": "./lib/index.js"
