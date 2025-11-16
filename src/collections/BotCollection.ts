@@ -71,10 +71,11 @@ export class BotCollection extends ClassCollection<Bot, HydratedBot> {
    * @returns The newly-created bot
    */
   async createBot(name: string): Promise<Bot> {
-    const bot = await this.client.api.post(`/bots/create`, {
+    const { user, ...bot } = await this.client.api.post(`/bots/create`, {
       name,
     });
 
+    this.client.users.getOrCreate(user._id, user);
     return this.getOrCreate(bot._id, bot);
   }
 }
