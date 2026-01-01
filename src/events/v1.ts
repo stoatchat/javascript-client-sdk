@@ -322,7 +322,7 @@ export async function handleEvent(
       setReady(true);
       client.emit("ready");
 
-      if (event.policy_changes.length) {
+      if (event.policy_changes?.length) {
         client.emit("policyChanges", event.policy_changes, async () =>
           client.api.post("/policy/acknowledge"),
         );
