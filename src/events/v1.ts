@@ -44,21 +44,21 @@ export type ProtocolV1 = {
 type ClientMessage =
   | { type: "Authenticate"; token: string }
   | {
-    type: "BeginTyping";
-    channel: string;
-  }
+      type: "BeginTyping";
+      channel: string;
+    }
   | {
-    type: "EndTyping";
-    channel: string;
-  }
+      type: "EndTyping";
+      channel: string;
+    }
   | {
-    type: "Ping";
-    data: number;
-  }
+      type: "Ping";
+      data: number;
+    }
   | {
-    type: "Pong";
-    data: number;
-  };
+      type: "Pong";
+      data: number;
+    };
 
 /**
  * Messages sent from the server
@@ -67,51 +67,51 @@ type ServerMessage =
   | { type: "Error"; data: Error }
   | { type: "Bulk"; v: ServerMessage[] }
   | { type: "Authenticated" }
-  | ({ type: "Ready" } & ReadyData)
+  | ({ type: "Ready" } & Partial<ReadyData>)
   | { type: "Ping"; data: number }
   | { type: "Pong"; data: number }
   | ({ type: "Message" } & Message)
   | {
-    type: "MessageUpdate";
-    id: string;
-    channel: string;
-    data: Partial<Message>;
-  }
+      type: "MessageUpdate";
+      id: string;
+      channel: string;
+      data: Partial<Message>;
+    }
   | {
-    type: "MessageAppend";
-    id: string;
-    channel: string;
-    append: Pick<Partial<Message>, "embeds">;
-  }
+      type: "MessageAppend";
+      id: string;
+      channel: string;
+      append: Pick<Partial<Message>, "embeds">;
+    }
   | { type: "MessageDelete"; id: string; channel: string }
   | {
-    type: "MessageReact";
-    id: string;
-    channel_id: string;
-    user_id: string;
-    emoji_id: string;
-  }
+      type: "MessageReact";
+      id: string;
+      channel_id: string;
+      user_id: string;
+      emoji_id: string;
+    }
   | {
-    type: "MessageUnreact";
-    id: string;
-    channel_id: string;
-    user_id: string;
-    emoji_id: string;
-  }
+      type: "MessageUnreact";
+      id: string;
+      channel_id: string;
+      user_id: string;
+      emoji_id: string;
+    }
   | {
-    type: "MessageRemoveReaction";
-    id: string;
-    channel_id: string;
-    emoji_id: string;
-  }
+      type: "MessageRemoveReaction";
+      id: string;
+      channel_id: string;
+      emoji_id: string;
+    }
   | { type: "BulkMessageDelete"; channel: string; ids: string[] }
   | ({ type: "ChannelCreate" } & Channel)
   | {
-    type: "ChannelUpdate";
-    id: string;
-    data: Partial<Channel>;
-    clear?: FieldsChannel[];
-  }
+      type: "ChannelUpdate";
+      id: string;
+      data: Partial<Channel>;
+      clear?: FieldsChannel[];
+    }
   | { type: "ChannelDelete"; id: string }
   | { type: "ChannelGroupJoin"; id: string; user: string }
   | { type: "ChannelGroupLeave"; id: string; user: string }
@@ -119,91 +119,91 @@ type ServerMessage =
   | { type: "ChannelStopTyping"; id: string; user: string }
   | { type: "ChannelAck"; id: string; user: string; message_id: string }
   | {
-    type: "ServerCreate";
-    id: string;
-    server: Server;
-    channels: Channel[];
-  }
+      type: "ServerCreate";
+      id: string;
+      server: Server;
+      channels: Channel[];
+    }
   | {
-    type: "ServerUpdate";
-    id: string;
-    data: Partial<Server>;
-    clear?: FieldsServer[];
-  }
+      type: "ServerUpdate";
+      id: string;
+      data: Partial<Server>;
+      clear?: FieldsServer[];
+    }
   | { type: "ServerDelete"; id: string }
   | {
-    type: "ServerMemberUpdate";
-    id: MemberCompositeKey;
-    data: Partial<Member>;
-    clear?: FieldsMember[];
-  }
+      type: "ServerMemberUpdate";
+      id: MemberCompositeKey;
+      data: Partial<Member>;
+      clear?: FieldsMember[];
+    }
   | { type: "ServerMemberJoin"; id: string; user: string }
   | { type: "ServerMemberLeave"; id: string; user: string }
   | {
-    type: "ServerRoleUpdate";
-    id: string;
-    role_id: string;
-    data: Partial<Role>;
-  }
+      type: "ServerRoleUpdate";
+      id: string;
+      role_id: string;
+      data: Partial<Role>;
+    }
   | { type: "ServerRoleDelete"; id: string; role_id: string }
   | {
-    type: "UserUpdate";
-    id: string;
-    data: Partial<User>;
-    clear?: FieldsUser[];
-  }
+      type: "UserUpdate";
+      id: string;
+      data: Partial<User>;
+      clear?: FieldsUser[];
+    }
   | { type: "UserRelationship"; user: User; status: RelationshipStatus }
   | { type: "UserPresence"; id: string; online: boolean }
   | {
-    type: "UserSettingsUpdate";
-    id: string;
-    update: { [key: string]: [number, string] };
-  }
+      type: "UserSettingsUpdate";
+      id: string;
+      update: { [key: string]: [number, string] };
+    }
   | { type: "UserPlatformWipe"; user_id: string; flags: number }
   | ({ type: "EmojiCreate" } & Emoji)
   | { type: "EmojiDelete"; id: string }
   | ({
-    type: "Auth";
-  } & (
+      type: "Auth";
+    } & (
       | {
-        event_type: "DeleteSession";
-        user_id: string;
-        session_id: string;
-      }
+          event_type: "DeleteSession";
+          user_id: string;
+          session_id: string;
+        }
       | {
-        event_type: "DeleteAllSessions";
-        user_id: string;
-        exclude_session_id: string;
-      }
+          event_type: "DeleteAllSessions";
+          user_id: string;
+          exclude_session_id: string;
+        }
     ))
   | {
-    type: "VoiceChannelJoin";
-    id: string;
-    state: UserVoiceState;
-  }
+      type: "VoiceChannelJoin";
+      id: string;
+      state: UserVoiceState;
+    }
   | {
-    type: "VoiceChannelLeave";
-    id: string;
-    user: string;
-  }
+      type: "VoiceChannelLeave";
+      id: string;
+      user: string;
+    }
   | {
-    type: "VoiceChannelMove";
-    user: string;
-    from: string;
-    to: string;
-    state: UserVoiceState;
-  }
+      type: "VoiceChannelMove";
+      user: string;
+      from: string;
+      to: string;
+      state: UserVoiceState;
+    }
   | {
-    type: "UserVoiceStateUpdate";
-    id: string;
-    channel_id: string;
-    data: Partial<UserVoiceState>;
-  }
+      type: "UserVoiceStateUpdate";
+      id: string;
+      channel_id: string;
+      data: Partial<UserVoiceState>;
+    }
   | {
-    type: "UserMoveVoiceChannel";
-    node: string;
-    token: string;
-  };
+      type: "UserMoveVoiceChannel";
+      node: string;
+      token: string;
+    };
 
 /**
  * Policy change type
@@ -276,42 +276,53 @@ export async function handleEvent(
     }
     case "Ready": {
       batch(() => {
-        for (const user of event.users) {
-          const u = client.users.getOrCreate(user._id, user);
+        if (event.users) {
+          for (const user of event.users) {
+            const u = client.users.getOrCreate(user._id, user);
 
-          if (u.relationship === "User") {
-            client.user = u;
-          }
-        }
-
-        for (const server of event.servers) {
-          client.servers.getOrCreate(server._id, server);
-        }
-
-        for (const member of event.members) {
-          client.serverMembers.getOrCreate(member._id, member);
-        }
-
-        for (const channel of event.channels) {
-          client.channels.getOrCreate(channel._id, channel);
-        }
-
-        for (const state of event.voice_states) {
-          const channel = client.channels.get(state.id);
-          if (channel) {
-            channel.voiceParticipants.clear();
-
-            for (const participant of state.participants) {
-              channel.voiceParticipants.set(
-                participant.id,
-                new VoiceParticipant(client, participant),
-              );
+            if (u.relationship === "User") {
+              client.user = u;
             }
           }
         }
 
-        for (const emoji of event.emojis) {
-          client.emojis.getOrCreate(emoji._id, emoji);
+        if (event.servers) {
+          for (const server of event.servers) {
+            client.servers.getOrCreate(server._id, server);
+          }
+        }
+
+        if (event.members) {
+          for (const member of event.members) {
+            client.serverMembers.getOrCreate(member._id, member);
+          }
+        }
+
+        if (event.channels) {
+          for (const channel of event.channels) {
+            client.channels.getOrCreate(channel._id, channel);
+          }
+        }
+
+        if (event.voice_states) {
+          for (const state of event.voice_states) {
+            const channel = client.channels.get(state.id);
+            if (channel) {
+              channel.voiceParticipants.clear();
+
+              for (const participant of state.participants) {
+                channel.voiceParticipants.set(
+                  participant.id,
+                  new VoiceParticipant(client, participant),
+                );
+              }
+            }
+          }
+        }
+        if (event.emojis) {
+          for (const emoji of event.emojis) {
+            client.emojis.getOrCreate(emoji._id, emoji);
+          }
         }
       });
 
