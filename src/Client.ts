@@ -42,8 +42,7 @@ export type Session = { _id: string; token: string; user_id: string } | string;
  * Events provided by the client
  */
 export type Events = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: [error: any];
+  error: [error: Error];
 
   connected: [];
   connecting: [];
