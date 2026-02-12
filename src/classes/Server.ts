@@ -271,7 +271,7 @@ export class Server {
    */
   get orderedRoles(): {
     name: string;
-    permissions: { a: bigint, d: bigint };
+    permissions: { a: bigint; d: bigint };
     colour?: string | null;
     hoist?: boolean;
     rank?: number;
@@ -514,11 +514,12 @@ export class Server {
    */
   async kickUser(user: string | User | ServerMember): Promise<void> {
     return await this.#collection.client.api.delete(
-      `/servers/${this.id as ""}/members/${typeof user === "string"
-        ? user
-        : user instanceof User
-          ? user.id
-          : user.id.user
+      `/servers/${this.id as ""}/members/${
+        typeof user === "string"
+          ? user
+          : user instanceof User
+            ? user.id
+            : user.id.user
       }`,
     );
   }
@@ -647,11 +648,10 @@ export class Server {
 
   #synced: undefined | "partial" | "full";
 
-  /**
-   * Optimised member fetch route
-   * @param excludeOffline
-   */
-  async syncMembers(excludeOffline?: boolean): Promise<void> {
+  async syncMembers(
+    excludeOffline?: boolean,
+    excludeOfflineUserCap?: number,
+  ): Promise<void> {
     if (this.#synced && (this.#synced === "full" || excludeOffline)) return;
 
     const data = await this.#collection.client.api.get(
@@ -660,7 +660,45 @@ export class Server {
     );
 
     batch(() => {
-      if (excludeOffline) {
+      if (excludeOffline && excludeOfflineUserCap) {
+        // quick fix to cap users
+        let count = 0;
+
+        for (
+          let i = 0;
+          i < data.users.length && count < excludeOfflineUserCap;
+          i++
+        ) {
+          const user = data.users[i];
+          if (user.online && data.members[i].roles?.length) {
+            this.#collection.client.users.getOrCreate(user._id, user);
+            this.#collection.client.serverMembers.getOrCreate(
+              data.members[i]._id,
+              data.members[i],
+            );
+
+            count++;
+          }
+        }
+
+        for (
+          let i = 0;
+          i < data.users.length && count < excludeOfflineUserCap;
+          i++
+        ) {
+          const user = data.users[i];
+          if (user.online && !data.members[i].roles?.length) {
+            this.#collection.client.users.getOrCreate(user._id, user);
+            this.#collection.client.serverMembers.getOrCreate(
+              data.members[i]._id,
+              data.members[i],
+            );
+
+            count++;
+          }
+        }
+        // end quick fix
+      } else if (excludeOffline) {
         for (let i = 0; i < data.users.length; i++) {
           const user = data.users[i];
           if (user.online) {
@@ -722,7 +760,8 @@ export class Server {
     query: string,
   ): Promise<{ members: ServerMember[]; users: User[] }> {
     const data = (await this.#collection.client.api.get(
-      `/servers/${this.id as ""
+      `/servers/${
+        this.id as ""
       }/members_experimental_query?experimental_api=true&query=${encodeURIComponent(
         query,
       )}` as never,
