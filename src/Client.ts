@@ -188,6 +188,9 @@ export class Client extends AsyncEventEmitter<Events> {
   readonly ready: Accessor<boolean>;
   #setReady: Setter<boolean>;
 
+  readonly configured: Accessor<boolean>;
+  #setConfigured: Setter<boolean>;
+
   readonly connectionFailureCount: Accessor<number>;
   #setConnectionFailureCount: Setter<number>;
   #reconnectTimeout: number | undefined;
@@ -238,6 +241,12 @@ export class Client extends AsyncEventEmitter<Events> {
     this.api = new API({
       baseURL: this.options.baseURL,
     });
+
+    const [configured, setConfigured] = createSignal(configuration !== undefined);
+    this.configured = configured;
+    this.#setConfigured = setConfigured;
+
+    this.#fetchConfiguration();
 
     const [ready, setReady] = createSignal(false);
     this.ready = ready;
@@ -328,6 +337,7 @@ export class Client extends AsyncEventEmitter<Events> {
   async #fetchConfiguration(): Promise<void> {
     if (!this.configuration) {
       this.configuration = await this.api.get("/");
+      this.#setConfigured(true);
     }
   }
 
