@@ -145,6 +145,7 @@ type ServerMessage =
       role_id: string;
       data: Partial<Role>;
     }
+  | { type: "ServerRoleRanksUpdate"; id: string; ranks: string[] }
   | { type: "ServerRoleDelete"; id: string; role_id: string }
   | {
       type: "UserUpdate";
@@ -716,6 +717,25 @@ export async function handleEvent(
         );
 
         client.emit("serverRoleUpdate", server, event.role_id, role as never);
+      }
+      break;
+    }
+    case "ServerRoleRanksUpdate": {
+      const server = client.servers.getOrPartial(event.id);
+      if (server && event.ranks) {
+        event.ranks.forEach((roleId: string, idx: number) => {
+          const role = server.roles.get(roleId);
+          if (role) {
+            server.roles.set(
+              roleId,
+              new ServerRole(client, server.id, roleId, {
+                ...role,
+                rank: idx,
+              } as never),
+            );
+          }
+        });
+        client.emit("serverRoleRanksUpdate", server, event.ranks);
       }
       break;
     }

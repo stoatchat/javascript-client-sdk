@@ -78,6 +78,7 @@ export type Events = {
   serverDelete: [server: HydratedServer];
   serverLeave: [server: HydratedServer];
   serverRoleUpdate: [server: Server, roleId: string, previousRole: Role];
+  serverRoleRanksUpdate: [server: Server, ranks: string[]];
   serverRoleDelete: [server: Server, roleId: string, role: Role];
 
   serverMemberUpdate: [
@@ -279,7 +280,7 @@ export class Client extends AsyncEventEmitter<Events> {
             this.#reconnectTimeout = setTimeout(
               () => this.connect(),
               this.options.retryDelayFunction(this.connectionFailureCount()) *
-              1e3,
+                1e3,
             ) as never;
 
             this.#setConnectionFailureCount((count) => count + 1);
