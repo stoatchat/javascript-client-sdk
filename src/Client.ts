@@ -417,6 +417,47 @@ export class Client extends AsyncEventEmitter<Events> {
   }
 
   /**
+   * Prepare a markdown-based message to be displayed to the user as plain text. This method will fetch each user or channel if they are missing. Useful for serviceworkers.
+   * @param source Source markdown text
+   * @returns Modified plain text
+   */
+  async markdownToTextFetch(source: string): Promise<string> {
+    const userReplacements = await Promise.all(
+      Array.from(source.matchAll(RE_MENTIONS), async (match) => {
+        if (match[1]) {
+          const user = await this.users.fetch(match[1] as string);
+
+          if (user) {
+            return `@${user.username}`;
+          }
+        }
+
+        return match[0];
+      }),
+    );
+    const channelReplacements = await Promise.all(
+      Array.from(source.matchAll(RE_CHANNELS), async (match) => {
+        if (match[1]) {
+          const channel = await this.channels.fetch(match[1] as string);
+
+          if (channel) {
+            return `#${channel.displayName}`;
+          }
+        }
+
+        return match[0];
+      }),
+    );
+
+    let i = 0;
+    let j = 0;
+    return source
+      .replace(RE_MENTIONS, () => userReplacements[i++])
+      .replace(RE_CHANNELS, () => channelReplacements[j++])
+      .replace(RE_SPOILER, "<spoiler>");
+  }
+
+  /**
    * Proxy a file through January.
    * @param url URL to proxy
    * @returns Proxied media URL
