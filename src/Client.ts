@@ -34,7 +34,12 @@ import type { HydratedMessage } from "./hydration/message.js";
 import type { HydratedServer } from "./hydration/server.js";
 import type { HydratedServerMember } from "./hydration/serverMember.js";
 import type { HydratedUser } from "./hydration/user.js";
-import { RE_CHANNELS, RE_MENTIONS, RE_SPOILER } from "./lib/regex.js";
+import {
+  RE_CHANNELS,
+  RE_CUSTOM_EMOJI,
+  RE_MENTIONS,
+  RE_SPOILER,
+} from "./lib/regex.js";
 
 export type Session = { _id: string; token: string; user_id: string } | string;
 
@@ -448,12 +453,27 @@ export class Client extends AsyncEventEmitter<Events> {
         return match[0];
       }),
     );
+    const customEmojiReplacements = await Promise.all(
+      Array.from(source.matchAll(RE_CUSTOM_EMOJI), async (match) => {
+        if (match[1]) {
+          const emoji = await this.emojis.fetch(match[1] as string);
+
+          if (emoji) {
+            return `:${emoji.name}:`;
+          }
+        }
+
+        return match[0];
+      }),
+    );
 
     let i = 0;
     let j = 0;
+    let k = 0;
     return source
       .replace(RE_MENTIONS, () => userReplacements[i++])
       .replace(RE_CHANNELS, () => channelReplacements[j++])
+      .replace(RE_CUSTOM_EMOJI, () => customEmojiReplacements[k++])
       .replace(RE_SPOILER, "<spoiler>");
   }
 
