@@ -499,11 +499,11 @@ export class Client extends AsyncEventEmitter<Events> {
     );
 
     // Await for all promises to get the strings to replace with.
-    const replacements = await Promise.all(
-      userReplacementPromises.concat(
-        channelReplacementPromises,
-        customEmojiReplacementPromises,
-      ),
+    const replacements = await Promise.all([
+      ...userReplacementPromises,
+      ...channelReplacementPromises,
+      ...customEmojiReplacementPromises,
+      ]
     );
 
     const replacementsMap = Object.fromEntries(replacements);
