@@ -177,8 +177,8 @@ export class Channel {
   get recipient(): User | undefined {
     return this.type === "DirectMessage"
       ? this.recipients?.find(
-        (user) => user?.id !== this.#collection.client.user!.id,
-      )
+          (user) => user?.id !== this.#collection.client.user!.id,
+        )
       : undefined;
   }
 

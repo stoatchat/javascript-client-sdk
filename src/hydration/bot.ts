@@ -41,4 +41,4 @@ export const botHydration: Hydrate<APIBot, HydratedBot> = {
 /**
  * Flags attributed to users
  */
-export enum BotFlags { }
+export enum BotFlags {}

@@ -61,7 +61,7 @@ export class MFA {
     return new MFATicket(
       this.#client,
       await this.#client.api.put("/auth/mfa/ticket", params),
-      this.#store[1]
+      this.#store[1],
     );
   }
 
