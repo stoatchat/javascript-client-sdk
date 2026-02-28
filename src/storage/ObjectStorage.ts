@@ -40,7 +40,7 @@ export class ObjectStorage<T> {
     id: string,
     type: keyof Hydrators,
     context: unknown,
-    data?: unknown
+    data?: unknown,
   ): void {
     if (data) {
       data = { partial: false, ...data };
