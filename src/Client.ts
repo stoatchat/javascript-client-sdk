@@ -78,6 +78,7 @@ export type Events = {
   serverDelete: [server: HydratedServer];
   serverLeave: [server: HydratedServer];
   serverRoleUpdate: [server: Server, roleId: string, previousRole: Role];
+  serverRoleRanksUpdate: [server: Server, ranks: string[]];
   serverRoleDelete: [server: Server, roleId: string, role: Role];
 
   serverMemberUpdate: [
