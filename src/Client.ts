@@ -503,8 +503,7 @@ export class Client extends AsyncEventEmitter<Events> {
       ...userReplacementPromises,
       ...channelReplacementPromises,
       ...customEmojiReplacementPromises,
-      ]
-    );
+    ]);
 
     const replacementsMap = Object.fromEntries(replacements);
 
