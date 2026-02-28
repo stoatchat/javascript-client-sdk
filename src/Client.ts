@@ -247,7 +247,9 @@ export class Client extends AsyncEventEmitter<Events> {
       baseURL: this.options.baseURL,
     });
 
-    const [configured, setConfigured] = createSignal(configuration !== undefined);
+    const [configured, setConfigured] = createSignal(
+      configuration !== undefined,
+    );
     this.configured = configured;
     this.#setConfigured = setConfigured;
 
