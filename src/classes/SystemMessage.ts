@@ -1,10 +1,13 @@
-import type { SystemMessage as APISystemMessage, Message as APIMessage } from "stoat-api";
+import type {
+  Message as APIMessage,
+  SystemMessage as APISystemMessage,
+} from "stoat-api";
+import { decodeTime } from "ulid";
 
 import type { Client } from "../Client.js";
 
 import type { User } from "./User.js";
 import { Message } from "./index.js";
-import { decodeTime } from "ulid";
 
 /**
  * System Message
@@ -29,7 +32,11 @@ export abstract class SystemMessage {
    * @param embed Data
    * @returns System Message
    */
-  static from(client: Client, parent: APIMessage, message: APISystemMessage): SystemMessage {
+  static from(
+    client: Client,
+    parent: APIMessage,
+    message: APISystemMessage,
+  ): SystemMessage {
     switch (message.type) {
       case "text":
         return new TextSystemMessage(client, message);
@@ -299,7 +306,10 @@ export class CallStartedSystemMessage extends SystemMessage {
     super(client, systemMessage.type);
     this.byId = systemMessage.by;
     this.startedAt = new Date(decodeTime(parent._id));
-    this.finishedAt = systemMessage.finished_at != null ? new Date(systemMessage.finished_at) : null;
+    this.finishedAt =
+      systemMessage.finished_at != null
+        ? new Date(systemMessage.finished_at)
+        : null;
   }
 
   /**

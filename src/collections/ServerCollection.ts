@@ -1,10 +1,6 @@
 import { batch } from "solid-js";
 
-import type {
-  Server as APIServer,
-  Channel,
-  DataCreateServer,
-} from "stoat-api";
+import type { Server as APIServer, Channel, DataCreateServer } from "stoat-api";
 
 import { Server } from "../classes/Server.js";
 import type { HydratedServer } from "../hydration/server.js";
