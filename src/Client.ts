@@ -499,21 +499,19 @@ export class Client extends AsyncEventEmitter<Events> {
     );
 
     // Await for all promises to get the strings to replace with.
-    const userReplacements = await Promise.all(userReplacementPromises);
-    const channelReplacements = await Promise.all(channelReplacementPromises);
-    const customEmojiReplacements = await Promise.all(
-      customEmojiReplacementPromises,
+    const replacements = await Promise.all(
+      userReplacementPromises.concat(
+        channelReplacementPromises,
+        customEmojiReplacementPromises,
+      ),
     );
 
-    const replacements = Object.fromEntries(
-      userReplacements.concat(channelReplacements, customEmojiReplacements),
-    );
+    const replacementsMap = Object.fromEntries(replacements);
 
-    // Using indexes because it's significantly faster than using shift and always using the front of the array.
     return source
-      .replace(RE_MENTIONS, (match) => replacements[match])
-      .replace(RE_CHANNELS, (match) => replacements[match])
-      .replace(RE_CUSTOM_EMOJI, (match) => replacements[match])
+      .replace(RE_MENTIONS, (match) => replacementsMap[match])
+      .replace(RE_CHANNELS, (match) => replacementsMap[match])
+      .replace(RE_CUSTOM_EMOJI, (match) => replacementsMap[match])
       .replace(RE_SPOILER, "<spoiler>");
   }
 
