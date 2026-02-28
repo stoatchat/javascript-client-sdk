@@ -427,53 +427,91 @@ export class Client extends AsyncEventEmitter<Events> {
    * @returns Modified plain text
    */
   async markdownToTextFetch(source: string): Promise<string> {
-    const userReplacements = await Promise.all(
-      Array.from(source.matchAll(RE_MENTIONS), async (match) => {
-        if (match[1]) {
-          const user = await this.users.fetch(match[1] as string);
+    // Get all user matches, create a map to dedupe
+    const userMatches = Object.fromEntries(
+      Array.from(source.matchAll(RE_MENTIONS), (match) => {
+        return [match[0], match[1]];
+      }),
+    );
+
+    // Get all channel matches, create a map to dedupe
+    const channelMatches = Object.fromEntries(
+      Array.from(source.matchAll(RE_CHANNELS), (match) => {
+        return [match[0], match[1]];
+      }),
+    );
+
+    // Get all custom emoji matches, create a map to dedupe
+    const customEmojiMatches = Object.fromEntries(
+      Array.from(source.matchAll(RE_CUSTOM_EMOJI), (match) => {
+        return [match[0], match[1]];
+      }),
+    );
+
+    // Send requests to replace user ids
+    const userReplacementPromises = Object.keys(userMatches).map(
+      async (key) => {
+        const substr = userMatches[key];
+        if (substr) {
+          const user = await this.users.fetch(substr);
 
           if (user) {
-            return `@${user.username}`;
+            return [key, `@${user.username}`];
           }
         }
 
-        return match[0];
-      }),
+        return [key, key];
+      },
     );
-    const channelReplacements = await Promise.all(
-      Array.from(source.matchAll(RE_CHANNELS), async (match) => {
-        if (match[1]) {
-          const channel = await this.channels.fetch(match[1] as string);
+
+    // Send requests to replace channel ids
+    const channelReplacementPromises = Object.keys(channelMatches).map(
+      async (key) => {
+        const substr = channelMatches[key];
+        if (substr) {
+          const channel = await this.channels.fetch(substr);
 
           if (channel) {
-            return `#${channel.displayName}`;
+            return [key, `#${channel.displayName}`];
           }
         }
 
-        return match[0];
-      }),
+        return [key, key];
+      },
     );
-    const customEmojiReplacements = await Promise.all(
-      Array.from(source.matchAll(RE_CUSTOM_EMOJI), async (match) => {
-        if (match[1]) {
-          const emoji = await this.emojis.fetch(match[1] as string);
+
+    // Send requests to replace custom emojis
+    const customEmojiReplacementPromises = Object.keys(customEmojiMatches).map(
+      async (key) => {
+        const substr = customEmojiMatches[key];
+        if (substr) {
+          const emoji = await this.emojis.fetch(substr);
 
           if (emoji) {
-            return `:${emoji.name}:`;
+            return [key, `:${emoji.name}:`];
           }
         }
 
-        return match[0];
-      }),
+        return [key, key];
+      },
     );
 
-    let i = 0;
-    let j = 0;
-    let k = 0;
+    // Await for all promises to get the strings to replace with.
+    const userReplacements = await Promise.all(userReplacementPromises);
+    const channelReplacements = await Promise.all(channelReplacementPromises);
+    const customEmojiReplacements = await Promise.all(
+      customEmojiReplacementPromises,
+    );
+
+    const replacements = Object.fromEntries(
+      userReplacements.concat(channelReplacements, customEmojiReplacements),
+    );
+
+    // Using indexes because it's significantly faster than using shift and always using the front of the array.
     return source
-      .replace(RE_MENTIONS, () => userReplacements[i++])
-      .replace(RE_CHANNELS, () => channelReplacements[j++])
-      .replace(RE_CUSTOM_EMOJI, () => customEmojiReplacements[k++])
+      .replace(RE_MENTIONS, (match) => replacements[match])
+      .replace(RE_CHANNELS, (match) => replacements[match])
+      .replace(RE_CUSTOM_EMOJI, (match) => replacements[match])
       .replace(RE_SPOILER, "<spoiler>");
   }
 
