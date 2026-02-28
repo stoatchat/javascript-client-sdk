@@ -12,8 +12,8 @@ export class ServerRole {
   readonly id: string;
   readonly name: string;
   readonly permissions: {
-    a: bigint,
-    d: bigint
+    a: bigint;
+    d: bigint;
   };
   readonly colour?: string;
   readonly hoist: boolean;
@@ -34,7 +34,7 @@ export class ServerRole {
     this.name = data.name;
     this.permissions = {
       a: BigInt(data.permissions.a),
-      d: BigInt(data.permissions.d)
+      d: BigInt(data.permissions.d),
     };
     this.colour = data.colour ?? undefined;
     this.hoist = data.hoist || false;

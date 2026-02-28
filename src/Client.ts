@@ -279,7 +279,7 @@ export class Client extends AsyncEventEmitter<Events> {
             this.#reconnectTimeout = setTimeout(
               () => this.connect(),
               this.options.retryDelayFunction(this.connectionFailureCount()) *
-              1e3,
+                1e3,
             ) as never;
 
             this.#setConnectionFailureCount((count) => count + 1);
