@@ -22,7 +22,7 @@ client.on("ready", async () =>
   console.info(`Logged in as ${client.user.username}!`),
 );
 
-client.on("messageCreate", async (message) => {
+client.on("message", async (message) => {
   if (message.content === "hello") {
     message.channel.sendMessage("world");
   }
