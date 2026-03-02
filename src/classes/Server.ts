@@ -136,9 +136,10 @@ export class Server {
    * Channels
    */
   get channels(): Channel[] {
-    return [
-      ...this.#collection.getUnderlyingObject(this.id).channelIds.values(),
-    ]
+    const channelIds = this.#collection.getUnderlyingObject(this.id).channelIds;
+    if (!channelIds) return [];
+
+    return [...channelIds.values()]
       .map((id) => this.#collection.client.channels.get(id)!)
       .filter((x) => x);
   }
@@ -338,6 +339,7 @@ export class Server {
    * Permission the currently authenticated user has against this server
    */
   get permission(): bigint {
+    if (!this.$exists) return 0n;
     return calculatePermission(this.#collection.client, this);
   }
 
