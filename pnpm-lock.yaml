@@ -27,8 +27,8 @@ importers:
         specifier: 0.8.9-4
         version: 0.8.9-4
       ulid:
-        specifier: ^2.4.0
-        version: 2.4.0
+        specifier: ^3.0.2
+        version: 3.0.2
     devDependencies:
       '@mxssfd/typedoc-theme':
         specifier: ^1.1.7
@@ -1046,8 +1046,8 @@ packages:
   uc.micro@2.1.0:
     resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
-  ulid@2.4.0:
-    resolution: {integrity: sha512-fIRiVTJNcSRmXKPZtGzFQv9WRrZ3M9eoptl/teFJvjOzmpU+/K/JH6HZ8deBfb5vMEpicJcLn7JmvdknlMq7Zg==}
+  ulid@3.0.2:
+    resolution: {integrity: sha512-yu26mwteFYzBAot7KVMqFGCVpsF6g8wXfJzQUHvu1no3+rRRSFcSV2nKeYvNPLD2J4b08jYBDhHUjeH0ygIl9w==}
     hasBin: true
 
   undici-types@6.21.0:
@@ -2132,7 +2132,7 @@ snapshots:
 
   uc.micro@2.1.0: {}
 
-  ulid@2.4.0: {}
+  ulid@3.0.2: {}
 
   undici-types@6.21.0: {}
 
