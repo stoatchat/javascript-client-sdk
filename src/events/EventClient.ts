@@ -94,11 +94,8 @@ export class EventClient<
   #pongTimeoutReference: number | undefined;
   #connectTimeoutReference: number | undefined;
 
-  #lastError:
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    | { type: "socket"; data: any }
-    | { type: "revolt"; data: Error }
-    | undefined;
+  #lastError: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { type: "socket"; data: any } | { type: "revolt"; data: Error } | undefined;
 
   /**
    * Create a new event client.
