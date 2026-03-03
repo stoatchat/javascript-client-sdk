@@ -420,6 +420,15 @@ export class Client extends AsyncEventEmitter<Events> {
 
         return sub;
       })
+      .replace(RE_CUSTOM_EMOJI, (sub: string, id: string) => {
+        const emoji = this.emojis.get(id as string);
+
+        if (emoji) {
+          return `:${emoji.name}:`;
+        }
+
+        return sub;
+      })
       .replace(RE_SPOILER, "<spoiler>");
   }
 
