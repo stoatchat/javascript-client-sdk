@@ -420,6 +420,15 @@ export class Client extends AsyncEventEmitter<Events> {
 
         return sub;
       })
+      .replace(RE_CUSTOM_EMOJI, (sub: string, id: string) => {
+        const emoji = this.emojis.get(id as string);
+
+        if (emoji) {
+          return `:${emoji.name}:`;
+        }
+
+        return sub;
+      })
       .replace(RE_SPOILER, "<spoiler>");
   }
 
@@ -455,10 +464,14 @@ export class Client extends AsyncEventEmitter<Events> {
       async (key) => {
         const substr = userMatches[key];
         if (substr) {
-          const user = await this.users.fetch(substr);
-
-          if (user) {
-            return [key, `@${user.username}`];
+          try {
+            const user = await this.users.fetch(substr);
+            if (user) {
+              return [key, `@${user.username}`];
+            }
+          } catch {
+            // If the fetch fails, just show the match as a default
+            return [key, key];
           }
         }
 
@@ -471,10 +484,14 @@ export class Client extends AsyncEventEmitter<Events> {
       async (key) => {
         const substr = channelMatches[key];
         if (substr) {
-          const channel = await this.channels.fetch(substr);
-
-          if (channel) {
-            return [key, `#${channel.displayName}`];
+          try {
+            const channel = await this.channels.fetch(substr);
+            if (channel) {
+              return [key, `#${channel.displayName}`];
+            }
+          } catch {
+            // If the fetch fails, just show the match as a default
+            return [key, key];
           }
         }
 
@@ -487,10 +504,14 @@ export class Client extends AsyncEventEmitter<Events> {
       async (key) => {
         const substr = customEmojiMatches[key];
         if (substr) {
-          const emoji = await this.emojis.fetch(substr);
-
-          if (emoji) {
-            return [key, `:${emoji.name}:`];
+          try {
+            const emoji = await this.emojis.fetch(substr);
+            if (emoji) {
+              return [key, `:${emoji.name}:`];
+            }
+          } catch {
+            // If the fetch fails, just show the match as a default
+            return [key, key];
           }
         }
 
