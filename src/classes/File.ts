@@ -117,7 +117,7 @@ export class File {
     if (!autumn?.enabled) return;
 
     let query = "";
-    if (forceAnimation && this.contentType === "image/gif") {
+    if (forceAnimation && (this.contentType === "image/gif" || this.contentType === "image/webp")) {
       query = "/original";
     }
 
