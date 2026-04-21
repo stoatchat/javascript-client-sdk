@@ -67,6 +67,8 @@ export const Permission = {
   Masquerade: 2n ** 28n,
   /// React to messages with emoji
   React: 2n ** 29n,
+  /// Bypass slowmode
+  BypassSlowmode: 2n ** 39n,
 
   // * Voice permissions
   /// Connect to a voice channel
