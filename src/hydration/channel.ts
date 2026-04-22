@@ -47,7 +47,7 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
     default_permissions: "defaultPermissions",
     role_permissions: "rolePermissions",
     last_message_id: "lastMessageId",
-    slowmode: "slowmode"
+    slowmode: "slowmode",
   },
   functions: {
     id: (channel) => channel._id,

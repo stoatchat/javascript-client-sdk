@@ -807,13 +807,16 @@ export class Channel {
 
   /**
    * Set slowmode value for the channel
-    * @param slowmode Slowmode value in seconds, between 0 and 21600
-    * @returns Updated channel data
+   * @param slowmode Slowmode value in seconds, between 0 and 21600
+   * @returns Updated channel data
    */
   async setSlowmode(slowmode: number): Promise<APIChannel> {
-    return await this.#collection.client.api.patch(`/channels/${this.id as ""}`, {
-      slowmode,
-    });
+    return await this.#collection.client.api.patch(
+      `/channels/${this.id as ""}`,
+      {
+        slowmode,
+      },
+    );
   }
 
   /**
