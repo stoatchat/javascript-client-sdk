@@ -4,7 +4,7 @@ import { batch, createSignal } from "solid-js";
 import { ReactiveMap } from "@solid-primitives/map";
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import { API } from "stoat-api";
-import type { DataLogin, RevoltConfig, Role } from "stoat-api";
+import type { DataLogin, RevoltConfig, Role, UserLimits } from "stoat-api";
 
 import type { Channel } from "./classes/Channel.js";
 import type { Emoji } from "./classes/Emoji.js";
@@ -609,5 +609,13 @@ export class Client extends AsyncEventEmitter<Events> {
     }, data.retry_after * 1000);
 
     this.#slowmodeTimers.set(channelId, timer);
+  }
+
+  getLimits(): UserLimits | undefined {
+    if (!this.configured() || !this.user) {
+      return;
+    }
+
+    return this.user.getLimits();
   }
 }
