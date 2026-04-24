@@ -200,6 +200,8 @@ export class Client extends AsyncEventEmitter<Events> {
   #setConnectionFailureCount: Setter<number>;
   #reconnectTimeout: number | undefined;
 
+  #configurationFetched: boolean;
+
   /**
    * Create Stoat.js Client
    */
@@ -242,14 +244,13 @@ export class Client extends AsyncEventEmitter<Events> {
     };
 
     this.configuration = configuration;
+    this.#configurationFetched = false;
 
     this.api = new API({
       baseURL: this.options.baseURL,
     });
 
-    const [configured, setConfigured] = createSignal(
-      configuration !== undefined,
-    );
+    const [configured, setConfigured] = createSignal(false);
     this.configured = configured;
     this.#setConfigured = setConfigured;
 
@@ -339,13 +340,13 @@ export class Client extends AsyncEventEmitter<Events> {
   }
 
   /**
-   * Fetches the configuration of the server if it has not been already fetched.
+   * Fetches the configuration from the server if not already fetched.
    */
   async #fetchConfiguration(): Promise<void> {
-    if (!this.configuration) {
-      this.configuration = await this.api.get("/");
-      this.#setConfigured(true);
-    }
+    if (this.#configurationFetched) return;
+    this.configuration = await this.api.get("/");
+    this.#configurationFetched = true;
+    this.#setConfigured(true);
   }
 
   /**
