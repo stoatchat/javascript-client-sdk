@@ -199,6 +199,8 @@ export class Client extends AsyncEventEmitter<Events> {
   readonly connectionFailureCount: Accessor<number>;
   #setConnectionFailureCount: Setter<number>;
   #reconnectTimeout: number | undefined;
+  #configurationPromise: Promise<void> | undefined;
+  #connectAttempt = 0;
 
   /**
    * Create Stoat.js Client
@@ -253,7 +255,7 @@ export class Client extends AsyncEventEmitter<Events> {
     this.configured = configured;
     this.#setConfigured = setConfigured;
 
-    this.#fetchConfiguration();
+    void this.#fetchConfiguration().catch((error) => this.emit("error", error));
 
     const [ready, setReady] = createSignal(false);
     this.ready = ready;
@@ -329,11 +331,24 @@ export class Client extends AsyncEventEmitter<Events> {
    * Connect to Revolt
    */
   connect(): void {
+    void this.#connect().catch((error) => this.emit("error", error));
+  }
+
+  async #connect(): Promise<void> {
+    const attempt = ++this.#connectAttempt;
+
     clearTimeout(this.#reconnectTimeout);
     this.events.disconnect();
     this.#setReady(false);
+
+    await this.#fetchConfiguration();
+
+    if (attempt !== this.#connectAttempt) {
+      return;
+    }
+
     this.events.connect(
-      this.configuration?.ws ?? "wss://stoat.chat/events",
+      this.configuration?.ws || "wss://stoat.chat/events",
       typeof this.#session === "string" ? this.#session : this.#session!.token,
     );
   }
@@ -342,10 +357,23 @@ export class Client extends AsyncEventEmitter<Events> {
    * Fetches the configuration of the server if it has not been already fetched.
    */
   async #fetchConfiguration(): Promise<void> {
-    if (!this.configuration) {
-      this.configuration = await this.api.get("/");
-      this.#setConfigured(true);
+    if (this.configuration) {
+      return;
     }
+
+    if (!this.#configurationPromise) {
+      this.#configurationPromise = this.api
+        .get("/")
+        .then((configuration) => {
+          this.configuration = configuration;
+          this.#setConfigured(true);
+        })
+        .finally(() => {
+          this.#configurationPromise = undefined;
+        });
+    }
+
+    await this.#configurationPromise;
   }
 
   /**
