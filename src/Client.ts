@@ -255,7 +255,7 @@ export class Client extends AsyncEventEmitter<Events> {
     this.configured = configured;
     this.#setConfigured = setConfigured;
 
-    void this.#fetchConfiguration().catch((error) => this.emit("error", error));
+    this.#fetchConfiguration().catch((error) => this.emit("error", error));
 
     const [ready, setReady] = createSignal(false);
     this.ready = ready;
