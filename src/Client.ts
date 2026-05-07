@@ -331,7 +331,7 @@ export class Client extends AsyncEventEmitter<Events> {
    * Connect to Revolt
    */
   connect(): void {
-    void this.#connect().catch((error) => this.emit("error", error));
+    this.#connect().catch((error) => this.emit("error", error));
   }
 
   async #connect(): Promise<void> {
