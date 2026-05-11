@@ -799,6 +799,13 @@ export class Channel {
   }
 
   /**
+   * Get slowmode value for the channel
+   */
+  get slowmode(): number {
+    return this.#collection.getUnderlyingObject(this.id).slowmode ?? 0;
+  }
+
+  /**
    * Join a call
    * @param node Target node
    * @param forceDisconnect Whether to disconnect existing call
