@@ -270,14 +270,7 @@ export class Server {
    * ranking roles. This is dictated by the "rank" property
    * which is smaller for higher priority roles.
    */
-  get orderedRoles(): {
-    name: string;
-    permissions: { a: bigint; d: bigint };
-    colour?: string | null;
-    hoist?: boolean;
-    rank?: number;
-    id: string;
-  }[] {
+  get orderedRoles(): ServerRole[] {
     const roles = this.roles;
     return roles
       ? [...roles.values()].sort((a, b) => (a.rank || 0) - (b.rank || 0))
