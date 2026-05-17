@@ -111,7 +111,10 @@ export class ServerMember {
    * Ordered list of roles for this member, from lowest to highest priority.
    */
   get orderedRoles(): (Partial<
-    Omit<Role, "permissions"> & { permissions: { a: bigint; d: bigint } }
+    Omit<Role, "permissions" | "icon"> & {
+      permissions: { a: bigint; d: bigint };
+      icon?: File;
+    }
   > & { id: string })[] {
     const server = this.server!;
     return (
@@ -128,7 +131,10 @@ export class ServerMember {
    * Member's currently hoisted role.
    */
   get hoistedRole(): Partial<
-    Omit<Role, "permissions"> & { permissions: { a: bigint; d: bigint } }
+    Omit<Role, "permissions" | "icon"> & {
+      permissions: { a: bigint; d: bigint };
+      icon?: File;
+    }
   > | null {
     const roles = this.orderedRoles.filter((x) => x.hoist);
     if (roles.length > 0) {
