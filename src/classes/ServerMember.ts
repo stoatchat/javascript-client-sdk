@@ -15,6 +15,7 @@ import { Permission } from "../permissions/definitions.js";
 import type { Channel } from "./Channel.js";
 import type { File } from "./File.js";
 import type { Server } from "./Server.js";
+import { ServerRole } from "./ServerRole.js";
 import type { User } from "./User.js";
 
 /**
@@ -110,32 +111,18 @@ export class ServerMember {
   /**
    * Ordered list of roles for this member, from lowest to highest priority.
    */
-  get orderedRoles(): (Partial<
-    Omit<Role, "permissions" | "icon"> & {
-      permissions: { a: bigint; d: bigint };
-      icon?: File;
-    }
-  > & { id: string })[] {
+  get orderedRoles(): ServerRole[] {
     const server = this.server!;
-    return (
-      this.roles
-        ?.map((id) => ({
-          id,
-          ...server.roles?.get(id),
-        }))
-        .sort((a, b) => b.rank! - a.rank!) ?? []
-    );
+    return this.roles
+      ?.map((id) => server.roles.get(id)!)
+      .filter((role) => role)
+      .sort((a, b) => b.rank! - a.rank!);
   }
 
   /**
    * Member's currently hoisted role.
    */
-  get hoistedRole(): Partial<
-    Omit<Role, "permissions" | "icon"> & {
-      permissions: { a: bigint; d: bigint };
-      icon?: File;
-    }
-  > | null {
+  get hoistedRole(): ServerRole | null {
     const roles = this.orderedRoles.filter((x) => x.hoist);
     if (roles.length > 0) {
       return roles[roles.length - 1];
@@ -157,12 +144,12 @@ export class ServerMember {
   }
 
   /**
-   * Member's current role icon.
+   * Member's current role icon with name.
    */
-  get roleIcon(): File | null | undefined {
-    const roles = this.orderedRoles.filter((x) => x.colour);
+  get iconRole(): ServerRole | null | undefined {
+    const roles = this.orderedRoles.filter((x) => x.icon);
     if (roles.length > 0) {
-      return roles[roles.length - 1].icon;
+      return roles[roles.length - 1]!;
     } else {
       return null;
     }

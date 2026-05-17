@@ -274,8 +274,8 @@ export class Message {
   /**
    * Get the role colour for this message
    */
-  get roleIcon(): File | null | undefined {
-    return this.member?.roleIcon;
+  get iconRole(): ServerRole | null | undefined {
+    return this.member?.iconRole;
   }
 
   /**
