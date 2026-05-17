@@ -24,8 +24,8 @@ importers:
         specifier: ^1.9.6
         version: 1.9.6
       stoat-api:
-        specifier: 0.12.0
-        version: 0.12.0
+        specifier: 0.13.5
+        version: 0.13.5
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -994,8 +994,8 @@ packages:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
     engines: {node: '>= 0.8'}
 
-  stoat-api@0.12.0:
-    resolution: {integrity: sha512-gWNyth4pCWejIV2fFOw5i0/AHcEyncTdMadlEtVwbucZyHW/+Va79/0b+38jksD+IIOFY/F/4E6GzhujS6ZoTQ==}
+  stoat-api@0.13.5:
+    resolution: {integrity: sha512-zyJiJsq9QdiwWAaG1lQ7peEKs/jL/G0fbYbC8VlEsBXMxVukHvDELiNMl2STvqJHHEPwSKRtV4AaaAitNHeEUg==}
 
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
@@ -2090,7 +2090,7 @@ snapshots:
 
   statuses@2.0.1: {}
 
-  stoat-api@0.12.0:
+  stoat-api@0.13.5:
     dependencies:
       json-with-bigint: 3.4.4
 
