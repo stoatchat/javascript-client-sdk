@@ -157,6 +157,18 @@ export class ServerMember {
   }
 
   /**
+   * Member's current role icon.
+   */
+  get roleIcon(): File | null | undefined {
+    const roles = this.orderedRoles.filter((x) => x.colour);
+    if (roles.length > 0) {
+      return roles[roles.length - 1].icon;
+    } else {
+      return null;
+    }
+  }
+
+  /**
    * Member's ranking
    * Smaller values are ranked as higher priority
    */

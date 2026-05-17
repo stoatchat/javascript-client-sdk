@@ -272,6 +272,13 @@ export class Message {
   }
 
   /**
+   * Get the role colour for this message
+   */
+  get roleIcon(): File | null | undefined {
+    return this.member?.roleIcon;
+  }
+
+  /**
    * Get the avatar URL for this message
    */
   get avatarURL(): string | undefined {
