@@ -206,11 +206,7 @@ type ServerMessage =
     }
   | {
       type: "UserSlowmodes";
-      slowmodes: {
-        channel_id: string;
-        duration: number;
-        retry_after: number;
-      }[];
+      slowmodes: UserSlowmodes[];
     };
 
 /**

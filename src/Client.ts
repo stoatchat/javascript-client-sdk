@@ -287,9 +287,6 @@ export class Client extends AsyncEventEmitter<Events> {
         case ConnectionState.Connected:
           batch(() => {
             this.servers.forEach((server) => server.resetSyncStatus());
-            for (const timer of this.#slowmodeTimers.values()) {
-              clearTimeout(timer);
-            }
             this.#slowmodeTimers.clear();
             this.userSlowmodes.clear();
             this.#setConnectionFailureCount(0);
