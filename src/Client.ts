@@ -1,6 +1,7 @@
 import type { Accessor, Setter } from "solid-js";
 import { batch, createSignal } from "solid-js";
 
+import { ReactiveMap } from "@solid-primitives/map";
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import { API } from "stoat-api";
 import type { DataLogin, RevoltConfig, Role } from "stoat-api";
@@ -27,7 +28,7 @@ import {
   EventClient,
   type EventClientOptions,
 } from "./events/EventClient.js";
-import { ProtocolV1, handleEvent, UserSlowmodes } from "./events/v1.js";
+import { ProtocolV1, UserSlowmodes, handleEvent } from "./events/v1.js";
 import type { HydratedChannel } from "./hydration/channel.js";
 import type { HydratedEmoji } from "./hydration/emoji.js";
 import type { HydratedMessage } from "./hydration/message.js";
@@ -40,7 +41,6 @@ import {
   RE_MENTIONS,
   RE_SPOILER,
 } from "./lib/regex.js";
-import { ReactiveMap } from "@solid-primitives/map";
 
 export type Session = { _id: string; token: string; user_id: string } | string;
 
@@ -101,7 +101,7 @@ export type Events = {
   emojiCreate: [emoji: Emoji];
   emojiDelete: [emoji: HydratedEmoji];
 
-  userSlowmodes: []
+  userSlowmodes: [];
 };
 
 /**

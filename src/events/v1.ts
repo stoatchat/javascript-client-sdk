@@ -206,8 +206,12 @@ type ServerMessage =
     }
   | {
       type: "UserSlowmodes";
-      slowmodes: { channel_id: string; duration: number; retry_after: number }[];
-    }
+      slowmodes: {
+        channel_id: string;
+        duration: number;
+        retry_after: number;
+      }[];
+    };
 
 /**
  * Policy change type
@@ -247,7 +251,7 @@ export type UserSlowmodes = {
   duration: number;
   retry_after: number;
   receivedAt?: number;
-}
+};
 
 /**
  * Initial synchronisation packet
