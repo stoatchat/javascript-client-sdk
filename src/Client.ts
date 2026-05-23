@@ -396,6 +396,18 @@ export class Client extends AsyncEventEmitter<Events> {
   }
 
   /**
+   * Log out of current session
+   *
+   * This funciton prepares the client for disposal by removing all event listeners and killing the events socket.
+   */
+  async logout(): Promise<void> {
+    await this.api.post("/auth/session/logout");
+    this.events.removeAllListeners();
+    this.removeAllListeners();
+    this.events.disconnect();
+  }
+
+  /**
    * Prepare a markdown-based message to be displayed to the user as plain text.
    * @param source Source markdown text
    * @returns Modified plain text
