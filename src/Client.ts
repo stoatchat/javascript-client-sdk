@@ -1,6 +1,7 @@
 import type { Accessor, Setter } from "solid-js";
 import { batch, createSignal } from "solid-js";
 
+import { ReactiveMap } from "@solid-primitives/map";
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import { API } from "stoat-api";
 import type { DataLogin, RevoltConfig, Role } from "stoat-api";
@@ -27,7 +28,7 @@ import {
   EventClient,
   type EventClientOptions,
 } from "./events/EventClient.js";
-import { ProtocolV1, handleEvent } from "./events/v1.js";
+import { ProtocolV1, UserSlowmodes, handleEvent } from "./events/v1.js";
 import type { HydratedChannel } from "./hydration/channel.js";
 import type { HydratedEmoji } from "./hydration/emoji.js";
 import type { HydratedMessage } from "./hydration/message.js";
@@ -99,6 +100,8 @@ export type Events = {
 
   emojiCreate: [emoji: Emoji];
   emojiDelete: [emoji: HydratedEmoji];
+
+  userSlowmodes: [];
 };
 
 /**
@@ -181,6 +184,7 @@ export class Client extends AsyncEventEmitter<Events> {
   readonly serverMembers;
   readonly sessions;
   readonly users;
+  readonly userSlowmodes;
 
   readonly api: API;
   readonly options: ClientOptions;
@@ -199,7 +203,7 @@ export class Client extends AsyncEventEmitter<Events> {
   readonly connectionFailureCount: Accessor<number>;
   #setConnectionFailureCount: Setter<number>;
   #reconnectTimeout: number | undefined;
-
+  #slowmodeTimers = new Map<string, ReturnType<typeof setTimeout>>();
   /**
    * Create Stoat.js Client
    */
@@ -274,6 +278,7 @@ export class Client extends AsyncEventEmitter<Events> {
     this.serverMembers = new ServerMemberCollection(this);
     this.sessions = new SessionCollection(this);
     this.users = new UserCollection(this);
+    this.userSlowmodes = new ReactiveMap<string, UserSlowmodes>();
 
     this.events = new EventClient(1, "json", this.options);
     this.events.on("error", (error) => this.emit("error", error));
@@ -589,5 +594,20 @@ export class Client extends AsyncEventEmitter<Events> {
     ).then((res) => res.json());
 
     return data.id;
+  }
+
+  setSlowmode(channelId: string, data: UserSlowmodes): void {
+    const existing = this.#slowmodeTimers.get(channelId);
+    if (existing) clearTimeout(existing);
+
+    this.userSlowmodes.set(channelId, { ...data, receivedAt: Date.now() });
+
+    const timer = setTimeout(() => {
+      this.userSlowmodes.delete(channelId);
+      this.#slowmodeTimers.delete(channelId);
+      this.emit("userSlowmodes");
+    }, data.retry_after * 1000);
+
+    this.#slowmodeTimers.set(channelId, timer);
   }
 }

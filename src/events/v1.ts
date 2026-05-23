@@ -203,6 +203,10 @@ type ServerMessage =
       type: "UserMoveVoiceChannel";
       node: string;
       token: string;
+    }
+  | {
+      type: "UserSlowmodes";
+      slowmodes: UserSlowmodes[];
     };
 
 /**
@@ -233,6 +237,16 @@ export type UserVoiceState = {
 type ChannelVoiceState = {
   id: string;
   participants: UserVoiceState[];
+};
+
+/**
+ * Channel slowmodes for the active user
+ */
+export type UserSlowmodes = {
+  channel_id: string;
+  duration: number;
+  retry_after: number;
+  receivedAt?: number;
 };
 
 /**
@@ -982,6 +996,13 @@ export async function handleEvent(
     }
     case "UserMoveVoiceChannel": {
       // todo
+      break;
+    }
+    case "UserSlowmodes": {
+      for (const slowmode of event.slowmodes) {
+        client.setSlowmode(slowmode.channel_id, slowmode);
+      }
+      client.emit("userSlowmodes");
       break;
     }
   }
