@@ -398,7 +398,7 @@ export class Client extends AsyncEventEmitter<Events> {
   /**
    * Log out of current session
    *
-   * This funciton prepares the client for disposal by removing all event listeners and killing the events socket.
+   * This function prepares the client for disposal by removing all event listeners and killing the events socket.
    */
   async logout(): Promise<void> {
     await this.api.post("/auth/session/logout");
