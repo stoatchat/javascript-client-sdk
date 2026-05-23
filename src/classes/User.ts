@@ -1,4 +1,9 @@
-import type { User as APIUser, DataEditUser, Presence } from "stoat-api";
+import type {
+  User as APIUser,
+  DataEditUser,
+  Presence,
+  UserLimits,
+} from "stoat-api";
 import { decodeTime } from "ulid";
 
 import type { UserCollection } from "../collections/UserCollection.js";
@@ -46,6 +51,13 @@ export class User {
    */
   get createdAt(): Date {
     return new Date(decodeTime(this.id));
+  }
+
+  /**
+   * How old this user is in milliseconds
+   */
+  get age() {
+    return new Date().getTime() - this.createdAt.getTime();
   }
 
   /**
@@ -333,5 +345,20 @@ export class User {
     return await this.#collection.client.api.get(
       `/users/${this.id as ""}/mutual`,
     );
+  }
+
+  getLimits(): UserLimits | undefined {
+    if (!this.#collection.client.configured()) {
+      return;
+    }
+    if (
+      this.age <
+      (this.#collection.client.configuration?.features.limits.global
+        .new_user_hours ?? 72) *
+        3600_0000
+    ) {
+      return this.#collection.client.configuration?.features.limits.new_user;
+    }
+    return this.#collection.client.configuration?.features.limits.default;
   }
 }
