@@ -30,7 +30,7 @@ import type { Message } from "./Message.js";
 import type { Server } from "./Server.js";
 import type { ServerMember } from "./ServerMember.js";
 import type { User } from "./User.js";
-import { VoiceParticipant } from "./VoiceParticipant.js";
+import { VoiceParticipant, VoiceStatus } from "./VoiceParticipant.js";
 
 /**
  * Channel Class
@@ -849,5 +849,29 @@ export class Channel {
       type: "EndTyping",
       channel: this.id,
     });
+  }
+
+  /**
+   * The voice status of a channel. Screenshare supersedes video, video
+   * supersedes voice, and voice supersedes none. This getter takes the highest
+   * priority status from all participants in the channel.
+   */
+  get voiceStatus(): VoiceStatus {
+    if (!this.isVoice || this.voiceParticipants.size === 0) {
+      return "none";
+    }
+
+    let highest: VoiceStatus = "voice";
+    for (const participant of this.voiceParticipants.values()) {
+      const status = participant.voiceStatus;
+      if (status === "screenshare") {
+        return "screenshare";
+      }
+      if (status === "video") {
+        highest = "video";
+      }
+    }
+
+    return highest;
   }
 }
