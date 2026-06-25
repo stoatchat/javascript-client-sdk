@@ -13,7 +13,6 @@ import type {
   DataEditRole,
   DataEditServer,
   Override,
-  OverrideField,
   Role,
 } from "stoat-api";
 import { decodeTime } from "ulid";
@@ -35,6 +34,7 @@ import { ServerBan } from "./ServerBan.js";
 import { ServerMember } from "./ServerMember.js";
 import { ServerRole } from "./ServerRole.js";
 import { User } from "./User.js";
+import { VoiceStatus } from "./VoiceParticipant.js";
 
 /**
  * Server Class
@@ -826,5 +826,29 @@ export class Server {
    */
   async deleteEmoji(emojiId: string): Promise<void> {
     await this.#collection.client.api.delete(`/custom/emoji/${emojiId}`);
+  }
+
+  /**
+   * The voice status of a server. Screenshare supersedes video, video
+   * supersedes voice, and voice supersedes none. This getter takes the highest
+   * priority status from all channels in the server.
+   */
+  get voiceStatus(): VoiceStatus {
+    let highest: VoiceStatus = "none";
+
+    for (const chan of this.channels) {
+      const status = chan.voiceStatus;
+      if (status === "screenshare") {
+        return "screenshare";
+      }
+      if (status === "video") {
+        highest = "video";
+      }
+      if (status === "voice" && highest === "none") {
+        highest = "voice";
+      }
+    }
+
+    return highest;
   }
 }
