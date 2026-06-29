@@ -611,11 +611,14 @@ export class Client extends AsyncEventEmitter<Events> {
     this.#slowmodeTimers.set(channelId, timer);
   }
 
-  getLimits(): UserLimits | undefined {
+  /**
+   * Backend enforced limits for the logged in user
+   */
+  get limits(): UserLimits | undefined {
     if (!this.configured() || !this.user) {
       return;
     }
 
-    return this.user.getLimits();
+    return this.user.limits;
   }
 }
