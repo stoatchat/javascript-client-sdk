@@ -4,14 +4,14 @@ import { batch, createSignal } from "solid-js";
 import { ReactiveMap } from "@solid-primitives/map";
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import { API } from "stoat-api";
-import type { DataLogin, RevoltConfig, Role, UserLimits } from "stoat-api";
+import type { DataLogin, RevoltConfig, Role } from "stoat-api";
 
 import type { Channel } from "./classes/Channel.js";
 import type { Emoji } from "./classes/Emoji.js";
 import type { Message } from "./classes/Message.js";
 import type { Server } from "./classes/Server.js";
 import type { ServerMember } from "./classes/ServerMember.js";
-import type { User } from "./classes/User.js";
+import type { User, UserLimits } from "./classes/User.js";
 import { AccountCollection } from "./collections/AccountCollection.js";
 import { BotCollection } from "./collections/BotCollection.js";
 import { ChannelCollection } from "./collections/ChannelCollection.js";
@@ -611,11 +611,14 @@ export class Client extends AsyncEventEmitter<Events> {
     this.#slowmodeTimers.set(channelId, timer);
   }
 
-  getLimits(): UserLimits | undefined {
+  /**
+   * Backend enforced limits for the logged in user
+   */
+  get limits(): UserLimits | undefined {
     if (!this.configured() || !this.user) {
       return;
     }
 
-    return this.user.getLimits();
+    return this.user.limits;
   }
 }

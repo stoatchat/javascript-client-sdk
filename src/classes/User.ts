@@ -1,8 +1,8 @@
 import type {
   User as APIUser,
+  UserLimits as APIUserLimits,
   DataEditUser,
   Presence,
-  UserLimits,
 } from "stoat-api";
 import { decodeTime } from "ulid";
 
@@ -13,6 +13,8 @@ import { U32_MAX, UserPermission } from "../permissions/definitions.js";
 import type { Channel } from "./Channel.js";
 import type { File } from "./File.js";
 import { UserProfile } from "./UserProfile.js";
+
+export type UserLimits = APIUserLimits;
 
 /**
  * User Class
@@ -347,7 +349,10 @@ export class User {
     );
   }
 
-  getLimits(): UserLimits | undefined {
+  /**
+   * Backend enforced limits for a user
+   */
+  get limits(): UserLimits | undefined {
     if (!this.#collection.client.configured()) {
       return;
     }
