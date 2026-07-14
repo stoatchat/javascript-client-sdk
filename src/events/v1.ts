@@ -798,6 +798,10 @@ export async function handleEvent(
               case "Timeout":
                 changes["timeout"] = undefined;
                 break;
+              //@ts-expect-error API typings not updated
+              case "Pronouns":
+                changes["pronouns"] = undefined;
+                break;
             }
           }
         }
@@ -868,6 +872,10 @@ export async function handleEvent(
                   ...(changes["status"] ?? {}),
                   text: undefined,
                 };
+                break;
+              //@ts-expect-error API typings not updated
+              case "Pronouns":
+                changes["pronouns"] = undefined;
                 break;
             }
           }

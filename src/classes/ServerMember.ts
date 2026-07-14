@@ -95,6 +95,13 @@ export class ServerMember {
   }
 
   /**
+   * Pronouns
+   */
+  get pronouns(): string | undefined {
+    return this.#collection.getUnderlyingObject(key(this.id)).pronouns;
+  }
+
+  /**
    * List of role IDs
    */
   get roles(): string[] {

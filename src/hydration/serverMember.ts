@@ -11,6 +11,7 @@ export type HydratedServerMember = {
   joinedAt: Date;
   nickname?: string;
   avatar?: File;
+  pronouns?: string;
   roles: string[];
   timeout?: Date;
 };
@@ -28,6 +29,8 @@ export const serverMemberHydration: Hydrate<
     joinedAt: (member) => new Date(member.joined_at),
     nickname: (member) => member.nickname!,
     avatar: (member, ctx) => new File(ctx as Client, member.avatar!),
+    //@ts-expect-error API typings not updated
+    pronouns: (member) => member.pronouns,
     roles: (member) => member.roles,
     timeout: (member) => new Date(member.timeout!),
   },

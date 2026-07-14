@@ -25,6 +25,7 @@ export type HydratedUser = {
   flags: UserFlags;
 
   avatar?: File;
+  pronouns?: string;
   status?: UserStatus;
   bot?: BotInformation;
 };
@@ -49,6 +50,8 @@ export const userHydration: Hydrate<APIUser, HydratedUser> = {
     flags: (user) => user.flags!,
 
     avatar: (user, ctx) => new File(ctx as Client, user.avatar!),
+    //@ts-expect-error API typings not updated
+    pronouns: (user) => user.pronouns,
     status: (user) => user.status!,
     bot: (user) => user.bot!,
   },
