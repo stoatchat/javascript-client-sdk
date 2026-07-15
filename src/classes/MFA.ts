@@ -31,14 +31,14 @@ export class MFA {
    * Whether authenticator app is enabled
    */
   get authenticatorEnabled(): boolean {
-    return this.#store[0].totp_mfa;
+    return this.#store[0].totp_mfa ?? false;
   }
 
   /**
    * Whether recovery codes are enabled
    */
   get recoveryEnabled(): boolean {
-    return this.#store[0].recovery_active;
+    return this.#store[0].recovery_active ?? false;
   }
 
   /**
