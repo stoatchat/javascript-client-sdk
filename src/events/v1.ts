@@ -798,6 +798,9 @@ export async function handleEvent(
               case "Timeout":
                 changes["timeout"] = undefined;
                 break;
+              case "Pronouns":
+                changes["pronouns"] = undefined;
+                break;
             }
           }
         }
@@ -868,6 +871,9 @@ export async function handleEvent(
                   ...(changes["status"] ?? {}),
                   text: undefined,
                 };
+                break;
+              case "Pronouns":
+                changes["pronouns"] = undefined;
                 break;
             }
           }

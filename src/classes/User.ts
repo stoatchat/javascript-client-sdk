@@ -94,6 +94,13 @@ export class User {
   }
 
   /**
+   * Pronouns
+   */
+  get pronouns(): string | undefined {
+    return this.#collection.getUnderlyingObject(this.id).pronouns;
+  }
+
+  /**
    * Badges
    */
   get badges(): number {
