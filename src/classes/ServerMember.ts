@@ -2,7 +2,6 @@ import type {
   DataBanCreate,
   DataMemberEdit,
   MemberCompositeKey,
-  Role,
 } from "stoat-api";
 
 import type { ServerMemberCollection } from "../collections/ServerMemberCollection.js";
