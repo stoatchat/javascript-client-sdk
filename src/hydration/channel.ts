@@ -1,10 +1,8 @@
-import { ReactiveMap } from "@solid-primitives/map";
 import { ReactiveSet } from "@solid-primitives/set";
 import type { Channel as APIChannel } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";
-import { VoiceParticipant } from "../classes/VoiceParticipant.js";
 import type { Merge } from "../lib/merge.js";
 
 import type { Hydrate } from "./index.js";
