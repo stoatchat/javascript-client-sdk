@@ -2,6 +2,8 @@ import type { Role as APIRole } from "stoat-api";
 
 import type { Client } from "../Client.js";
 
+import { File } from "./File.js";
+
 /**
  * Server Role
  */
@@ -11,6 +13,7 @@ export class ServerRole {
 
   readonly id: string;
   readonly name: string;
+  readonly icon?: File;
   readonly permissions: {
     a: bigint;
     d: bigint;
@@ -32,6 +35,7 @@ export class ServerRole {
 
     this.id = id;
     this.name = data.name;
+    this.icon = data.icon ? new File(client, data.icon) : undefined;
     this.permissions = {
       a: BigInt(data.permissions.a),
       d: BigInt(data.permissions.d),

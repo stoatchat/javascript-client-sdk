@@ -1,16 +1,17 @@
 import type { Accessor, Setter } from "solid-js";
 import { batch, createSignal } from "solid-js";
 
+import { ReactiveMap } from "@solid-primitives/map";
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import { API } from "stoat-api";
-import type { DataLogin, RevoltConfig, Role } from "stoat-api";
+import type { DataLogin, Error, RevoltConfig, Role } from "stoat-api";
 
 import type { Channel } from "./classes/Channel.js";
 import type { Emoji } from "./classes/Emoji.js";
 import type { Message } from "./classes/Message.js";
 import type { Server } from "./classes/Server.js";
 import type { ServerMember } from "./classes/ServerMember.js";
-import type { User } from "./classes/User.js";
+import type { User, UserLimits } from "./classes/User.js";
 import { AccountCollection } from "./collections/AccountCollection.js";
 import { BotCollection } from "./collections/BotCollection.js";
 import { ChannelCollection } from "./collections/ChannelCollection.js";
@@ -27,7 +28,7 @@ import {
   EventClient,
   type EventClientOptions,
 } from "./events/EventClient.js";
-import { ProtocolV1, handleEvent } from "./events/v1.js";
+import { ProtocolV1, UserSlowmodes, handleEvent } from "./events/v1.js";
 import type { HydratedChannel } from "./hydration/channel.js";
 import type { HydratedEmoji } from "./hydration/emoji.js";
 import type { HydratedMessage } from "./hydration/message.js";
@@ -47,8 +48,7 @@ export type Session = { _id: string; token: string; user_id: string } | string;
  * Events provided by the client
  */
 export type Events = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: [error: any];
+  error: [error: Error];
 
   connected: [];
   connecting: [];
@@ -99,6 +99,8 @@ export type Events = {
 
   emojiCreate: [emoji: Emoji];
   emojiDelete: [emoji: HydratedEmoji];
+
+  userSlowmodes: [];
 };
 
 /**
@@ -181,6 +183,7 @@ export class Client extends AsyncEventEmitter<Events> {
   readonly serverMembers;
   readonly sessions;
   readonly users;
+  readonly userSlowmodes;
 
   readonly api: API;
   readonly options: ClientOptions;
@@ -199,7 +202,7 @@ export class Client extends AsyncEventEmitter<Events> {
   readonly connectionFailureCount: Accessor<number>;
   #setConnectionFailureCount: Setter<number>;
   #reconnectTimeout: number | undefined;
-
+  #slowmodeTimers = new Map<string, ReturnType<typeof setTimeout>>();
   /**
    * Create Stoat.js Client
    */
@@ -274,6 +277,7 @@ export class Client extends AsyncEventEmitter<Events> {
     this.serverMembers = new ServerMemberCollection(this);
     this.sessions = new SessionCollection(this);
     this.users = new UserCollection(this);
+    this.userSlowmodes = new ReactiveMap<string, UserSlowmodes>();
 
     this.events = new EventClient(1, "json", this.options);
     this.events.on("error", (error) => this.emit("error", error));
@@ -393,6 +397,18 @@ export class Client extends AsyncEventEmitter<Events> {
     this.#session = token;
     this.#updateHeaders();
     this.connect();
+  }
+
+  /**
+   * Log out of current session
+   *
+   * This function prepares the client for disposal by removing all event listeners and killing the events socket.
+   */
+  async logout(): Promise<void> {
+    await this.api.post("/auth/session/logout");
+    this.events.removeAllListeners();
+    this.removeAllListeners();
+    this.events.disconnect();
   }
 
   /**
@@ -577,5 +593,31 @@ export class Client extends AsyncEventEmitter<Events> {
     ).then((res) => res.json());
 
     return data.id;
+  }
+
+  setSlowmode(channelId: string, data: UserSlowmodes): void {
+    const existing = this.#slowmodeTimers.get(channelId);
+    if (existing) clearTimeout(existing);
+
+    this.userSlowmodes.set(channelId, { ...data, receivedAt: Date.now() });
+
+    const timer = setTimeout(() => {
+      this.userSlowmodes.delete(channelId);
+      this.#slowmodeTimers.delete(channelId);
+      this.emit("userSlowmodes");
+    }, data.retry_after * 1000);
+
+    this.#slowmodeTimers.set(channelId, timer);
+  }
+
+  /**
+   * Backend enforced limits for the logged in user
+   */
+  get limits(): UserLimits | undefined {
+    if (!this.configured() || !this.user) {
+      return;
+    }
+
+    return this.user.limits;
   }
 }

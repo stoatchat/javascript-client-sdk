@@ -1,12 +1,20 @@
-import type { User as APIUser, DataEditUser, Presence } from "stoat-api";
+import type {
+  User as APIUser,
+  UserLimits as APIUserLimits,
+  DataEditUser,
+  Presence,
+} from "stoat-api";
 import { decodeTime } from "ulid";
 
 import type { UserCollection } from "../collections/UserCollection.js";
+import { hydrate } from "../hydration/index.js";
 import { U32_MAX, UserPermission } from "../permissions/definitions.js";
 
 import type { Channel } from "./Channel.js";
 import type { File } from "./File.js";
 import { UserProfile } from "./UserProfile.js";
+
+export type UserLimits = APIUserLimits;
 
 /**
  * User Class
@@ -45,6 +53,13 @@ export class User {
    */
   get createdAt(): Date {
     return new Date(decodeTime(this.id));
+  }
+
+  /**
+   * How old this user is in milliseconds
+   */
+  get age() {
+    return new Date().getTime() - this.createdAt.getTime();
   }
 
   /**
@@ -225,11 +240,19 @@ export class User {
    * @param data Changes
    */
   async edit(data: DataEditUser): Promise<void> {
-    await this.#collection.client.api.patch(
-      `/users/${
-        this.id === this.#collection.client.user?.id ? "@me" : this.id
-      }`,
-      data,
+    this.#collection.updateUnderlyingObject(
+      this.id,
+      hydrate(
+        "user",
+        await this.#collection.client.api.patch(
+          `/users/${
+            this.id === this.#collection.client.user?.id ? "@me" : this.id
+          }`,
+          data,
+        ),
+        this.#collection.client,
+        false,
+      ),
     );
   }
 
@@ -324,5 +347,23 @@ export class User {
     return await this.#collection.client.api.get(
       `/users/${this.id as ""}/mutual`,
     );
+  }
+
+  /**
+   * Backend enforced limits for a user
+   */
+  get limits(): UserLimits | undefined {
+    if (!this.#collection.client.configured()) {
+      return;
+    }
+    if (
+      this.age <
+      (this.#collection.client.configuration?.features.limits.global
+        .new_user_hours ?? 72) *
+        3600_0000
+    ) {
+      return this.#collection.client.configuration?.features.limits.new_user;
+    }
+    return this.#collection.client.configuration?.features.limits.default;
   }
 }
