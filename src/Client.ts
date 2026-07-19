@@ -42,6 +42,8 @@ import {
   RE_SPOILER,
 } from "./lib/regex.js";
 
+export type Tag = "attachments" | "avatars" | "backgrounds" | "icons" | "banners" | "emojis";
+
 export type Session = { _id: string; token: string; user_id: string } | string;
 
 /**
@@ -571,9 +573,10 @@ export class Client extends AsyncEventEmitter<Events> {
    * @param tag Tag
    * @param file File
    * @param uploadUrl Media server upload route
+   * @returns File ID
    */
   async uploadFile(
-    tag: string,
+    tag: Tag,
     file: File,
     uploadUrl?: string,
   ): Promise<string> {
