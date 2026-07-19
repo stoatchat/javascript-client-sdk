@@ -153,7 +153,7 @@ export class EventClient<
 
     this.#connectTimeoutReference = setTimeout(
       () => this.disconnect(),
-      this.options.pongTimeout * 1e3,
+      this.options.connectTimeout * 1e3,
     ) as never;
 
     const url = new URL(uri);
@@ -178,8 +178,25 @@ export class EventClient<
     this.#socket = new WebSocket(url);
 
     this.#socket.onopen = () => {
+      clearInterval(this.#heartbeatIntervalReference);
+      clearTimeout(this.#pongTimeoutReference);
+      clearTimeout(this.#connectTimeoutReference);
       this.#heartbeatIntervalReference = setInterval(() => {
+        if (!this.#socket) {
+          clearInterval(this.#heartbeatIntervalReference);
+          clearTimeout(this.#pongTimeoutReference);
+          return;
+        }
+        if (this.#socket.readyState === WebSocket.CONNECTING) {
+          return;
+        }
+        if (this.#socket.readyState !== WebSocket.OPEN) {
+          clearInterval(this.#heartbeatIntervalReference);
+          clearTimeout(this.#pongTimeoutReference);
+          return;
+        }
         this.send({ type: "Ping", data: +new Date() });
+        clearTimeout(this.#pongTimeoutReference);
         this.#pongTimeoutReference = setTimeout(
           () => this.disconnect(),
           this.options.pongTimeout * 1e3,
@@ -193,7 +210,7 @@ export class EventClient<
     };
 
     this.#socket.onmessage = (event) => {
-      clearInterval(this.#connectTimeoutReference);
+      clearTimeout(this.#connectTimeoutReference);
 
       if (this.#transportFormat === "json") {
         if (typeof event.data === "string") {
@@ -218,8 +235,8 @@ export class EventClient<
   disconnect(): void {
     if (!this.#socket) return;
     clearInterval(this.#heartbeatIntervalReference);
-    clearInterval(this.#connectTimeoutReference);
-    clearInterval(this.#pongTimeoutReference);
+    clearTimeout(this.#connectTimeoutReference);
+    clearTimeout(this.#pongTimeoutReference);
     const socket = this.#socket;
     this.#socket = undefined;
     socket.close();
