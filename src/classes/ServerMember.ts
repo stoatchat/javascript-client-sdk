@@ -260,4 +260,19 @@ export class ServerMember {
   async kick(): Promise<void> {
     this.server?.kickUser(this);
   }
+
+  /**
+   * Timeout this member until the given date
+   * @param date ISO8601 timestamp to time out until
+   */
+  async setTimeout(date: string): Promise<void> {
+    await this.edit({ timeout: date });
+  }
+
+  /**
+   * Remove this member's timeout
+   */
+  async removeTimeout(): Promise<void> {
+    await this.edit({ remove: ["Timeout"] });
+  }
 }
