@@ -353,6 +353,7 @@ export class Client extends AsyncEventEmitter<Events> {
         this.configuration = await this.api.get("/");
         preConfig?.();
         this.#setConfigured(true);
+        this.#configLock = undefined;
       })();
     }
     return this.#configLock;
