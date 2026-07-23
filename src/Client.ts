@@ -189,7 +189,8 @@ export class Client extends AsyncEventEmitter<Events> {
   readonly options: ClientOptions;
   readonly events: EventClient<1>;
 
-  configuration: RevoltConfig | undefined;
+  readonly configuration: RevoltConfig | undefined;
+  #configLock?: Promise<void>;
   #session: Session | undefined;
   user: User | undefined;
 
@@ -203,8 +204,10 @@ export class Client extends AsyncEventEmitter<Events> {
   #setConnectionFailureCount: Setter<number>;
   #reconnectTimeout: number | undefined;
   #slowmodeTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
   /**
    * Create Stoat.js Client
+   * @param configuration Deprecated - Please use `Client.initConfig` if you need to override config.
    */
   constructor(options?: Partial<ClientOptions>, configuration?: RevoltConfig) {
     super();
@@ -255,8 +258,6 @@ export class Client extends AsyncEventEmitter<Events> {
     );
     this.configured = configured;
     this.#setConfigured = setConfigured;
-
-    this.#fetchConfiguration();
 
     const [ready, setReady] = createSignal(false);
     this.ready = ready;
@@ -343,13 +344,28 @@ export class Client extends AsyncEventEmitter<Events> {
   }
 
   /**
-   * Fetches the configuration of the server if it has not been already fetched.
+   * Fetches the server config. This is called automatically by `login()` or `loginBot()`,
+   * but you can call it first manually if you need to override any config options.
+   *
+   * Override example:
+   * ```ts
+   * await client.initConfig(() => {
+   *   cli.configuration!.ws = "wss://example.com";
+   * });
+   * ```
    */
-  async #fetchConfiguration(): Promise<void> {
-    if (!this.configuration) {
-      this.configuration = await this.api.get("/");
-      this.#setConfigured(true);
+  async initConfig(preConfig?: () => void): Promise<void> {
+    if (!this.#configLock && !this.configuration) {
+      //Create promise lock to avoid race condition
+      this.#configLock = (async () => {
+        //@ts-expect-error readonly override
+        this.configuration = await this.api.get("/");
+        preConfig?.();
+        this.#setConfigured(true);
+        this.#configLock = undefined;
+      })();
     }
+    return this.#configLock;
   }
 
   /**
@@ -370,7 +386,7 @@ export class Client extends AsyncEventEmitter<Events> {
    * @returns An on-boarding function if on-boarding is required, undefined otherwise
    */
   async login(details: DataLogin): Promise<void> {
-    await this.#fetchConfiguration();
+    await this.initConfig();
     const data = await this.api.post("/auth/session/login", details);
     if (data.result === "Success") {
       this.#session = data;
@@ -393,7 +409,7 @@ export class Client extends AsyncEventEmitter<Events> {
    * @param token Bot token
    */
   async loginBot(token: string): Promise<void> {
-    await this.#fetchConfiguration();
+    await this.initConfig();
     this.#session = token;
     this.#updateHeaders();
     this.connect();
@@ -614,10 +630,6 @@ export class Client extends AsyncEventEmitter<Events> {
    * Backend enforced limits for the logged in user
    */
   get limits(): UserLimits | undefined {
-    if (!this.configured() || !this.user) {
-      return;
-    }
-
-    return this.user.limits;
+    if (this.configured() && this.user) return this.user.limits;
   }
 }
