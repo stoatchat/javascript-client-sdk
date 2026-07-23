@@ -205,8 +205,9 @@ export class Client extends AsyncEventEmitter<Events> {
   #reconnectTimeout: number | undefined;
   #slowmodeTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
-  /** Create Stoat.js Client
-  @param configuration Deprecated - Please use `Client.initConfig` if you need to override config.
+  /**
+   * Create Stoat.js Client
+   * @param configuration Deprecated - Please use `Client.initConfig` if you need to override config.
    */
   constructor(options?: Partial<ClientOptions>, configuration?: RevoltConfig) {
     super();
@@ -342,9 +343,17 @@ export class Client extends AsyncEventEmitter<Events> {
     );
   }
 
-  /** Fetches the server config. This is called automatically by login() or loginBot(),
-   * but you can call it manually first if you need to override any config options.
-   * @param preConfig Called after fetch, but before configured() flag is set */
+  /**
+   * Fetches the server config. This is called automatically by `login()` or `loginBot()`,
+   * but you can call it first manually if you need to override any config options.
+   *
+   * Override example:
+   * ```ts
+   * await client.initConfig(() => {
+   *   cli.configuration!.ws = "wss://example.com";
+   * });
+   * ```
+   */
   async initConfig(preConfig?: () => void): Promise<void> {
     if (!this.#configLock && !this.configuration) {
       //Create promise lock to avoid race condition
