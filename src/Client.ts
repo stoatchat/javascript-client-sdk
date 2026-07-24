@@ -349,18 +349,18 @@ export class Client extends AsyncEventEmitter<Events> {
    *
    * Override example:
    * ```ts
-   * await client.initConfig(() => {
-   *   cli.configuration!.ws = "wss://example.com";
+   * await client.initConfig((config) => {
+   *   config.ws = "wss://example.com";
    * });
    * ```
    */
-  async initConfig(preConfig?: () => void): Promise<void> {
+  async initConfig(preConfig?: (config: RevoltConfig) => void): Promise<void> {
     if (!this.#configLock && !this.configuration) {
       //Create promise lock to avoid race condition
       this.#configLock = (async () => {
         //@ts-expect-error readonly override
         this.configuration = await this.api.get("/");
-        preConfig?.();
+        preConfig?.(this.configuration);
         this.#setConfigured(true);
         this.#configLock = undefined;
       })();
