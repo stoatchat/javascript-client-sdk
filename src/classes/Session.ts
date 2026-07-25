@@ -73,7 +73,7 @@ export class Session {
    * Delete a session
    */
   async delete(ticket: MFATicket): Promise<void> {
-    ticket.consume();
+    ticket._consume();
     await this.#collection.client.api.delete(
       `/auth/session/${this.id as ""}`,
       undefined,

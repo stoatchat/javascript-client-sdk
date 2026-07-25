@@ -110,10 +110,8 @@ export class MFATicket {
   /**
    * @internal
    * Use this ticket
-   *
-   * You probably shouldn't be calling this method outside the stoat.js client
    */
-  consume(): void {
+  _consume(): void {
     if (this.#used) throw "Already used this ticket!";
     this.#used = true;
   }
@@ -123,7 +121,7 @@ export class MFATicket {
    * @returns List of codes
    */
   fetchRecoveryCodes(): Promise<string[]> {
-    this.consume();
+    this._consume();
     return this.#client.api.post("/auth/mfa/recovery", undefined, {
       headers: {
         "X-MFA-Ticket": this.token,
@@ -136,7 +134,7 @@ export class MFATicket {
    * @returns List of codes
    */
   async generateRecoveryCodes(): Promise<string[]> {
-    this.consume();
+    this._consume();
 
     const codes = await this.#client.api.patch(
       "/auth/mfa/recovery",
@@ -157,7 +155,7 @@ export class MFATicket {
    * @returns Secret
    */
   async generateAuthenticatorSecret(): Promise<string> {
-    this.consume();
+    this._consume();
     return (
       await this.#client.api.post("/auth/mfa/totp", undefined, {
         headers: {
@@ -171,7 +169,7 @@ export class MFATicket {
    * Disable authenticator
    */
   async disableAuthenticator(): Promise<void> {
-    this.consume();
+    this._consume();
 
     await this.#client.api.delete("/auth/mfa/totp", undefined, {
       headers: {
@@ -186,7 +184,7 @@ export class MFATicket {
    * Disable account
    */
   disableAccount(): Promise<void> {
-    this.consume();
+    this._consume();
     return this.#client.api.post("/auth/account/disable", undefined, {
       headers: {
         "X-MFA-Ticket": this.token,
@@ -198,7 +196,7 @@ export class MFATicket {
    * Delete account
    */
   deleteAccount(): Promise<void> {
-    this.consume();
+    this._consume();
     return this.#client.api.post("/auth/account/delete", undefined, {
       headers: {
         "X-MFA-Ticket": this.token,

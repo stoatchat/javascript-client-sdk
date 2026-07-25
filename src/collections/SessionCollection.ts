@@ -31,7 +31,7 @@ export class SessionCollection extends ClassCollection<
    * @param revokeSelf Whether to remove current session too
    */
   async deleteAll(ticket: MFATicket, revokeSelf = false): Promise<void> {
-    ticket.consume();
+    ticket._consume();
     await this.client.api.delete(
       "/auth/session/all",
       {
