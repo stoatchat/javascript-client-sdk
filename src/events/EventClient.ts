@@ -258,7 +258,7 @@ export class EventClient<
           type: "revolt",
           data: event.data,
         };
-        this.emit("error", event as never);
+        this.emit("error", event.data);
         this.disconnect();
         return;
     }
