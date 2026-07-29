@@ -3,8 +3,10 @@ import { batch } from "solid-js";
 import type { ReactiveMap } from "@solid-primitives/map";
 import type { ReactiveSet } from "@solid-primitives/set";
 import type {
+  APIRoutes,
   Server as APIServer,
   AllMemberResponse,
+  AuditLogEntry,
   BannedUser,
   Category,
   DataBanCreate,
@@ -371,6 +373,36 @@ export class Server {
       server: this.id,
       user: userId,
     });
+  }
+  /**
+   * @param params
+   * @returns This server's tracked actions, members and users
+   */
+  async getAuditLogs(
+    params?: (APIRoutes & {
+      method: "get";
+      path: "/servers/{target}/audit_logs";
+      parts: 3;
+    })["params"],
+  ): Promise<{
+    audit_logs: AuditLogEntry[];
+    users: User[];
+    members: ServerMember[];
+  }> {
+    const logs = await this.#collection.client.api.get(
+      `/servers/${this.id as ""}/audit_logs`,
+      { ...params },
+    );
+
+    return batch(() => ({
+      audit_logs: logs.audit_logs,
+      users: logs.users.map((user) =>
+        this.#collection.client.users.getOrCreate(user._id, user),
+      ),
+      members: logs.members.map((member) =>
+        this.#collection.client.serverMembers.getOrCreate(member._id, member),
+      ),
+    }));
   }
 
   /**
