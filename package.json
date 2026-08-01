@@ -28,7 +28,7 @@
   "dependencies": {
     "@solid-primitives/map": "^0.7.1",
     "@solid-primitives/set": "^0.7.1",
-    "@vladfrangu/async_event_emitter": "^2.4.6",
+    "@vladfrangu/async_event_emitter": "^2.4.7",
     "json-with-bigint": "^3.4.4",
     "solid-js": "^1.9.6",
     "stoat-api": "0.14.0",
