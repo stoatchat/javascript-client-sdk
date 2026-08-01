@@ -1,7 +1,7 @@
 import type { DataCreateAccount, WebPushSubscription } from "stoat-api";
 
 import type { Client } from "../Client.js";
-import { MFA, MFATicket } from "../classes";
+import { MFA, MFATicket } from "../classes/MFA.js";
 
 /**
  * Utility functions for working with accounts
@@ -125,9 +125,7 @@ export class AccountCollection {
         email: newEmail,
         current_password: currentPassword,
       },
-      {
-        headers: ticket ? { "X-MFA-Ticket": ticket.token } : undefined,
-      },
+      ticket ? { headers: { "X-MFA-Ticket": ticket.token } } : undefined
     );
   }
 
