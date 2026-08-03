@@ -1,7 +1,7 @@
 import type { DataCreateAccount, WebPushSubscription } from "stoat-api";
 
 import type { Client } from "../Client.js";
-import { MFA } from "../classes/MFA.js";
+import { MFA, MFATicket } from "../classes/MFA.js";
 
 /**
  * Utility functions for working with accounts
@@ -111,12 +111,22 @@ export class AccountCollection {
    * Change account email
    * @param newEmail New email
    * @param currentPassword Current password
+   * @param ticket MFA ticket, mandatory if account has MFA enabled
    */
-  changeEmail(newEmail: string, currentPassword: string): Promise<void> {
-    return this.client.api.patch("/auth/account/change/email", {
-      email: newEmail,
-      current_password: currentPassword,
-    });
+  changeEmail(
+    newEmail: string,
+    currentPassword: string,
+    ticket?: MFATicket,
+  ): Promise<void> {
+    ticket?._consume();
+    return this.client.api.patch(
+      "/auth/account/change/email",
+      {
+        email: newEmail,
+        current_password: currentPassword,
+      },
+      ticket ? { headers: { "X-MFA-Ticket": ticket.token } } : undefined
+    );
   }
 
   /**
