@@ -1006,7 +1006,10 @@ export async function handleEvent(
     }
     case "UserSlowmodes": {
       for (const slowmode of event.slowmodes) {
-        client.setSlowmode(slowmode.channel_id, slowmode);
+        const channel = client.channels.getOrPartial(slowmode.channel_id);
+        if (channel) {
+          channel.setUserSlowmode(slowmode);
+        }
       }
       client.emit("userSlowmodes");
       break;

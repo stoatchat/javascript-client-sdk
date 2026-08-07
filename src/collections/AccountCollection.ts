@@ -125,7 +125,7 @@ export class AccountCollection {
         email: newEmail,
         current_password: currentPassword,
       },
-      ticket ? { headers: { "X-MFA-Ticket": ticket.token } } : undefined
+      ticket ? { headers: { "X-MFA-Ticket": ticket.token } } : undefined,
     );
   }
 

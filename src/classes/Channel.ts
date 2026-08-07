@@ -1,4 +1,4 @@
-import { batch } from "solid-js";
+import { Accessor, Setter, batch, createSignal } from "solid-js";
 
 import { ReactiveMap } from "@solid-primitives/map";
 import type { ReactiveSet } from "@solid-primitives/set";
@@ -17,6 +17,7 @@ import type { APIRoutes } from "stoat-api";
 import { decodeTime, ulid } from "ulid";
 
 import { ChannelCollection } from "../collections/index.js";
+import { UserSlowmodes } from "../events/v1.js";
 import { hydrate } from "../hydration/index.js";
 import {
   bitwiseAndEq,
@@ -43,6 +44,10 @@ export class Channel {
 
   voiceParticipants = new ReactiveMap<string, VoiceParticipant>();
 
+  readonly userSlowmode: Accessor<UserSlowmodes | undefined>;
+  readonly #setUserSlowmode: Setter<UserSlowmodes | undefined>;
+  #slowmodeTimeout: NodeJS.Timeout | undefined;
+
   /**
    * Construct Channel
    * @param collection Collection
@@ -51,6 +56,10 @@ export class Channel {
   constructor(collection: ChannelCollection, id: string) {
     this.#collection = collection;
     this.id = id;
+
+    const [slowmode, setSlowmode] = createSignal<UserSlowmodes | undefined>();
+    this.userSlowmode = slowmode;
+    this.#setUserSlowmode = setSlowmode;
   }
 
   /**
@@ -873,5 +882,19 @@ export class Channel {
     }
 
     return highest;
+  }
+
+  setUserSlowmode(slowmode: UserSlowmodes) {
+    if (this.#slowmodeTimeout) {
+      clearTimeout(this.#slowmodeTimeout);
+    }
+
+    this.#setUserSlowmode({ ...slowmode, receivedAt: Date.now() });
+
+    this.#slowmodeTimeout = setTimeout(() => {
+      this.#setUserSlowmode();
+      this.#slowmodeTimeout = undefined;
+      this.#collection.client.emit("userSlowmodes");
+    }, slowmode.retry_after * 1000);
   }
 }
