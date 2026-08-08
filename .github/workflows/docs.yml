@@ -4,12 +4,15 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write
+
 jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository and submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - uses: pnpm/action-setup@v4.0.0
@@ -25,7 +28,7 @@ jobs:
         run: pnpm run docs
 
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@4.8.0
+        uses: JamesIves/github-pages-deploy-action@v4.8.0
         with:
           branch: docs
           folder: docs
