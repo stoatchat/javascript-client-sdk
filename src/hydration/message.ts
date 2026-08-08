@@ -40,6 +40,7 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
     system: "systemMessage",
     edited: "editedAt",
     mentions: "mentionIds",
+    role_mentions: "roleMentionIds",
     replies: "replyIds",
   },
   functions: {
