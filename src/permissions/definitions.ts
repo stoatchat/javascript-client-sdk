@@ -67,6 +67,8 @@ export const Permission = {
   Masquerade: 2n ** 28n,
   /// React to messages with emoji
   React: 2n ** 29n,
+  /// Bypass slowmode
+  BypassSlowmode: 2n ** 39n,
 
   // * Voice permissions
   /// Connect to a voice channel
@@ -90,8 +92,11 @@ export const Permission = {
   /// Mention a role
   MentionRoles: 2n ** 38n,
 
+  // Access server audit logs
+  ViewAuditLogs: 2n ** 40n,
+
   // * Misc. permissions
-  // % Bits 39 to 52: free area
+  // % Bits 41 to 52: free area
   // % Bits 53 to 64: do not use
 
   // * Grant all permissions

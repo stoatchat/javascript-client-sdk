@@ -204,6 +204,10 @@ type ServerMessage =
       type: "UserMoveVoiceChannel";
       node: string;
       token: string;
+    }
+  | {
+      type: "UserSlowmodes";
+      slowmodes: UserSlowmodes[];
     };
 
 /**
@@ -234,6 +238,16 @@ export type UserVoiceState = {
 type ChannelVoiceState = {
   id: string;
   participants: UserVoiceState[];
+};
+
+/**
+ * Channel slowmodes for the active user
+ */
+export type UserSlowmodes = {
+  channel_id: string;
+  duration: number;
+  retry_after: number;
+  receivedAt?: number;
 };
 
 /**
@@ -804,6 +818,9 @@ export async function handleEvent(
               case "Timeout":
                 changes["timeout"] = undefined;
                 break;
+              case "Pronouns":
+                changes["pronouns"] = undefined;
+                break;
             }
           }
         }
@@ -874,6 +891,9 @@ export async function handleEvent(
                   ...(changes["status"] ?? {}),
                   text: undefined,
                 };
+                break;
+              case "Pronouns":
+                changes["pronouns"] = undefined;
                 break;
             }
           }
@@ -1002,6 +1022,16 @@ export async function handleEvent(
     }
     case "UserMoveVoiceChannel": {
       // todo
+      break;
+    }
+    case "UserSlowmodes": {
+      for (const slowmode of event.slowmodes) {
+        const channel = client.channels.getOrPartial(slowmode.channel_id);
+        if (channel) {
+          channel.setUserSlowmode(slowmode);
+        }
+      }
+      client.emit("userSlowmodes");
       break;
     }
   }

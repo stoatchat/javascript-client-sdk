@@ -3,8 +3,10 @@ import { batch } from "solid-js";
 import type { ReactiveMap } from "@solid-primitives/map";
 import type { ReactiveSet } from "@solid-primitives/set";
 import type {
+  APIRoutes,
   Server as APIServer,
   AllMemberResponse,
+  AuditLogEntry,
   BannedUser,
   Category,
   DataBanCreate,
@@ -13,7 +15,6 @@ import type {
   DataEditRole,
   DataEditServer,
   Override,
-  OverrideField,
   Role,
 } from "stoat-api";
 import { decodeTime } from "ulid";
@@ -35,6 +36,7 @@ import { ServerBan } from "./ServerBan.js";
 import { ServerMember } from "./ServerMember.js";
 import { ServerRole } from "./ServerRole.js";
 import { User } from "./User.js";
+import { VoiceStatus } from "./VoiceParticipant.js";
 
 /**
  * Server Class
@@ -136,9 +138,10 @@ export class Server {
    * Channels
    */
   get channels(): Channel[] {
-    return [
-      ...this.#collection.getUnderlyingObject(this.id).channelIds.values(),
-    ]
+    const channelIds = this.#collection.getUnderlyingObject(this.id).channelIds;
+    if (!channelIds) return [];
+
+    return [...channelIds.values()]
       .map((id) => this.#collection.client.channels.get(id)!)
       .filter((x) => x);
   }
@@ -269,14 +272,7 @@ export class Server {
    * ranking roles. This is dictated by the "rank" property
    * which is smaller for higher priority roles.
    */
-  get orderedRoles(): {
-    name: string;
-    permissions: { a: bigint; d: bigint };
-    colour?: string | null;
-    hoist?: boolean;
-    rank?: number;
-    id: string;
-  }[] {
+  get orderedRoles(): ServerRole[] {
     const roles = this.roles;
     return roles
       ? [...roles.values()].sort((a, b) => (a.rank || 0) - (b.rank || 0))
@@ -338,6 +334,7 @@ export class Server {
    * Permission the currently authenticated user has against this server
    */
   get permission(): bigint {
+    if (!this.$exists) return 0n;
     return calculatePermission(this.#collection.client, this);
   }
 
@@ -376,6 +373,36 @@ export class Server {
       server: this.id,
       user: userId,
     });
+  }
+  /**
+   * @param params
+   * @returns This server's tracked actions, members and users
+   */
+  async getAuditLogs(
+    params?: (APIRoutes & {
+      method: "get";
+      path: "/servers/{target}/audit_logs";
+      parts: 3;
+    })["params"],
+  ): Promise<{
+    audit_logs: AuditLogEntry[];
+    users: User[];
+    members: ServerMember[];
+  }> {
+    const logs = await this.#collection.client.api.get(
+      `/servers/${this.id as ""}/audit_logs`,
+      { ...params },
+    );
+
+    return batch(() => ({
+      audit_logs: logs.audit_logs,
+      users: logs.users.map((user) =>
+        this.#collection.client.users.getOrCreate(user._id, user),
+      ),
+      members: logs.members.map((member) =>
+        this.#collection.client.serverMembers.getOrCreate(member._id, member),
+      ),
+    }));
   }
 
   /**
@@ -831,5 +858,29 @@ export class Server {
    */
   async deleteEmoji(emojiId: string): Promise<void> {
     await this.#collection.client.api.delete(`/custom/emoji/${emojiId}`);
+  }
+
+  /**
+   * The voice status of a server. Screenshare supersedes video, video
+   * supersedes voice, and voice supersedes none. This getter takes the highest
+   * priority status from all channels in the server.
+   */
+  get voiceStatus(): VoiceStatus {
+    let highest: VoiceStatus = "none";
+
+    for (const chan of this.channels) {
+      const status = chan.voiceStatus;
+      if (status === "screenshare") {
+        return "screenshare";
+      }
+      if (status === "video") {
+        highest = "video";
+      }
+      if (status === "voice" && highest === "none") {
+        highest = "voice";
+      }
+    }
+
+    return highest;
   }
 }

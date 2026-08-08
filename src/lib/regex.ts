@@ -9,6 +9,11 @@ export const RE_MENTIONS = /<@([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26})>/g;
 export const RE_CHANNELS = /<#([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26})>/g;
 
 /**
+ * Regular expression for stripping custom emojis.
+ */
+export const RE_CUSTOM_EMOJI = /:([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26}):/g;
+
+/**
  * Regular expression for spoilers.
  */
 export const RE_SPOILER = /\|\|.+\|\|/g;

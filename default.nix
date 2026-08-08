@@ -1,12 +1,9 @@
 {
   pkgs ? import <nixpkgs> { },
-}:
-
-with pkgs;
-pkgs.mkShell {
+}: pkgs.mkShell {
   name = "stoatEnv";
 
-  buildInputs = [
+  buildInputs = with pkgs; [
     # Tools
     git
     gh
@@ -14,6 +11,6 @@ pkgs.mkShell {
 
     # Node
     nodejs
-    nodejs.pkgs.pnpm
+    pnpm_10
   ];
 }

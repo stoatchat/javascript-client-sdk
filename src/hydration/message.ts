@@ -1,6 +1,6 @@
 import { ReactiveMap } from "@solid-primitives/map";
 import { ReactiveSet } from "@solid-primitives/set";
-import type { Embed, Interactions, Masquerade, Message } from "stoat-api";
+import type { Interactions, Masquerade, Message } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";
@@ -40,6 +40,7 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
     system: "systemMessage",
     edited: "editedAt",
     mentions: "mentionIds",
+    role_mentions: "roleMentionIds",
     replies: "replyIds",
   },
   functions: {

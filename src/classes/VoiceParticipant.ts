@@ -1,7 +1,12 @@
+import { Accessor, Setter, createSignal } from "solid-js";
 
-import { Accessor, createSignal, Setter } from "solid-js";
 import type { Client } from "../Client.js";
 import { UserVoiceState } from "../events/v1.js";
+
+/**
+ * The voice status of an entity. Screenshare supersedes video, video supersedes voice, and voice supersedes none.
+ */
+export type VoiceStatus = "none" | "voice" | "video" | "screenshare";
 
 /**
  * Voice Participant
@@ -39,7 +44,9 @@ export class VoiceParticipant {
     this.isPublishing = isPublishing;
     this.#setPublishing = setPublishing;
 
-    const [isScreensharing, setScreensharing] = createSignal(data.screensharing);
+    const [isScreensharing, setScreensharing] = createSignal(
+      data.screensharing,
+    );
     this.isScreensharing = isScreensharing;
     this.#setScreensharing = setScreensharing;
 
@@ -53,20 +60,33 @@ export class VoiceParticipant {
    * @param data Data
    */
   update(data: Partial<UserVoiceState>) {
-    if (typeof data.is_receiving === 'boolean') {
+    if (typeof data.is_receiving === "boolean") {
       this.#setReceiving(data.is_receiving);
     }
 
-    if (typeof data.is_publishing === 'boolean') {
+    if (typeof data.is_publishing === "boolean") {
       this.#setPublishing(data.is_publishing);
     }
 
-    if (typeof data.screensharing === 'boolean') {
+    if (typeof data.screensharing === "boolean") {
       this.#setScreensharing(data.screensharing);
     }
 
-    if (typeof data.camera === 'boolean') {
+    if (typeof data.camera === "boolean") {
       this.#setCamera(data.camera);
     }
+  }
+
+  /**
+   * The voice status of a participant. Screenshare supersedes video, video supersedes voice, and voice supersedes none.
+   */
+  get voiceStatus(): VoiceStatus {
+    if (this.isScreensharing()) {
+      return "screenshare";
+    }
+    if (this.isCamera()) {
+      return "video";
+    }
+    return "voice";
   }
 }

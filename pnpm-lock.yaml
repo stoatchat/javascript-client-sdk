@@ -15,8 +15,8 @@ importers:
         specifier: ^0.7.1
         version: 0.7.1(solid-js@1.9.6)
       '@vladfrangu/async_event_emitter':
-        specifier: ^2.4.6
-        version: 2.4.6
+        specifier: ^2.4.7
+        version: 2.4.7
       json-with-bigint:
         specifier: ^3.4.4
         version: 3.4.4
@@ -24,12 +24,15 @@ importers:
         specifier: ^1.9.6
         version: 1.9.6
       stoat-api:
-        specifier: 0.8.9-4
-        version: 0.8.9-4
+        specifier: 0.14.0
+        version: 0.14.0
       ulid:
-        specifier: ^2.4.0
-        version: 2.4.0
+        specifier: ^3.0.2
+        version: 3.0.2
     devDependencies:
+      '@eslint/js':
+        specifier: ^9.39.1
+        version: 9.39.3
       '@mxssfd/typedoc-theme':
         specifier: ^1.1.7
         version: 1.1.7(typedoc@0.27.9(typescript@5.8.3))
@@ -44,7 +47,7 @@ importers:
         version: 9.26.0
       eslint-plugin-prettier:
         specifier: ^5.4.0
-        version: 5.4.0(eslint@9.26.0)(prettier@3.5.3)
+        version: 5.4.0(eslint-config-prettier@10.1.8(eslint@9.26.0))(eslint@9.26.0)(prettier@3.5.3)
       eslint-plugin-solid:
         specifier: ^0.14.5
         version: 0.14.5(eslint@9.26.0)(typescript@5.8.3)
@@ -124,6 +127,10 @@ packages:
 
   '@eslint/js@9.26.0':
     resolution: {integrity: sha512-I9XlJawFdSMvWjDt6wksMCrgns5ggLNfFwFvnShsleWruvXM514Qxk8V246efTw+eo9JABvVz+u3q2RiAowKxQ==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@eslint/js@9.39.3':
+    resolution: {integrity: sha512-1B1VkCq6FuUNlQvlBYb+1jDu/gV297TIs/OeiaSR9l1H27SVW55ONE1e1Vp16NqP683+xEGzxYtv4XCiDPaQiw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@eslint/object-schema@2.1.6':
@@ -308,8 +315,8 @@ packages:
     resolution: {integrity: sha512-1rYQTCLFFzOI5Nl0c8LUpJT8HxpwVRn9E4CkMsYfuN6ctmQqExjSTzzSk0Tz2apmXy7WU6/6fyaZVVA/thPN+w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@vladfrangu/async_event_emitter@2.4.6':
-    resolution: {integrity: sha512-RaI5qZo6D2CVS6sTHFKg1v5Ohq/+Bo2LZ5gzUEwZ/WkHhwtGTCB/sVLw8ijOkAUxasZ+WshN/Rzj4ywsABJ5ZA==}
+  '@vladfrangu/async_event_emitter@2.4.7':
+    resolution: {integrity: sha512-Xfe6rpCTxSxfbswi/W/Pz7zp1WWSNn4A0eW4mLkQUewCrXXtMj31lCg+iQyTkh/CkusZSq9eDflu7tjEDXUY6g==}
     engines: {node: '>=v14.0.0', npm: '>=7.0.0'}
 
   accepts@2.0.0:
@@ -459,6 +466,12 @@ packages:
   escape-string-regexp@4.0.0:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
+
+  eslint-config-prettier@10.1.8:
+    resolution: {integrity: sha512-82GZUjRS0p/jganf6q1rEO25VSoHH0hKPCTrgillPjdI/3bgBhAE1QzHrHTizjpRvy6pGAvKjDJtk2pF9NDq8w==}
+    hasBin: true
+    peerDependencies:
+      eslint: '>=7.0.0'
 
   eslint-plugin-prettier@5.4.0:
     resolution: {integrity: sha512-BvQOvUhkVQM1i63iMETK9Hjud9QhqBnbtT1Zc642p9ynzBuCe5pybkOnvqZIBypXmMlsGcnU4HZ8sCTPfpAexA==}
@@ -981,8 +994,8 @@ packages:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
     engines: {node: '>= 0.8'}
 
-  stoat-api@0.8.9-4:
-    resolution: {integrity: sha512-6N4kfE1x+j/XYVaBuvYqzbWxjgqbxSarvNjMv8GEcBaqbkiyPzUwsCj12NJsNNp4uyZmsqoUYUj2jIq018uqiA==}
+  stoat-api@0.14.0:
+    resolution: {integrity: sha512-Kg6PS8D6aKKhs6KALvdHe6ygtwCuiCyj9JDT/KDR0BRDzoP2W9LjAePYZZBoA9BITIeBU270ug/0qDpWMGYb/w==}
 
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
@@ -1046,8 +1059,8 @@ packages:
   uc.micro@2.1.0:
     resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
-  ulid@2.4.0:
-    resolution: {integrity: sha512-fIRiVTJNcSRmXKPZtGzFQv9WRrZ3M9eoptl/teFJvjOzmpU+/K/JH6HZ8deBfb5vMEpicJcLn7JmvdknlMq7Zg==}
+  ulid@3.0.2:
+    resolution: {integrity: sha512-yu26mwteFYzBAot7KVMqFGCVpsF6g8wXfJzQUHvu1no3+rRRSFcSV2nKeYvNPLD2J4b08jYBDhHUjeH0ygIl9w==}
     hasBin: true
 
   undici-types@6.21.0:
@@ -1176,6 +1189,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@9.26.0': {}
+
+  '@eslint/js@9.39.3': {}
 
   '@eslint/object-schema@2.1.6': {}
 
@@ -1387,7 +1402,7 @@ snapshots:
       '@typescript-eslint/types': 8.32.0
       eslint-visitor-keys: 4.2.0
 
-  '@vladfrangu/async_event_emitter@2.4.6': {}
+  '@vladfrangu/async_event_emitter@2.4.7': {}
 
   accepts@2.0.0:
     dependencies:
@@ -1524,12 +1539,19 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-plugin-prettier@5.4.0(eslint@9.26.0)(prettier@3.5.3):
+  eslint-config-prettier@10.1.8(eslint@9.26.0):
+    dependencies:
+      eslint: 9.26.0
+    optional: true
+
+  eslint-plugin-prettier@5.4.0(eslint-config-prettier@10.1.8(eslint@9.26.0))(eslint@9.26.0)(prettier@3.5.3):
     dependencies:
       eslint: 9.26.0
       prettier: 3.5.3
       prettier-linter-helpers: 1.0.0
       synckit: 0.11.4
+    optionalDependencies:
+      eslint-config-prettier: 10.1.8(eslint@9.26.0)
 
   eslint-plugin-solid@0.14.5(eslint@9.26.0)(typescript@5.8.3):
     dependencies:
@@ -2068,7 +2090,7 @@ snapshots:
 
   statuses@2.0.1: {}
 
-  stoat-api@0.8.9-4:
+  stoat-api@0.14.0:
     dependencies:
       json-with-bigint: 3.4.4
 
@@ -2132,7 +2154,7 @@ snapshots:
 
   uc.micro@2.1.0: {}
 
-  ulid@2.4.0: {}
+  ulid@3.0.2: {}
 
   undici-types@6.21.0: {}
 

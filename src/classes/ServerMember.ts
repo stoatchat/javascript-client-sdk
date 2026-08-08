@@ -2,7 +2,6 @@ import type {
   DataBanCreate,
   DataMemberEdit,
   MemberCompositeKey,
-  Role,
 } from "stoat-api";
 
 import type { ServerMemberCollection } from "../collections/ServerMemberCollection.js";
@@ -15,6 +14,7 @@ import { Permission } from "../permissions/definitions.js";
 import type { Channel } from "./Channel.js";
 import type { File } from "./File.js";
 import type { Server } from "./Server.js";
+import { ServerRole } from "./ServerRole.js";
 import type { User } from "./User.js";
 
 /**
@@ -94,6 +94,13 @@ export class ServerMember {
   }
 
   /**
+   * Pronouns
+   */
+  get pronouns(): string | undefined {
+    return this.#collection.getUnderlyingObject(key(this.id)).pronouns;
+  }
+
+  /**
    * List of role IDs
    */
   get roles(): string[] {
@@ -110,22 +117,18 @@ export class ServerMember {
   /**
    * Ordered list of roles for this member, from lowest to highest priority.
    */
-  get orderedRoles(): (Partial<Omit<Role, 'permissions'> & { permissions: { a: bigint, d: bigint } }> & { id: string })[] {
+  get orderedRoles(): ServerRole[] {
     const server = this.server!;
-    return (
-      this.roles
-        ?.map((id) => ({
-          id,
-          ...server.roles?.get(id),
-        }))
-        .sort((a, b) => b.rank! - a.rank!) ?? []
-    );
+    return this.roles
+      ?.map((id) => server.roles.get(id)!)
+      .filter((role) => role)
+      .sort((a, b) => b.rank! - a.rank!);
   }
 
   /**
    * Member's currently hoisted role.
    */
-  get hoistedRole(): Partial<Omit<Role, 'permissions'> & { permissions: { a: bigint, d: bigint } }> | null {
+  get hoistedRole(): ServerRole | null {
     const roles = this.orderedRoles.filter((x) => x.hoist);
     if (roles.length > 0) {
       return roles[roles.length - 1];
@@ -141,6 +144,18 @@ export class ServerMember {
     const roles = this.orderedRoles.filter((x) => x.colour);
     if (roles.length > 0) {
       return roles[roles.length - 1].colour;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Member's current role icon with name.
+   */
+  get iconRole(): ServerRole | null | undefined {
+    const roles = this.orderedRoles.filter((x) => x.icon);
+    if (roles.length > 0) {
+      return roles[roles.length - 1]!;
     } else {
       return null;
     }
@@ -244,5 +259,20 @@ export class ServerMember {
    */
   async kick(): Promise<void> {
     this.server?.kickUser(this);
+  }
+
+  /**
+   * Timeout this member until the given date
+   * @param date ISO8601 timestamp to time out until
+   */
+  async setTimeout(date: string): Promise<void> {
+    await this.edit({ timeout: date });
+  }
+
+  /**
+   * Remove this member's timeout
+   */
+  async removeTimeout(): Promise<void> {
+    await this.edit({ remove: ["Timeout"] });
   }
 }

@@ -5,9 +5,15 @@ import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
+  {
+    languageOptions: {
+      parserOptions: { tsconfigRootDir: import.meta.dirname },
+    },
+  },
   eslint.configs.recommended,
   tseslint.configs.recommended,
   solid,
+  prettier,
   {
     rules: {
       "@typescript-eslint/no-unused-vars": [
@@ -15,9 +21,9 @@ export default defineConfig([
         {
           caughtErrors: "all",
           varsIgnorePattern: "^_",
+          argsIgnorePattern: "^_",
         },
       ],
     },
   },
-  prettier,
 ]);

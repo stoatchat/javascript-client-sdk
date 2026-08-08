@@ -3,6 +3,7 @@ import { decodeTime } from "ulid";
 
 import type { BotCollection } from "../collections/BotCollection.js";
 import type { BotFlags } from "../hydration/bot.js";
+import { hydrate } from "../hydration/index.js";
 
 import { PublicBot } from "./PublicBot.js";
 import type { User } from "./User.js";
@@ -139,7 +140,15 @@ export class Bot {
    * @param data Changes
    */
   async edit(data: DataEditBot): Promise<void> {
-    await this.#collection.client.api.patch(`/bots/${this.id as ""}`, data);
+    this.#collection.updateUnderlyingObject(
+      this.id,
+      hydrate(
+        "bot",
+        await this.#collection.client.api.patch(`/bots/${this.id as ""}`, data),
+        this.#collection.client,
+        false,
+      ),
+    );
   }
 
   /**

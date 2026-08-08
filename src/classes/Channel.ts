@@ -1,4 +1,4 @@
-import { batch } from "solid-js";
+import { Accessor, Setter, batch, createSignal } from "solid-js";
 
 import { ReactiveMap } from "@solid-primitives/map";
 import type { ReactiveSet } from "@solid-primitives/set";
@@ -17,6 +17,7 @@ import type { APIRoutes } from "stoat-api";
 import { decodeTime, ulid } from "ulid";
 
 import { ChannelCollection } from "../collections/index.js";
+import { UserSlowmodes } from "../events/v1.js";
 import { hydrate } from "../hydration/index.js";
 import {
   bitwiseAndEq,
@@ -30,7 +31,7 @@ import type { Message } from "./Message.js";
 import type { Server } from "./Server.js";
 import type { ServerMember } from "./ServerMember.js";
 import type { User } from "./User.js";
-import { VoiceParticipant } from "./VoiceParticipant.js";
+import { VoiceParticipant, VoiceStatus } from "./VoiceParticipant.js";
 
 /**
  * Channel Class
@@ -43,6 +44,10 @@ export class Channel {
 
   voiceParticipants = new ReactiveMap<string, VoiceParticipant>();
 
+  readonly userSlowmode: Accessor<UserSlowmodes | undefined>;
+  readonly #setUserSlowmode: Setter<UserSlowmodes | undefined>;
+  #slowmodeTimeout: NodeJS.Timeout | undefined;
+
   /**
    * Construct Channel
    * @param collection Collection
@@ -51,6 +56,10 @@ export class Channel {
   constructor(collection: ChannelCollection, id: string) {
     this.#collection = collection;
     this.id = id;
+
+    const [slowmode, setSlowmode] = createSignal<UserSlowmodes | undefined>();
+    this.userSlowmode = slowmode;
+    this.#setUserSlowmode = setSlowmode;
   }
 
   /**
@@ -177,8 +186,8 @@ export class Channel {
   get recipient(): User | undefined {
     return this.type === "DirectMessage"
       ? this.recipients?.find(
-        (user) => user?.id !== this.#collection.client.user!.id,
-      )
+          (user) => user?.id !== this.#collection.client.user!.id,
+        )
       : undefined;
   }
 
@@ -799,6 +808,13 @@ export class Channel {
   }
 
   /**
+   * Get slowmode value for the channel
+   */
+  get slowmode(): number {
+    return this.#collection.getUnderlyingObject(this.id).slowmode ?? 0;
+  }
+
+  /**
    * Join a call
    * @param node Target node
    * @param forceDisconnect Whether to disconnect existing call
@@ -842,5 +858,43 @@ export class Channel {
       type: "EndTyping",
       channel: this.id,
     });
+  }
+
+  /**
+   * The voice status of a channel. Screenshare supersedes video, video
+   * supersedes voice, and voice supersedes none. This getter takes the highest
+   * priority status from all participants in the channel.
+   */
+  get voiceStatus(): VoiceStatus {
+    if (!this.isVoice || this.voiceParticipants.size === 0) {
+      return "none";
+    }
+
+    let highest: VoiceStatus = "voice";
+    for (const participant of this.voiceParticipants.values()) {
+      const status = participant.voiceStatus;
+      if (status === "screenshare") {
+        return "screenshare";
+      }
+      if (status === "video") {
+        highest = "video";
+      }
+    }
+
+    return highest;
+  }
+
+  setUserSlowmode(slowmode: UserSlowmodes) {
+    if (this.#slowmodeTimeout) {
+      clearTimeout(this.#slowmodeTimeout);
+    }
+
+    this.#setUserSlowmode({ ...slowmode, receivedAt: Date.now() });
+
+    this.#slowmodeTimeout = setTimeout(() => {
+      this.#setUserSlowmode();
+      this.#slowmodeTimeout = undefined;
+      this.#collection.client.emit("userSlowmodes");
+    }, slowmode.retry_after * 1000);
   }
 }
