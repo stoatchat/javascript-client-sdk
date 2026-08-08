@@ -50,7 +50,7 @@ export const userHydration: Hydrate<APIUser, HydratedUser> = {
     status: (user) => ["status", user.status!],
     bot: (user) => ["bot", user.bot!],
   },
-  initialHydration: () => ({
+  postHydration: () => ({
     relationship: "None",
   }),
 };

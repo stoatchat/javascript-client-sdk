@@ -29,7 +29,7 @@ export type KeyMapping<Input, Output> = Record<keyof Input, keyof Output>;
  */
 export type Hydrate<Input, Output> = {
   functions: MappingFns<Input, Output, keyof Input, keyof Output>;
-  initialHydration: () => Partial<Output>;
+  postHydration: () => Partial<Output>;
 };
 
 /**
@@ -41,30 +41,46 @@ export type Hydrate<Input, Output> = {
 function hydrateInternal<Input extends object, Output>(
   hydration: Hydrate<Input, Output>,
   input: Input,
+  initial: boolean,
   context: unknown,
 ): Output {
-  return (Object.keys(input) as (keyof Input)[]).reduce((acc, key) => {
-    let targetKey: keyof Output | undefined;
-    let value: Output[keyof Output];
-    try {
-      [targetKey, value] = hydration.functions[key](input, context);
-    } catch {
-      if (key === "partial") {
-        return {
-          ...acc,
-          partial: input["partial" as never],
-        };
+  const hydrated = (Object.keys(input) as (keyof Input)[]).reduce(
+    (acc, key) => {
+      let targetKey: keyof Output | undefined;
+      let value: Output[keyof Output];
+      try {
+        [targetKey, value] = hydration.functions[key](input, context);
+      } catch {
+        if (key === "partial") {
+          return {
+            ...acc,
+            partial: input["partial" as never],
+          };
+        }
+        if (key === "type") return acc;
+        console.debug(`Skipping key ${String(key)} during hydration!`);
+        return acc;
       }
-      if (key === "type") return acc;
-      console.debug(`Skipping key ${String(key)} during hydration!`);
-      return acc;
-    }
 
-    return {
-      ...acc,
-      [targetKey]: value,
-    };
-  }, {} as Output);
+      return {
+        ...acc,
+        [targetKey]: value,
+      };
+    },
+    {} as Output,
+  );
+
+  if (initial) {
+    const toAppend = hydration.postHydration();
+    for (const k in toAppend) {
+      const val = toAppend[k];
+      if (val !== undefined) {
+        hydrated[k] = val;
+      }
+    }
+  }
+
+  return hydrated;
 }
 
 const hydrators = {
@@ -103,7 +119,8 @@ export function hydrate<T extends keyof Hydrators>(
 ): ExtractOutput<Hydrators[T]> {
   return hydrateInternal(
     hydrators[type] as never,
-    initial ? { ...hydrators[type].initialHydration(), ...input } : input,
+    input,
+    initial ?? false,
     context,
   ) as ExtractOutput<Hydrators[T]>;
 }

@@ -31,7 +31,7 @@ export const serverMemberHydration: Hydrate<
     roles: (member) => ["roles", member.roles],
     timeout: (member) => ["timeout", new Date(member.timeout!)],
   },
-  initialHydration: () => ({
+  postHydration: () => ({
     roles: [],
   }),
 };

@@ -12,5 +12,5 @@ export const sessionHydration: Hydrate<APISession, HydratedSession> = {
     _id: (server) => ["id", server._id],
     name: (server) => ["name", server.name],
   },
-  initialHydration: () => ({}),
+  postHydration: () => ({}),
 };
