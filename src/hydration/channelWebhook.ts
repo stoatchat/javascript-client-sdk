@@ -2,7 +2,6 @@ import type { Webhook } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";
-import type { Merge } from "../lib/merge.js";
 
 import type { Hydrate } from "./index.js";
 
@@ -15,23 +14,18 @@ export type HydratedChannelWebhook = {
 };
 
 export const channelWebhookHydration: Hydrate<
-  Merge<Webhook>,
+  Omit<Webhook, "creator_id" | "permissions">,
   HydratedChannelWebhook
 > = {
-  keyMapping: {
-    id: "id",
-    name: "name",
-    avatar: "avatar",
-    channel_id: "channelId",
-    token: "token",
-  },
   functions: {
-    id: (webhook) => webhook.id,
-    name: (webhook) => webhook.name,
-    avatar: (webhook, ctx) =>
+    id: (webhook) => ["id", webhook.id],
+    name: (webhook) => ["name", webhook.name],
+    avatar: (webhook, ctx) => [
+      "avatar",
       webhook.avatar ? new File(ctx as Client, webhook.avatar) : undefined,
-    channelId: (webhook) => webhook.channel_id,
-    token: (webhook) => webhook.token!,
+    ],
+    channel_id: (webhook) => ["channelId", webhook.channel_id],
+    token: (webhook) => ["token", webhook.token!],
   },
   initialHydration: () => ({}),
 };

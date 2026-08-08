@@ -8,12 +8,9 @@ export type HydratedSession = {
 };
 
 export const sessionHydration: Hydrate<APISession, HydratedSession> = {
-  keyMapping: {
-    _id: "id",
-  },
   functions: {
-    id: (server) => server._id,
-    name: (server) => server.name,
+    _id: (server) => ["id", server._id],
+    name: (server) => ["name", server.name],
   },
   initialHydration: () => ({}),
 };

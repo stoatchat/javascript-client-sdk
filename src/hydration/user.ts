@@ -31,28 +31,24 @@ export type HydratedUser = {
 };
 
 export const userHydration: Hydrate<APIUser, HydratedUser> = {
-  keyMapping: {
-    _id: "id",
-    display_name: "displayName",
-  },
   functions: {
-    id: (user) => user._id,
-    username: (user) => user.username,
-    discriminator: (user) => user.discriminator,
-    displayName: (user) => user.display_name!,
-    relationship: (user) => user.relationship!,
-    relations: () => null,
+    _id: (user) => ["id", user._id],
+    username: (user) => ["username", user.username],
+    discriminator: (user) => ["discriminator", user.discriminator],
+    display_name: (user) => ["displayName", user.display_name!],
+    relationship: (user) => ["relationship", user.relationship!],
+    relations: () => ["relations", null],
 
-    online: (user) => user.online!,
-    privileged: (user) => user.privileged,
+    online: (user) => ["online", user.online!],
+    privileged: (user) => ["privileged", user.privileged],
 
-    badges: (user) => user.badges!,
-    flags: (user) => user.flags!,
+    badges: (user) => ["badges", user.badges!],
+    flags: (user) => ["flags", user.flags!],
 
-    avatar: (user, ctx) => new File(ctx as Client, user.avatar!),
-    pronouns: (user) => user.pronouns,
-    status: (user) => user.status!,
-    bot: (user) => user.bot!,
+    avatar: (user, ctx) => ["avatar", new File(ctx as Client, user.avatar!)],
+    pronouns: (user) => ["pronouns", user.pronouns],
+    status: (user) => ["status", user.status!],
+    bot: (user) => ["bot", user.bot!],
   },
   initialHydration: () => ({
     relationship: "None",

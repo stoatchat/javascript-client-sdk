@@ -36,35 +36,39 @@ export type HydratedServer = {
 };
 
 export const serverHydration: Hydrate<APIServer, HydratedServer> = {
-  keyMapping: {
-    _id: "id",
-    owner: "ownerId",
-    channels: "channelIds",
-    system_messages: "systemMessages",
-    default_permissions: "defaultPermissions",
-  },
   functions: {
-    id: (server) => server._id,
-    ownerId: (server) => server.owner,
-    name: (server) => server.name,
-    description: (server) => server.description!,
-    channelIds: (server) => new ReactiveSet(server.channels),
-    categories: (server) => server.categories ?? [],
-    systemMessages: (server) => server.system_messages ?? {},
-    roles: (server, ctx) =>
+    _id: (server) => ["id", server._id],
+    owner: (server) => ["ownerId", server.owner],
+    name: (server) => ["name", server.name],
+    description: (server) => ["description", server.description!],
+    channels: (server) => ["channelIds", new ReactiveSet(server.channels)],
+    categories: (server) => ["categories", server.categories ?? []],
+    system_messages: (server) => [
+      "systemMessages",
+      server.system_messages ?? {},
+    ],
+    roles: (server, ctx) => [
+      "roles",
       new ReactiveMap(
         Object.keys(server.roles!).map((id) => [
           id,
           new ServerRole(ctx as Client, server._id, id, server.roles![id]),
         ]),
       ),
-    defaultPermissions: (server) => BigInt(server.default_permissions),
-    icon: (server, ctx) => new File(ctx as Client, server.icon!),
-    banner: (server, ctx) => new File(ctx as Client, server.banner!),
-    flags: (server) => server.flags!,
-    analytics: (server) => server.analytics || false,
-    discoverable: (server) => server.discoverable || false,
-    nsfw: (server) => server.nsfw || false,
+    ],
+    default_permissions: (server) => [
+      "defaultPermissions",
+      BigInt(server.default_permissions),
+    ],
+    icon: (server, ctx) => ["icon", new File(ctx as Client, server.icon!)],
+    banner: (server, ctx) => [
+      "banner",
+      new File(ctx as Client, server.banner!),
+    ],
+    flags: (server) => ["flags", server.flags!],
+    analytics: (server) => ["analytics", server.analytics || false],
+    discoverable: (server) => ["discoverable", server.discoverable || false],
+    nsfw: (server) => ["nsfw", server.nsfw || false],
   },
   initialHydration: () => ({
     channelIds: new ReactiveSet(),

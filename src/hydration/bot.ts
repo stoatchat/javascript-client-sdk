@@ -16,24 +16,20 @@ export type HydratedBot = {
 };
 
 export const botHydration: Hydrate<APIBot, HydratedBot> = {
-  keyMapping: {
-    _id: "id",
-    owner: "ownerId",
-    interactions_url: "interactionsUrl",
-    terms_of_service_url: "termsOfServiceUrl",
-    privacy_policy_url: "privacyPolicyUrl",
-  },
   functions: {
-    id: (bot) => bot._id,
-    ownerId: (bot) => bot.owner,
-    token: (bot) => bot.token,
-    public: (bot) => bot.public,
-    analytics: (bot) => bot.analytics!,
-    discoverable: (bot) => bot.discoverable!,
-    interactionsUrl: (bot) => bot.interactions_url!,
-    termsOfServiceUrl: (bot) => bot.terms_of_service_url!,
-    privacyPolicyUrl: (bot) => bot.privacy_policy_url!,
-    flags: (bot) => bot.flags!,
+    _id: (bot) => ["id", bot._id],
+    owner: (bot) => ["ownerId", bot.owner],
+    token: (bot) => ["token", bot.token],
+    public: (bot) => ["public", bot.public],
+    analytics: (bot) => ["analytics", bot.analytics!],
+    discoverable: (bot) => ["discoverable", bot.discoverable!],
+    interactions_url: (bot) => ["interactionsUrl", bot.interactions_url!],
+    terms_of_service_url: (bot) => [
+      "termsOfServiceUrl",
+      bot.terms_of_service_url!,
+    ],
+    privacy_policy_url: (bot) => ["privacyPolicyUrl", bot.privacy_policy_url!],
+    flags: (bot) => ["flags", bot.flags!],
   },
   initialHydration: () => ({}),
 };

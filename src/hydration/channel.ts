@@ -3,7 +3,7 @@ import type { Channel as APIChannel } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";
-import type { Merge } from "../lib/merge.js";
+import { Merge } from "../lib/merge.js";
 
 import type { Hydrate } from "./index.js";
 
@@ -35,36 +35,30 @@ export type HydratedChannel = {
 };
 
 export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
-  keyMapping: {
-    _id: "id",
-    channel_type: "channelType",
-    recipients: "recipientIds",
-    user: "userId",
-    owner: "ownerId",
-    server: "serverId",
-    default_permissions: "defaultPermissions",
-    role_permissions: "rolePermissions",
-    last_message_id: "lastMessageId",
-    slowmode: "slowmode",
-  },
   functions: {
-    id: (channel) => channel._id,
-    channelType: (channel) => channel.channel_type,
-    name: (channel) => channel.name,
-    description: (channel) => channel.description!,
-    icon: (channel, ctx) => new File(ctx as Client, channel.icon!),
-    active: (channel) => channel.active || false,
-    typingIds: () => new ReactiveSet(),
-    recipientIds: (channel) => new ReactiveSet(channel.recipients),
-    userId: (channel) => channel.user,
-    ownerId: (channel) => channel.owner,
-    serverId: (channel) => channel.server,
-    permissions: (channel) => BigInt(channel.permissions!),
-    defaultPermissions: (channel) => ({
-      a: BigInt(channel.default_permissions?.a ?? 0),
-      d: BigInt(channel.default_permissions?.d ?? 0),
-    }),
-    rolePermissions: (channel) =>
+    _id: (channel) => ["id", channel._id],
+    channel_type: (channel) => ["channelType", channel.channel_type],
+    name: (channel) => ["name", channel.name],
+    description: (channel) => ["description", channel.description!],
+    icon: (channel, ctx) => ["icon", new File(ctx as Client, channel.icon!)],
+    active: (channel) => ["active", channel.active || false],
+    recipients: (channel) => [
+      "recipientIds",
+      new ReactiveSet(channel.recipients),
+    ],
+    user: (channel) => ["userId", channel.user],
+    owner: (channel) => ["ownerId", channel.owner],
+    server: (channel) => ["serverId", channel.server],
+    permissions: (channel) => ["permissions", BigInt(channel.permissions!)],
+    default_permissions: (channel) => [
+      "defaultPermissions",
+      {
+        a: BigInt(channel.default_permissions?.a ?? 0),
+        d: BigInt(channel.default_permissions?.d ?? 0),
+      },
+    ],
+    role_permissions: (channel) => [
+      "rolePermissions",
       Object.fromEntries(
         Object.entries(channel.role_permissions ?? {}).map(([k, v]) => [
           k,
@@ -74,10 +68,12 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
           },
         ]),
       ),
-    nsfw: (channel) => channel.nsfw || false,
-    lastMessageId: (channel) => channel.last_message_id!,
-    slowmode: (channel) => channel.slowmode ?? 0,
-    voice: (channel) =>
+    ],
+    nsfw: (channel) => ["nsfw", channel.nsfw || false],
+    last_message_id: (channel) => ["lastMessageId", channel.last_message_id!],
+    slowmode: (channel) => ["slowmode", channel.slowmode ?? 0],
+    voice: (channel) => [
+      "voice",
       !!channel.voice ||
       channel.channel_type === "DirectMessage" ||
       channel.channel_type === "Group"
@@ -85,6 +81,7 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
             maxUsers: channel.voice?.max_users || undefined,
           }
         : undefined,
+    ],
   },
   initialHydration: () => ({
     typingIds: new ReactiveSet(),

@@ -2,7 +2,6 @@ import type { Member as APIMember, MemberCompositeKey } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";
-import type { Merge } from "../lib/merge.js";
 
 import type { Hydrate } from "./index.js";
 
@@ -17,21 +16,20 @@ export type HydratedServerMember = {
 };
 
 export const serverMemberHydration: Hydrate<
-  Merge<APIMember>,
+  Omit<APIMember, "can_publish" | "can_receive">,
   HydratedServerMember
 > = {
-  keyMapping: {
-    _id: "id",
-    joined_at: "joinedAt",
-  },
   functions: {
-    id: (member) => member._id,
-    joinedAt: (member) => new Date(member.joined_at),
-    nickname: (member) => member.nickname!,
-    avatar: (member, ctx) => new File(ctx as Client, member.avatar!),
-    pronouns: (member) => member.pronouns!,
-    roles: (member) => member.roles,
-    timeout: (member) => new Date(member.timeout!),
+    _id: (member) => ["id", member._id],
+    joined_at: (member) => ["joinedAt", new Date(member.joined_at)],
+    nickname: (member) => ["nickname", member.nickname!],
+    avatar: (member, ctx) => [
+      "avatar",
+      new File(ctx as Client, member.avatar!),
+    ],
+    pronouns: (member) => ["pronouns", member.pronouns!],
+    roles: (member) => ["roles", member.roles],
+    timeout: (member) => ["timeout", new Date(member.timeout!)],
   },
   initialHydration: () => ({
     roles: [],

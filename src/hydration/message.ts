@@ -7,7 +7,6 @@ import { File } from "../classes/File.js";
 import { MessageWebhook } from "../classes/Message.js";
 import { MessageEmbed } from "../classes/MessageEmbed.js";
 import { SystemMessage } from "../classes/SystemMessage.js";
-import type { Merge } from "../lib/merge.js";
 
 import type { Hydrate } from "./index.js";
 
@@ -32,37 +31,38 @@ export type HydratedMessage = {
   flags?: MessageFlags;
 };
 
-export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
-  keyMapping: {
-    _id: "id",
-    channel: "channelId",
-    author: "authorId",
-    system: "systemMessage",
-    edited: "editedAt",
-    mentions: "mentionIds",
-    role_mentions: "roleMentionIds",
-    replies: "replyIds",
-  },
+export const messageHydration: Hydrate<
+  Omit<Message, "user" | "member">,
+  HydratedMessage
+> = {
   functions: {
-    id: (message) => message._id,
-    nonce: (message) => message.nonce!,
-    channelId: (message) => message.channel,
-    authorId: (message) => message.author,
-    webhook: (message, ctx) =>
+    _id: (message) => ["id", message._id],
+    nonce: (message) => ["nonce", message.nonce!],
+    channel: (message) => ["channelId", message.channel],
+    author: (message) => ["authorId", message.author],
+    webhook: (message, ctx) => [
+      "webhook",
       message.webhook
         ? new MessageWebhook(ctx as Client, message.webhook, message.author)
         : undefined,
-    content: (message) => message.content!,
-    systemMessage: (message, ctx) =>
+    ],
+    content: (message) => ["content", message.content!],
+    system: (message, ctx) => [
+      "systemMessage",
       SystemMessage.from(ctx as Client, message, message.system!),
-    attachments: (message, ctx) =>
+    ],
+    attachments: (message, ctx) => [
+      "attachments",
       message.attachments!.map((file) => new File(ctx as Client, file)),
-    editedAt: (message) => new Date(message.edited!),
-    embeds: (message, ctx) =>
+    ],
+    edited: (message) => ["editedAt", new Date(message.edited!)],
+    embeds: (message, ctx) => [
+      "embeds",
       message.embeds!.map((embed) => MessageEmbed.from(ctx as Client, embed)),
-    mentionIds: (message) => message.mentions!,
-    roleMentionIds: (message) => message.role_mentions!,
-    replyIds: (message) => message.replies!,
+    ],
+    mentions: (message) => ["mentionIds", message.mentions!],
+    role_mentions: (message) => ["roleMentionIds", message.role_mentions!],
+    replies: (message) => ["replyIds", message.replies!],
     reactions: (message) => {
       const map = new ReactiveMap<string, ReactiveSet<string>>();
       if (message.reactions) {
@@ -70,12 +70,12 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
           map.set(reaction, new ReactiveSet(message.reactions![reaction]));
         }
       }
-      return map;
+      return ["reactions", map];
     },
-    interactions: (message) => message.interactions,
-    masquerade: (message) => message.masquerade!,
-    pinned: (message) => message.pinned!,
-    flags: (message) => message.flags!,
+    interactions: (message) => ["interactions", message.interactions],
+    masquerade: (message) => ["masquerade", message.masquerade!],
+    pinned: (message) => ["pinned", message.pinned!],
+    flags: (message) => ["flags", message.flags!],
   },
   initialHydration: () => ({
     reactions: new ReactiveMap(),

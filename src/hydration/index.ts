@@ -12,10 +12,12 @@ import { userHydration } from "./user.js";
 /**
  * Functions to map from one object to another
  */
-export type MappingFns<Input, Output, Key extends keyof Output> = Record<
-  Key,
-  (value: Input, context: unknown) => Output[Key]
->;
+export type MappingFns<
+  Input,
+  Output,
+  InputKey extends keyof Input,
+  Key extends keyof Output,
+> = Record<InputKey, (value: Input, context: unknown) => [Key, Output[Key]]>;
 
 /**
  * Key mapping information
@@ -26,8 +28,7 @@ export type KeyMapping<Input, Output> = Record<keyof Input, keyof Output>;
  * Hydration information
  */
 export type Hydrate<Input, Output> = {
-  keyMapping: Partial<KeyMapping<Input, Output>>;
-  functions: MappingFns<Input, Output, keyof Output>;
+  functions: MappingFns<Input, Output, keyof Input, keyof Output>;
   initialHydration: () => Partial<Output>;
 };
 
@@ -43,10 +44,10 @@ function hydrateInternal<Input extends object, Output>(
   context: unknown,
 ): Output {
   return (Object.keys(input) as (keyof Input)[]).reduce((acc, key) => {
-    let targetKey, value;
+    let targetKey: keyof Output | undefined;
+    let value: Output[keyof Output];
     try {
-      targetKey = hydration.keyMapping[key] ?? key;
-      value = hydration.functions[targetKey as keyof Output](input, context);
+      [targetKey, value] = hydration.functions[key](input, context);
     } catch {
       if (key === "partial") {
         return {

@@ -1,7 +1,5 @@
 import type { Emoji as APIEmoji, EmojiParent } from "stoat-api";
 
-import type { Merge } from "../lib/merge.js";
-
 import type { Hydrate } from "./index.js";
 
 export type HydratedEmoji = {
@@ -13,18 +11,14 @@ export type HydratedEmoji = {
   nsfw: boolean;
 };
 
-export const emojiHydration: Hydrate<Merge<APIEmoji>, HydratedEmoji> = {
-  keyMapping: {
-    _id: "id",
-    creator_id: "creatorId",
-  },
+export const emojiHydration: Hydrate<APIEmoji, HydratedEmoji> = {
   functions: {
-    id: (emoji) => emoji._id,
-    parent: (emoji) => emoji.parent,
-    creatorId: (emoji) => emoji.creator_id,
-    name: (emoji) => emoji.name,
-    animated: (emoji) => emoji.animated || false,
-    nsfw: (emoji) => emoji.nsfw || false,
+    _id: (emoji) => ["id", emoji._id],
+    parent: (emoji) => ["parent", emoji.parent],
+    creator_id: (emoji) => ["creatorId", emoji.creator_id],
+    name: (emoji) => ["name", emoji.name],
+    animated: (emoji) => ["animated", emoji.animated || false],
+    nsfw: (emoji) => ["nsfw", emoji.nsfw || false],
   },
   initialHydration: () => ({}),
 };
