@@ -21,7 +21,7 @@ export const channelUnreadHydration: Hydrate<
       new ReactiveSet(unread.mentions!),
     ],
   },
-  postHydration: () => ({
-    messageMentionIds: new ReactiveSet(),
-  }),
+  postInitialHydration: (hydrated) => {
+    hydrated.messageMentionIds ||= new ReactiveSet();
+  },
 };

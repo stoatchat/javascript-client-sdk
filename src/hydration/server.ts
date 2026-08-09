@@ -70,10 +70,10 @@ export const serverHydration: Hydrate<APIServer, HydratedServer> = {
     discoverable: (server) => ["discoverable", server.discoverable || false],
     nsfw: (server) => ["nsfw", server.nsfw || false],
   },
-  postHydration: () => ({
-    channelIds: new ReactiveSet(),
-    roles: new ReactiveMap(),
-  }),
+  postInitialHydration: (hydrated) => {
+    hydrated.channelIds ||= new ReactiveSet();
+    hydrated.roles ||= new ReactiveMap();
+  },
 };
 
 /**

@@ -27,5 +27,5 @@ export const channelWebhookHydration: Hydrate<
     channel_id: (webhook) => ["channelId", webhook.channel_id],
     token: (webhook) => ["token", webhook.token!],
   },
-  postHydration: () => ({}),
+  postInitialHydration: () => ({}),
 };

@@ -77,9 +77,9 @@ export const messageHydration: Hydrate<
     pinned: (message) => ["pinned", message.pinned!],
     flags: (message) => ["flags", message.flags!],
   },
-  postHydration: () => ({
-    reactions: new ReactiveMap(),
-  }),
+  postInitialHydration: (hydrated) => {
+    hydrated.reactions ||= new ReactiveMap();
+  },
 };
 
 /**

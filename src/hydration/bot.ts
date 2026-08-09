@@ -31,7 +31,7 @@ export const botHydration: Hydrate<APIBot, HydratedBot> = {
     privacy_policy_url: (bot) => ["privacyPolicyUrl", bot.privacy_policy_url!],
     flags: (bot) => ["flags", bot.flags!],
   },
-  postHydration: () => ({}),
+  postInitialHydration: () => ({}),
 };
 
 /**

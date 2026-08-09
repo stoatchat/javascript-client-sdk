@@ -20,5 +20,5 @@ export const emojiHydration: Hydrate<APIEmoji, HydratedEmoji> = {
     animated: (emoji) => ["animated", emoji.animated || false],
     nsfw: (emoji) => ["nsfw", emoji.nsfw || false],
   },
-  postHydration: () => ({}),
+  postInitialHydration: () => ({}),
 };

@@ -83,8 +83,8 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
         : undefined,
     ],
   },
-  postHydration: () => ({
-    typingIds: new ReactiveSet(),
-    recipientIds: new ReactiveSet(),
-  }),
+  postInitialHydration: (hydrated) => {
+    hydrated.typingIds ||= new ReactiveSet();
+    hydrated.recipientIds ||= new ReactiveSet();
+  },
 };

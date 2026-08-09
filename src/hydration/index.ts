@@ -29,7 +29,7 @@ export type KeyMapping<Input, Output> = Record<keyof Input, keyof Output>;
  */
 export type Hydrate<Input, Output> = {
   functions: MappingFns<Input, Output, keyof Input, keyof Output>;
-  postHydration: () => Partial<Output>;
+  postInitialHydration: (hydrated: Output) => void;
 };
 
 /**
@@ -71,13 +71,7 @@ function hydrateInternal<Input extends object, Output>(
   );
 
   if (initial) {
-    const toAppend = hydration.postHydration();
-    for (const k in toAppend) {
-      const val = toAppend[k];
-      if (val !== undefined) {
-        hydrated[k] = val;
-      }
-    }
+    hydration.postInitialHydration(hydrated);
   }
 
   return hydrated;
