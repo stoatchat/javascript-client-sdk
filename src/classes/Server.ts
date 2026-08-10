@@ -22,6 +22,8 @@ import { decodeTime } from "ulid";
 import type { ServerCollection } from "../collections/ServerCollection.js";
 import { hydrate } from "../hydration/index.js";
 import type { ServerFlags } from "../hydration/server.js";
+import { HydratedServerMember } from "../hydration/serverMember.js";
+import { HydratedUser } from "../hydration/user.js";
 import {
   bitwiseAndEq,
   calculatePermission,
@@ -675,10 +677,7 @@ export class Server {
 
   #synced: undefined | "partial" | "full";
 
-  async syncMembers(
-    excludeOffline?: boolean,
-    excludeOfflineUserCap?: number,
-  ): Promise<void> {
+  async syncMembers(excludeOffline?: boolean): Promise<void> {
     if (this.#synced && (this.#synced === "full" || excludeOffline)) return;
 
     const data = await this.#collection.client.api.get(
@@ -686,67 +685,37 @@ export class Server {
       { exclude_offline: excludeOffline },
     );
 
+    const newUsers: HydratedUser[] = [];
+    const newServerMembers: HydratedServerMember[] = [];
+
+    for (let i = 0; i < data.users.length; i++) {
+      const user = data.users[i];
+      if (!excludeOffline || user.online) {
+        const newUser = this.#collection.client.users.hydrateIfNotHas(
+          user._id,
+          user,
+        );
+        if (newUser) {
+          newUsers.push(newUser);
+        }
+        const newMember = this.#collection.client.serverMembers.hydrateIfNotHas(
+          data.members[i]._id,
+          data.members[i],
+        );
+        if (newMember) {
+          newServerMembers.push(newMember);
+        }
+      }
+    }
+
     batch(() => {
-      if (excludeOffline && excludeOfflineUserCap) {
-        // quick fix to cap users
-        let count = 0;
-
-        for (
-          let i = 0;
-          i < data.users.length && count < excludeOfflineUserCap;
-          i++
-        ) {
-          const user = data.users[i];
-          if (user.online && data.members[i].roles?.length) {
-            this.#collection.client.users.getOrCreate(user._id, user);
-            this.#collection.client.serverMembers.getOrCreate(
-              data.members[i]._id,
-              data.members[i],
-            );
-
-            count++;
-          }
-        }
-
-        for (
-          let i = 0;
-          i < data.users.length && count < excludeOfflineUserCap;
-          i++
-        ) {
-          const user = data.users[i];
-          if (user.online && !data.members[i].roles?.length) {
-            this.#collection.client.users.getOrCreate(user._id, user);
-            this.#collection.client.serverMembers.getOrCreate(
-              data.members[i]._id,
-              data.members[i],
-            );
-
-            count++;
-          }
-        }
-        // end quick fix
-      } else if (excludeOffline) {
-        for (let i = 0; i < data.users.length; i++) {
-          const user = data.users[i];
-          if (user.online) {
-            this.#collection.client.users.getOrCreate(user._id, user);
-            this.#collection.client.serverMembers.getOrCreate(
-              data.members[i]._id,
-              data.members[i],
-            );
-          }
-        }
-      } else {
-        for (let i = 0; i < data.users.length; i++) {
-          this.#collection.client.users.getOrCreate(
-            data.users[i]._id,
-            data.users[i],
-          );
-          this.#collection.client.serverMembers.getOrCreate(
-            data.members[i]._id,
-            data.members[i],
-          );
-        }
+      for (const newUser of newUsers) {
+        this.#collection.client.users.addHydratedUser(newUser);
+      }
+      for (const newServerMember of newServerMembers) {
+        this.#collection.client.serverMembers.addHydratedServerMember(
+          newServerMember,
+        );
       }
     });
   }
