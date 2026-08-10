@@ -73,7 +73,7 @@ export class UserCollection extends ClassCollection<User, HydratedUser> {
   /**
    * Hydrate a new user if it is not in the collection yet. This function does
    * not add the user to the store, make sure you call
-   * UserCollection.addHydratedUser afterwards. This function is particularly
+   * {@link addHydratedUser} afterwards. This function is particularly
    * useful when adding many users asynchronously. See Server.syncMembers for
    * an example of this in use.
    * @param id The ID of the user

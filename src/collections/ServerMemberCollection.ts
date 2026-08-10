@@ -101,8 +101,8 @@ export class ServerMemberCollection extends ClassCollection<
   /**
    * Hydrate a new server member if it is not in the collection yet. This
    * function does not add the server member to the store, make sure you call
-   * ServerMemberCollection.addHydratedServerMember afterwards. This function
-   * is particularly useful when adding many server members asynchronously. See
+   * {@link addHydratedServerMember} afterwards. This function is particularly
+   * useful when adding many server members asynchronously. See
    * Server.syncMembers for an example of this in use.
    * @param id The ID of the server member
    * @param data The API object for a server member

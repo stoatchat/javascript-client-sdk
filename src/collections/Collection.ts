@@ -187,6 +187,12 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
     return this.#storage.hydrateOnly(type, context, data);
   }
 
+  /**
+   * Add a previously hydrated object to the collection
+   * @param id Id
+   * @param instance Instance
+   * @param hydrated Hydrated
+   */
   protected add(id: string, instance: T, hydrated: V) {
     this.#storage.add(id, hydrated);
     this.#objects.set(id, instance);

@@ -49,8 +49,8 @@ export class ObjectStorage<T> {
   }
 
   /**
-   * Hydrate some data without putting it into storage. Call add afterwards to
-   * add the hydrated value into storage.
+   * Hydrate some data without putting it into storage. Call {@link add}
+   * afterwards to add the hydrated value into storage.
    * @param type Hydration type
    * @param context Context
    * @param data Input Data
