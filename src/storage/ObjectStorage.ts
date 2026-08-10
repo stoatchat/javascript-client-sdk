@@ -47,4 +47,26 @@ export class ObjectStorage<T> {
       this.set(id, hydrate(type, data as never, context, true) as T);
     }
   }
+
+  /**
+   * Hydrate some data without putting it into storage. Call {@link add}
+   * afterwards to add the hydrated value into storage.
+   * @param type Hydration type
+   * @param context Context
+   * @param data Input Data
+   * @returns The hydrated type
+   */
+  hydrateOnly(type: keyof Hydrators, context: unknown, data: object): T {
+    data = { partial: false, ...data };
+    return hydrate(type, data as never, context, true) as T;
+  }
+
+  /**
+   * Add a previously hydrated object to the storage
+   * @param id ID
+   * @param toAdd Hydrated object
+   */
+  add(id: string, toAdd: T) {
+    this.set(id, toAdd);
+  }
 }

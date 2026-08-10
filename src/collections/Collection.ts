@@ -176,6 +176,29 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
   }
 
   /**
+   * Hydrate a new instance of an object. This function does not add the object to the collection.
+   * @param id Id
+   * @param type Type
+   * @param instance Instance
+   * @param context Context
+   * @param data Data
+   */
+  protected hydrate(type: keyof Hydrators, context: unknown, data: object): V {
+    return this.#storage.hydrateOnly(type, context, data);
+  }
+
+  /**
+   * Add a previously hydrated object to the collection
+   * @param id Id
+   * @param instance Instance
+   * @param hydrated Hydrated
+   */
+  protected add(id: string, instance: T, hydrated: V) {
+    this.#storage.add(id, hydrated);
+    this.#objects.set(id, instance);
+  }
+
+  /**
    * Check whether an object is partially defined
    * @param id Id
    * @returns Whether it is a partial

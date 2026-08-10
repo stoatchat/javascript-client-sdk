@@ -42,7 +42,6 @@ export class UserCollection extends ClassCollection<User, HydratedUser> {
    * Get or create
    * @param id Id
    * @param data Data
-   * @param isNew Whether this object is new
    */
   getOrCreate(id: string, data: APIUser): User {
     if (this.has(id) && !this.isPartial(id)) {
@@ -69,5 +68,33 @@ export class UserCollection extends ClassCollection<User, HydratedUser> {
       });
       return instance;
     }
+  }
+
+  /**
+   * Hydrate a new user if it is not in the collection yet. This function does
+   * not add the user to the store, make sure you call {@link addHydratedUser}
+   * afterwards. This function is particularly useful when adding many users
+   * asynchronously. See Server.syncMembers for an example of this in use.
+   * @param id The ID of the user
+   * @param data The API object for a user
+   * @returns The HydratedUser, or undefined if the user is in the collection
+   */
+  hydrateIfNotHas(id: string, data: APIUser): HydratedUser | undefined {
+    if (this.has(id) && !this.isPartial(id)) {
+      return;
+    } else {
+      return this.hydrate("user", this.client, data);
+    }
+  }
+
+  /**
+   * Add a pre-hydrated user to this collection.
+   * @param user A hydrated user
+   * @returns The user instance
+   */
+  addHydratedUser(user: HydratedUser): User {
+    const instance = new User(this, user.id);
+    this.add(user.id, instance, user);
+    return instance;
   }
 }
