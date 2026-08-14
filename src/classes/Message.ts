@@ -260,7 +260,9 @@ export class Message {
       this.masquerade?.name ??
       (webhook
         ? webhook.name
-        : (this.member?.nickname ?? this.author?.username))
+        : (this.member?.nickname ??
+          this.author?.displayName ??
+          this.author?.username))
     );
   }
 
