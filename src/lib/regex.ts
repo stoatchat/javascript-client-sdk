@@ -1,17 +1,17 @@
 /**
  * Regular expression for mentions.
  */
-export const RE_MENTIONS = /<@([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26})>/g;
+export const RE_MENTIONS = /<@([ABCDEFGHJKMNPQRSTVWXYZ\d]{26})>/g;
 
 /**
  * Regular expression for channels.
  */
-export const RE_CHANNELS = /<#([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26})>/g;
+export const RE_CHANNELS = /<#([ABCDEFGHJKMNPQRSTVWXYZ\d]{26})>/g;
 
 /**
  * Regular expression for stripping custom emojis.
  */
-export const RE_CUSTOM_EMOJI = /:([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26}):/g;
+export const RE_CUSTOM_EMOJI = /:([ABCDEFGHJKMNPQRSTVWXYZ\d]{26}):/g;
 
 /**
  * Regular expression for spoilers.
