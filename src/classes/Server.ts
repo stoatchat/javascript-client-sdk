@@ -14,6 +14,7 @@ import type {
   DataCreateServerChannel,
   DataEditRole,
   DataEditServer,
+  DiscoverRequest,
   Override,
   Role,
 } from "stoat-api";
@@ -851,5 +852,34 @@ export class Server {
     }
 
     return highest;
+  }
+
+  /**
+   * Add server to the discover request queue
+   */
+  async requestDiscover(): Promise<void> {
+    await this.#collection.client.api.put(`/servers/${this.id as ""}/discover`);
+  }
+
+  /**
+   * Get the status of the discover request for this server
+   * @returns The discovery request for this server if one exists
+   */
+  async discoverRequestStatus(): Promise<DiscoverRequest> {
+    return await this.#collection.client.api.get(
+      `/servers/${this.id as ""}/discover`,
+    );
+  }
+
+  /**
+   * Cancel the discover request for this server
+   *
+   * This cannot be used to remove servers from discover that have already been accepted
+   * and should only be called on servers that have an outstanding discover request.
+   */
+  async cancelDiscoverRequest() {
+    await this.#collection.client.api.delete(
+      `/servers/${this.id as ""}/discover`,
+    );
   }
 }
