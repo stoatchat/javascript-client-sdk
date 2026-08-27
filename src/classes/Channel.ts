@@ -285,7 +285,7 @@ export class Channel {
    * Time when the last message was sent
    */
   get lastMessageAt(): Date | undefined {
-    return this.lastMessageId
+    return this.lastMessageId && this.lastMessageId.length === 26
       ? new Date(decodeTime(this.lastMessageId))
       : undefined;
   }
