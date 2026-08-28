@@ -905,6 +905,10 @@ export async function handleEvent(
       break;
     }
     case "UserRelationship": {
+      // Live UserUpdate events are dropped for unknown users (see UserUpdate
+      // below), so make sure this user exists in the cache before delegating.
+      client.users.getOrCreate(event.user._id, event.user);
+
       handleEvent(
         client,
         {
