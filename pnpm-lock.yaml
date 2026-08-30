@@ -24,8 +24,8 @@ importers:
         specifier: ^1.9.14
         version: 1.9.14
       stoat-api:
-        specifier: 0.14.3
-        version: 0.14.3
+        specifier: 0.15.3
+        version: 0.15.3
       ulid:
         specifier: ^3.0.2
         version: 3.0.2
@@ -832,8 +832,8 @@ packages:
   solid-js@1.9.14:
     resolution: {integrity: sha512-sAEXC0Kk0S1EDg+8ysEWJDbYhA3RRoEjwuySUGlKIemeo0I5YZfOyumNjNs9Sv3y2nmhD+0rW66ag2HsMuQiGQ==}
 
-  stoat-api@0.14.3:
-    resolution: {integrity: sha512-OCsHP8jPFp2pwwIxiSnLhgfI+bNJJ4kkUBOAOIGQedLR6iRYoJojxSB+uk/TJNinnc1ADGM+QZb8Q115p6+POA==}
+  stoat-api@0.15.3:
+    resolution: {integrity: sha512-r08FplgeZWft4Hd2CK1tZ7EEzhocUyy/aeeOGBrKC6vy3ANsDhcMzGdJioYQ3jpzH+jFIPLQJzBaJK27Wf3Vug==}
 
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
@@ -1685,7 +1685,7 @@ snapshots:
       seroval: 1.5.6
       seroval-plugins: 1.5.6(seroval@1.5.6)
 
-  stoat-api@0.14.3:
+  stoat-api@0.15.3:
     dependencies:
       json-with-bigint: 3.4.4
 

@@ -1,4 +1,4 @@
-import type { DataEditBot } from "stoat-api";
+import type { DataEditBot, DiscoverRequest } from "stoat-api";
 import { decodeTime } from "ulid";
 
 import type { BotCollection } from "../collections/BotCollection.js";
@@ -157,5 +157,32 @@ export class Bot {
   async delete(): Promise<void> {
     await this.#collection.client.api.delete(`/bots/${this.id as ""}`);
     this.#collection.delete(this.id);
+  }
+
+  /**
+   * Add bot to the discover request queue
+   */
+  async requestDiscover(): Promise<void> {
+    await this.#collection.client.api.put(`/bots/${this.id as ""}/discover`);
+  }
+
+  /**
+   * Get the status of the discover request for this bot
+   * @returns The discovery request for this bot if one exists
+   */
+  async discoverRequestStatus(): Promise<DiscoverRequest> {
+    return await this.#collection.client.api.get(
+      `/bots/${this.id as ""}/discover`,
+    );
+  }
+
+  /**
+   * Cancel the discover request for this bot
+   *
+   * This cannot be used to remove bots from discover that have already been accepted
+   * and should only be called on bots that have an outstanding discover request.
+   */
+  async cancelDiscoverRequest() {
+    await this.#collection.client.api.delete(`/bots/${this.id as ""}/discover`);
   }
 }
