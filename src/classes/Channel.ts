@@ -27,7 +27,7 @@ import { ChannelCollection } from "../collections/index.js";
 import { UserSlowmodes } from "../events/v1.js";
 import { hydrate } from "../hydration/index.js";
 import { APIMessageDec } from "../hydration/message.js";
-import { decryptStr, encryptStr } from "../lib/e2ee.js";
+import { EncryptError, decryptStr, encryptStr } from "../lib/e2ee.js";
 import {
   bitwiseAndEq,
   calculatePermission,
@@ -608,7 +608,7 @@ export class Channel {
 
     let decoded: string | undefined;
     if (this.e2e) {
-      if (!this.key) throw "No encryption key!";
+      if (!this.key) throw new EncryptError("no_key");
       if (msg.content) {
         decoded = msg.content;
         msg.content = await encryptStr(this.key, msg.content);

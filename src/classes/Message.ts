@@ -12,7 +12,7 @@ import { decodeTime } from "ulid";
 import type { Client } from "../Client.js";
 import type { MessageCollection } from "../collections/MessageCollection.js";
 import { APIMessageDec, MessageFlags } from "../hydration/message.js";
-import { decryptStr, encryptStr } from "../lib/e2ee.js";
+import { EncryptError, decryptStr, encryptStr } from "../lib/e2ee.js";
 
 import type { Channel } from "./Channel.js";
 import { File } from "./File.js";
@@ -357,7 +357,7 @@ export class Message {
   async edit(data: DataEditMessage): Promise<APIMessage> {
     const chan = this.channel;
     if (chan?.e2e) {
-      if (!chan.key) throw "No encryption key!";
+      if (!chan.key) throw new EncryptError("no_key");
       if (data.content) data.content = await encryptStr(chan.key, data.content);
     }
 
