@@ -199,6 +199,13 @@ export class Server {
   }
 
   /**
+   * Approximate amount of members in this server
+   */
+  get approximateMemberCount(): number {
+    return this.#collection.getUnderlyingObject(this.id).approximateMemberCount;
+  }
+
+  /**
    * Whether this server is marked as mature
    */
   get mature(): boolean {

@@ -33,6 +33,7 @@ export type HydratedServer = {
   analytics: boolean;
   discoverable: boolean;
   nsfw: boolean;
+  approximateMemberCount: number;
 };
 
 export const serverHydration: Hydrate<APIServer, HydratedServer> = {
@@ -42,6 +43,7 @@ export const serverHydration: Hydrate<APIServer, HydratedServer> = {
     channels: "channelIds",
     system_messages: "systemMessages",
     default_permissions: "defaultPermissions",
+    approximate_member_count: "approximateMemberCount",
   },
   functions: {
     id: (server) => server._id,
@@ -65,6 +67,7 @@ export const serverHydration: Hydrate<APIServer, HydratedServer> = {
     analytics: (server) => server.analytics || false,
     discoverable: (server) => server.discoverable || false,
     nsfw: (server) => server.nsfw || false,
+    approximateMemberCount: (server) => server.approximate_member_count ?? 0,
   },
   initialHydration: () => ({
     channelIds: new ReactiveSet(),
