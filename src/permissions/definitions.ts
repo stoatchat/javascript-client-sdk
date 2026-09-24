@@ -95,8 +95,11 @@ export const Permission = {
   // Access server audit logs
   ViewAuditLogs: 2n ** 40n,
 
+  /// Use emoji from other servers
+  UseExternalEmojis: 2n ** 41n,
+
   // * Misc. permissions
-  // % Bits 41 to 52: free area
+  // % Bits 42 to 52: free area
   // % Bits 53 to 64: do not use
 
   // * Grant all permissions
@@ -153,4 +156,5 @@ export const DEFAULT_PERMISSION_SERVER =
   DEFAULT_PERMISSION +
   Permission.React +
   Permission.ChangeNickname +
-  Permission.ChangeAvatar;
+  Permission.ChangeAvatar +
+  Permission.UseExternalEmojis;
