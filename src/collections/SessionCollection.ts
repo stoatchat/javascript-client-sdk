@@ -2,6 +2,7 @@ import { batch } from "solid-js";
 
 import type { SessionInfo } from "stoat-api";
 
+import { MFATicket } from "../classes/MFA.js";
 import { Session } from "../classes/Session.js";
 import type { HydratedSession } from "../hydration/session.js";
 
@@ -29,10 +30,19 @@ export class SessionCollection extends ClassCollection<
    * Delete all sessions, optionally including self
    * @param revokeSelf Whether to remove current session too
    */
-  async deleteAll(revokeSelf = false): Promise<void> {
-    await this.client.api.delete("/auth/session/all", {
-      revoke_self: revokeSelf,
-    });
+  async deleteAll(ticket: MFATicket, revokeSelf = false): Promise<void> {
+    ticket._consume();
+    await this.client.api.delete(
+      "/auth/session/all",
+      {
+        revoke_self: revokeSelf,
+      },
+      {
+        headers: {
+          "X-MFA-Ticket": ticket.token,
+        },
+      },
+    );
 
     for (const entry of this.toList()) {
       if (!revokeSelf && entry.current) continue;

@@ -4,6 +4,11 @@ import type { Client } from "../Client.js";
 import { UserVoiceState } from "../events/v1.js";
 
 /**
+ * The voice status of an entity. Screenshare supersedes video, video supersedes voice, and voice supersedes none.
+ */
+export type VoiceStatus = "none" | "voice" | "video" | "screenshare";
+
+/**
  * Voice Participant
  */
 export class VoiceParticipant {
@@ -70,5 +75,18 @@ export class VoiceParticipant {
     if (typeof data.camera === "boolean") {
       this.#setCamera(data.camera);
     }
+  }
+
+  /**
+   * The voice status of a participant. Screenshare supersedes video, video supersedes voice, and voice supersedes none.
+   */
+  get voiceStatus(): VoiceStatus {
+    if (this.isScreensharing()) {
+      return "screenshare";
+    }
+    if (this.isCamera()) {
+      return "video";
+    }
+    return "voice";
   }
 }

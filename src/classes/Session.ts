@@ -2,6 +2,8 @@ import { decodeTime } from "ulid";
 
 import type { SessionCollection } from "../collections/SessionCollection.js";
 
+import { MFATicket } from "./MFA.js";
+
 /**
  * Session Class
  */
@@ -70,8 +72,17 @@ export class Session {
   /**
    * Delete a session
    */
-  async delete(): Promise<void> {
-    await this.#collection.client.api.delete(`/auth/session/${this.id as ""}`);
+  async delete(ticket: MFATicket): Promise<void> {
+    ticket._consume();
+    await this.#collection.client.api.delete(
+      `/auth/session/${this.id as ""}`,
+      undefined,
+      {
+        headers: {
+          "X-MFA-Ticket": ticket.token,
+        },
+      },
+    );
     this.#collection.delete(this.id);
   }
 }

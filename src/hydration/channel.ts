@@ -1,10 +1,8 @@
-import { ReactiveMap } from "@solid-primitives/map";
 import { ReactiveSet } from "@solid-primitives/set";
 import type { Channel as APIChannel } from "stoat-api";
 
 import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";
-import { VoiceParticipant } from "../classes/VoiceParticipant.js";
 import type { Merge } from "../lib/merge.js";
 
 import type { Hydrate } from "./index.js";
@@ -29,6 +27,7 @@ export type HydratedChannel = {
   defaultPermissions?: { a: bigint; d: bigint };
   rolePermissions?: Record<string, { a: bigint; d: bigint }>;
   nsfw: boolean;
+  slowmode: number;
 
   lastMessageId?: string;
 
@@ -46,6 +45,7 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
     default_permissions: "defaultPermissions",
     role_permissions: "rolePermissions",
     last_message_id: "lastMessageId",
+    slowmode: "slowmode",
   },
   functions: {
     id: (channel) => channel._id,
@@ -76,6 +76,7 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
       ),
     nsfw: (channel) => channel.nsfw || false,
     lastMessageId: (channel) => channel.last_message_id!,
+    slowmode: (channel) => channel.slowmode ?? 0,
     voice: (channel) =>
       !!channel.voice ||
       channel.channel_type === "DirectMessage" ||

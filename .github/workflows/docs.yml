@@ -4,19 +4,22 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write
+
 jobs:
   docs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository and submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           submodules: recursive
       - uses: pnpm/action-setup@v4.0.0
       - name: Use Node.js LTS
         uses: actions/setup-node@v3
         with:
-          node-version: 22
+          node-version: 26
           cache: "pnpm"
       - name: Install packages
         run: pnpm install
@@ -25,7 +28,7 @@ jobs:
         run: pnpm run docs
 
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@4.1.5
+        uses: JamesIves/github-pages-deploy-action@v4.8.0
         with:
           branch: docs
           folder: docs

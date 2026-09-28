@@ -260,7 +260,9 @@ export class Message {
       this.masquerade?.name ??
       (webhook
         ? webhook.name
-        : (this.member?.nickname ?? this.author?.username))
+        : (this.member?.nickname ??
+          this.author?.displayName ??
+          this.author?.username))
     );
   }
 
@@ -269,6 +271,13 @@ export class Message {
    */
   get roleColour(): string | null | undefined {
     return this.masquerade?.colour ?? this.member?.roleColour;
+  }
+
+  /**
+   * Get the role colour for this message
+   */
+  get iconRole(): ServerRole | null | undefined {
+    return this.member?.iconRole;
   }
 
   /**

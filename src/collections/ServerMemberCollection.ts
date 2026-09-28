@@ -97,4 +97,36 @@ export class ServerMemberCollection extends ClassCollection<
       return instance;
     }
   }
+
+  /**
+   * Hydrate a new server member if it is not in the collection yet. This
+   * function does not add the server member to the store, make sure you call
+   * {@link addHydratedServerMember} afterwards. This function is particularly
+   * useful when adding many server members asynchronously. See
+   * Server.syncMembers for an example of this in use.
+   * @param id The ID of the server member
+   * @param data The API object for a server member
+   * @returns The HydratedServerMember, or undefined if the user is in the collection
+   */
+  hydrateIfNotHas(
+    id: MemberCompositeKey,
+    data: Member,
+  ): HydratedServerMember | undefined {
+    if (this.hasByKey(id) && !this.isPartialByKey(id)) {
+      return;
+    } else {
+      return this.hydrate("serverMember", this.client, data);
+    }
+  }
+
+  /**
+   * Add a pre-hydrated server member to this collection.
+   * @param user A hydrated server member
+   * @returns The server member instance
+   */
+  addHydratedServerMember(member: HydratedServerMember): ServerMember {
+    const instance = new ServerMember(this, member.id);
+    this.add(member.id.server + member.id.user, instance, member);
+    return instance;
+  }
 }

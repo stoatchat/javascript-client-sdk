@@ -1,7 +1,8 @@
-import type { EmojiParent } from "stoat-api";
+import type { DataEditEmoji, EmojiParent } from "stoat-api";
 import { decodeTime } from "ulid";
 
 import type { EmojiCollection } from "../collections/EmojiCollection.js";
+import { hydrate } from "../hydration/index.js";
 
 import type { User } from "./User.js";
 
@@ -88,6 +89,21 @@ export class Emoji {
     return `${this.#collection.client.configuration?.features.autumn.url}/emojis/${
       this.id
     }`;
+  }
+
+  async edit(data: DataEditEmoji): Promise<void> {
+    this.#collection.updateUnderlyingObject(
+      this.id,
+      hydrate(
+        "emoji",
+        await this.#collection.client.api.patch(
+          `/custom/emoji/${this.id as ""}`,
+          data,
+        ),
+        this.#collection.client,
+        false,
+      ),
+    );
   }
 
   /**

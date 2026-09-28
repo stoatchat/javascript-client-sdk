@@ -45,15 +45,24 @@ export class File {
    */
   constructor(
     client: Client,
-    file: Pick<APIFile, "_id" | "tag" | "metadata"> & Partial<APIFile>,
+    file: (Pick<APIFile, "_id" | "tag" | "metadata"> & Partial<APIFile>) | File,
   ) {
     this.#client = client;
-    this.id = file._id;
-    this.tag = file.tag;
-    this.filename = file.filename;
-    this.metadata = file.metadata;
-    this.contentType = file.content_type;
-    this.size = file.size;
+    if (file instanceof File) {
+      this.id = file.id;
+      this.tag = file.tag;
+      this.filename = file.filename;
+      this.metadata = file.metadata;
+      this.contentType = file.contentType;
+      this.size = file.size;
+    } else {
+      this.id = file._id;
+      this.tag = file.tag;
+      this.filename = file.filename;
+      this.metadata = file.metadata;
+      this.contentType = file.content_type;
+      this.size = file.size;
+    }
   }
 
   /**
