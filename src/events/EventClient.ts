@@ -3,7 +3,7 @@ import { createSignal } from "solid-js";
 
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import { JSONParse, JSONStringify } from "json-with-bigint";
-import type { Error } from "stoat-api";
+import type { Error as StoatError } from "stoat-api";
 
 import type { ProtocolV1 } from "./v1.js";
 
@@ -67,7 +67,7 @@ export interface EventClientOptions {
  * Events provided by the client.
  */
 type Events<T extends AvailableProtocols, P extends EventProtocol<T>> = {
-  error: [error: Error];
+  error: [error: StoatError | Error | Event];
   event: [event: P["server"]];
   state: [state: ConnectionState];
 };
@@ -94,8 +94,11 @@ export class EventClient<
   #pongTimeoutReference: number | undefined;
   #connectTimeoutReference: number | undefined;
 
-  #lastError: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  { type: "socket"; data: any } | { type: "revolt"; data: Error } | undefined;
+  #lastError:
+    | { type: "socket"; data: Event }
+    | { type: "revolt"; data: StoatError }
+    | { type: "protocol"; data: Error }
+    | undefined;
 
   /**
    * Create a new event client.
@@ -130,6 +133,10 @@ export class EventClient<
     this.#setPing = setPing;
 
     this.disconnect = this.disconnect.bind(this);
+    this.dispose = this.dispose.bind(this);
+    this.send = this.send.bind(this);
+    this.connect = this.connect.bind(this);
+    this.handle = this.handle.bind(this);
   }
 
   /**
@@ -142,18 +149,31 @@ export class EventClient<
   }
 
   /**
+   * Clear all pending connection timers. Call on disconnect.
+   * Idempotent — safe to call multiple times.
+   */
+  private clearTimers(): void {
+    clearInterval(this.#heartbeatIntervalReference);
+    clearTimeout(this.#connectTimeoutReference);
+    clearTimeout(this.#pongTimeoutReference);
+    this.#heartbeatIntervalReference = undefined;
+    this.#connectTimeoutReference = undefined;
+    this.#pongTimeoutReference = undefined;
+  }
+
+  /**
    * Connect to the websocket service.
    * @param uri WebSocket URI
    * @param token Authentication token
    */
   connect(uri: string, token: string): void {
-    this.disconnect();
+    this.dispose();
     this.#lastError = undefined;
     this.setState(ConnectionState.Connecting);
 
     this.#connectTimeoutReference = setTimeout(
       () => this.disconnect(),
-      this.options.pongTimeout * 1e3,
+      this.options.connectTimeout * 1e3,
     ) as never;
 
     const url = new URL(uri);
@@ -175,9 +195,10 @@ export class EventClient<
     // url.searchParams.append("ready", "unreads or something");
     // url.searchParams.append("ready", "policy_changes");
 
-    this.#socket = new WebSocket(url);
+    const socket = (this.#socket = new WebSocket(url));
 
-    this.#socket.onopen = () => {
+    socket.onopen = () => {
+      if (this.#socket !== socket) return; // stale, a newer socket exists
       this.#heartbeatIntervalReference = setInterval(() => {
         this.send({ type: "Ping", data: +new Date() });
         this.#pongTimeoutReference = setTimeout(
@@ -187,29 +208,50 @@ export class EventClient<
       }, this.options.heartbeatInterval * 1e3) as never;
     };
 
-    this.#socket.onerror = (error) => {
+    socket.onerror = (error) => {
+      if (this.#socket !== socket) return; // stale, a newer socket exists
       this.#lastError = { type: "socket", data: error };
-      this.emit("error", error as never);
+      this.emit("error", error);
     };
 
-    this.#socket.onmessage = (event) => {
+    socket.onmessage = (event) => {
+      if (this.#socket !== socket) return; // stale, a newer socket exists
       clearInterval(this.#connectTimeoutReference);
 
       if (this.#transportFormat === "json") {
         if (typeof event.data === "string") {
-          this.handle(JSONParse(event.data));
+          try {
+            this.handle(JSONParse(event.data));
+          } catch (e) {
+            const error = e instanceof Error ? e : new Error(String(e));
+            this.#lastError = { type: "protocol", data: error };
+            this.disconnect();
+            this.emit("error", error);
+          }
         }
       }
     };
 
     let closed = false;
-    this.#socket.onclose = () => {
+    socket.onclose = () => {
       if (closed) return;
       closed = true;
+      if (this.#socket !== socket) return; // stale, a newer socket exists
       this.#socket = undefined;
+      this.clearTimers();
       this.setState(ConnectionState.Disconnected);
-      this.disconnect();
     };
+  }
+
+  /**
+   * Dispose the websocket client.
+   */
+  dispose(): void {
+    if (!this.#socket) return;
+    this.clearTimers();
+    const socket = this.#socket;
+    this.#socket = undefined;
+    socket.close();
   }
 
   /**
@@ -217,12 +259,8 @@ export class EventClient<
    */
   disconnect(): void {
     if (!this.#socket) return;
-    clearInterval(this.#heartbeatIntervalReference);
-    clearInterval(this.#connectTimeoutReference);
-    clearInterval(this.#pongTimeoutReference);
-    const socket = this.#socket;
-    this.#socket = undefined;
-    socket.close();
+    this.dispose();
+    this.setState(ConnectionState.Disconnected);
   }
 
   /**
@@ -258,8 +296,8 @@ export class EventClient<
           type: "revolt",
           data: event.data,
         };
-        this.emit("error", event.data);
         this.disconnect();
+        this.emit("error", event.data);
         return;
     }
 
@@ -292,11 +330,14 @@ export class EventClient<
   get lastError():
     | {
         type: "socket";
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data: any;
+        data: Event;
       }
     | {
         type: "revolt";
+        data: StoatError;
+      }
+    | {
+        type: "protocol";
         data: Error;
       }
     | undefined {

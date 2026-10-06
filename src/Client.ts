@@ -3,7 +3,12 @@ import { batch, createSignal } from "solid-js";
 
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import { API } from "stoat-api";
-import type { DataLogin, Error, RevoltConfig, Role } from "stoat-api";
+import type {
+  DataLogin,
+  RevoltConfig,
+  Role,
+  Error as StoatError,
+} from "stoat-api";
 
 import type { Channel } from "./classes/Channel.js";
 import type { Emoji } from "./classes/Emoji.js";
@@ -47,7 +52,7 @@ export type Session = { _id: string; token: string; user_id: string } | string;
  * Events provided by the client
  */
 export type Events = {
-  error: [error: Error];
+  error: [error: StoatError | Error | Event];
 
   connected: [];
   connecting: [];
@@ -278,7 +283,9 @@ export class Client extends AsyncEventEmitter<Events> {
     this.users = new UserCollection(this);
 
     this.events = new EventClient(1, "json", this.options);
-    this.events.on("error", (error) => this.emit("error", error));
+    this.events.on("error", (error) =>
+      this.listenerCount("error") > 0 ? this.emit("error", error) : undefined,
+    );
     this.events.on("state", (state) => {
       switch (state) {
         case ConnectionState.Connected:
@@ -332,7 +339,6 @@ export class Client extends AsyncEventEmitter<Events> {
    */
   connect(): void {
     clearTimeout(this.#reconnectTimeout);
-    this.events.disconnect();
     this.#setReady(false);
     this.events.connect(
       this.configuration?.ws ?? "wss://stoat.chat/events",
