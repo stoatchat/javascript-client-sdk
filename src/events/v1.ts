@@ -372,26 +372,23 @@ export async function handleEvent(
 
           client.messages.getOrCreate(event._id, event, true);
 
-          const channel = client.channels.get(event.channel);
-          if (!channel) return;
+          if (event.author !== client.user!.id) {
+            const channel = client.channels.get(event.channel);
+            if (!channel) return;
 
-          client.channels.updateUnderlyingObject(
-            channel.id,
-            "lastMessageId",
-            event._id,
-          );
-
-          if (
-            event.mentions?.includes(client.user!.id) &&
-            client.options.syncUnreads
-          ) {
-            const unread = client.channelUnreads.for(channel);
-            unread.messageMentionIds.add(event._id);
             client.channels.updateUnderlyingObject(
-              event.channel,
+              channel.id,
               "lastMessageId",
               event._id,
             );
+
+            if (
+              event.mentions?.includes(client.user!.id) &&
+              client.options.syncUnreads
+            ) {
+              const unread = client.channelUnreads.for(channel);
+              unread.messageMentionIds.add(event._id);
+            }
           }
         });
       }
