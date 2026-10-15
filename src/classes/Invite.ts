@@ -52,6 +52,9 @@ export class ServerInvite extends ChannelInvite {
   readonly creatorId: string;
   readonly serverId: string;
   readonly channelId: string;
+  readonly uses?: number;
+  readonly maxUses?: number;
+  readonly expires?: Date;
 
   /**
    * Construct Server Invite
@@ -65,6 +68,15 @@ export class ServerInvite extends ChannelInvite {
     this.creatorId = invite.creator;
     this.serverId = invite.server;
     this.channelId = invite.channel;
+
+    const { uses, max_uses, expires } = invite as {
+      uses?: number;
+      max_uses?: number;
+      expires?: string;
+    };
+    this.uses = uses;
+    this.maxUses = max_uses;
+    this.expires = expires ? new Date(expires) : undefined;
   }
 
   /**
