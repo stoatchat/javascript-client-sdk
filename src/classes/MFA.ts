@@ -10,6 +10,9 @@ import type {
 
 import type { Client } from "../Client.js";
 
+import { Bot } from "./Bot.js";
+import { Server } from "./Server.js";
+
 /**
  * Multi-Factor Authentication
  */
@@ -202,5 +205,37 @@ export class MFATicket {
         "X-MFA-Ticket": this.token,
       },
     });
+  }
+
+  /**
+   * Delete server
+   */
+  async deleteServer(server: Server): Promise<void> {
+    if (!(server.owner?.self ?? server.ownerId === this.#client.user?.id))
+      throw new Error("NotOwner");
+
+    this._consume();
+    return this.#client.api.delete(`/servers/${server.id}`, undefined, {
+      headers: {
+        "X-MFA-Ticket": this.token,
+      },
+    });
+  }
+
+  /**
+   * Delete bot
+   */
+  async deleteBot(bot: Bot): Promise<void> {
+    if (!(bot.owner?.self ?? bot.ownerId === this.#client.user?.id))
+      throw new Error("NotOwner");
+
+    this._consume();
+    await this.#client.api.delete(`/bots/${bot.id}`, undefined, {
+      headers: {
+        "X-MFA-Ticket": this.token,
+      },
+    });
+
+    this.#client.bots.delete(bot.id);
   }
 }
