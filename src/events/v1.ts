@@ -380,7 +380,8 @@ export async function handleEvent(
       break;
     }
     case "Message": {
-      if (!client.messages.has(event._id)) {
+      const isOwn = event.author === client.user!.id;
+      if (isOwn || !client.messages.has(event._id)) {
         batch(() => {
           if (event.member) {
             client.serverMembers.getOrCreate(event.member._id, event.member);
@@ -397,8 +398,6 @@ export async function handleEvent(
 
           const channel = client.channels.get(event.channel);
           if (!channel) return;
-
-          const isOwn = event.author === client.user!.id;
 
           // Capture the ack position and last message before they are updated
           const previousLastId = channel.lastMessageId;
