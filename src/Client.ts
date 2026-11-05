@@ -384,6 +384,7 @@ export class Client extends AsyncEventEmitter<Events> {
     const [, type, id, sub] = path.split("/");
     if (type === "servers") return id === server;
     if (type === "channels") {
+      if (id === "create") return false;
       const channel = this.channels.get(id);
       return channel ? channel.serverId === server : true;
     }
