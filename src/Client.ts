@@ -522,6 +522,7 @@ export class Client extends AsyncEventEmitter<Events> {
    * This function prepares the client for disposal by removing all event listeners and killing the events socket.
    */
   async logout(): Promise<void> {
+    if (this.#disposed) return;
     try {
       await this.api.post("/auth/session/logout");
     } finally {
@@ -553,7 +554,7 @@ export class Client extends AsyncEventEmitter<Events> {
     // Remove listeners before closing the socket so nobody observes the disconnect
     this.events.removeAllListeners();
     this.removeAllListeners();
-    this.events.dispose();
+    this.events.disconnect();
 
     for (const channel of this.channels.values()) channel._dispose();
 
