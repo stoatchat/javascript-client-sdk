@@ -297,6 +297,8 @@ export async function handleEvent(
   event: ServerMessage,
   setReady: Setter<boolean>,
 ): Promise<void> {
+  if (client.disposed) return;
+
   if (client.options.debug) {
     console.debug("[S->C]", event);
   }
@@ -366,6 +368,7 @@ export async function handleEvent(
 
       if (client.options.syncUnreads) {
         await client.channelUnreads.sync();
+        if (client.disposed) return;
       }
 
       setReady(true);
@@ -628,11 +631,9 @@ export async function handleEvent(
           return;
         }
 
-        client.emit(
-          "channelGroupJoin",
-          channel,
-          await client.users.fetch(event.user),
-        );
+        const user = await client.users.fetch(event.user);
+        if (client.disposed) return;
+        client.emit("channelGroupJoin", channel, user);
       }
       break;
     }
@@ -843,6 +844,7 @@ export async function handleEvent(
         if (!client.users.has(id.user)) {
           if (client.options.eagerFetching) {
             await client.users.fetch(id.user);
+            if (client.disposed) return;
           }
         }
 

@@ -726,16 +726,17 @@ export class Channel {
   #manuallyMarked?: boolean;
 
   /**
-   * Clear any pending timers held by this channel
+   * Clear pending timers and voice state held by this channel
    * @internal
    */
-  _clearTimers(): void {
+  _dispose(): void {
     for (const timer of Object.values(this._typingTimers)) clearTimeout(timer);
     this._typingTimers = {};
     clearTimeout(this.#ackTimeout);
     this.#ackTimeout = undefined;
     clearTimeout(this.#slowmodeTimeout);
     this.#slowmodeTimeout = undefined;
+    this.voiceParticipants.clear();
   }
 
   /**

@@ -555,7 +555,7 @@ export class Client extends AsyncEventEmitter<Events> {
     this.removeAllListeners();
     this.events.dispose();
 
-    for (const channel of this.channels.values()) channel._clearTimers();
+    for (const channel of this.channels.values()) channel._dispose();
 
     this.#setReady(false);
     this.#setEntitlements([]);
@@ -577,7 +577,6 @@ export class Client extends AsyncEventEmitter<Events> {
         this.serverMembers._clear();
         this.sessions._clear();
         this.users._clear();
-        this.user = undefined;
       }),
     );
   }
