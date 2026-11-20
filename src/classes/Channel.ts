@@ -303,6 +303,7 @@ export class Channel {
    */
   get unread(): boolean {
     if (
+      this.#collection.client.disposed ||
       !this.lastMessageId ||
       this.type === "SavedMessages" ||
       this.#collection.client.options.channelExclusiveMuted(this)
@@ -753,6 +754,10 @@ export class Channel {
     skipRequest?: boolean,
     skipNextMarking?: boolean,
   ): Promise<void> {
+    // Nothing to acknowledge on a disposed client, and continuing would
+    // re-arm the ack timer and touch the closed unread collection
+    if (this.#collection.client.disposed) return;
+
     if (!message && this.#manuallyMarked) {
       this.#manuallyMarked = false;
       return;
