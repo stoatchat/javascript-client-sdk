@@ -157,6 +157,17 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
   }
 
   /**
+   * Drop every object held by this collection
+   * @internal
+   */
+  _clear(): void {
+    for (const id of [...this.#objects.keys()]) {
+      this.updateUnderlyingObject(id, undefined as never);
+    }
+    this.#objects.clear();
+  }
+
+  /**
    * Create a new instance of an object
    * @param id Id
    * @param type Type

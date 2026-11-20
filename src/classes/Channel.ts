@@ -726,6 +726,19 @@ export class Channel {
   #manuallyMarked?: boolean;
 
   /**
+   * Clear any pending timers held by this channel
+   * @internal
+   */
+  _clearTimers(): void {
+    for (const timer of Object.values(this._typingTimers)) clearTimeout(timer);
+    this._typingTimers = {};
+    clearTimeout(this.#ackTimeout);
+    this.#ackTimeout = undefined;
+    clearTimeout(this.#slowmodeTimeout);
+    this.#slowmodeTimeout = undefined;
+  }
+
+  /**
    * Mark a channel as read
    * @param message Last read message or its ID
    * @param skipRateLimiter Whether to skip the internal rate limiter
