@@ -117,6 +117,7 @@ export abstract class Collection<T> {
 export abstract class StoreCollection<T, V> extends Collection<T> {
   #storage = new ObjectStorage<V>();
   #objects = new ReactiveMap<string, T>();
+  #closed = false;
   readonly getUnderlyingObject: (id: string) => V;
   readonly updateUnderlyingObject: SetStoreFunction<Record<string, V>>;
 
@@ -157,6 +158,19 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
   }
 
   /**
+   * Drop every object held by this collection and stop accepting new ones,
+   * so late async work (e.g. in-flight fetches) can't repopulate it
+   * @internal
+   */
+  _clear(): void {
+    this.#closed = true;
+    for (const id of [...this.#objects.keys()]) {
+      this.updateUnderlyingObject(id, undefined as never);
+    }
+    this.#objects.clear();
+  }
+
+  /**
    * Create a new instance of an object
    * @param id Id
    * @param type Type
@@ -171,6 +185,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
     context: unknown,
     data?: unknown,
   ): void {
+    if (this.#closed) return;
     this.#storage.hydrate(id, type, context, data);
     this.#objects.set(id, instance);
   }
@@ -194,6 +209,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    * @param hydrated Hydrated
    */
   protected add(id: string, instance: T, hydrated: V) {
+    if (this.#closed) return;
     this.#storage.add(id, hydrated);
     this.#objects.set(id, instance);
   }

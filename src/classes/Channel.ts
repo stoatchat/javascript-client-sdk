@@ -303,6 +303,7 @@ export class Channel {
    */
   get unread(): boolean {
     if (
+      this.#collection.client.disposed ||
       !this.lastMessageId ||
       this.type === "SavedMessages" ||
       this.#collection.client.options.channelExclusiveMuted(this)
@@ -726,6 +727,20 @@ export class Channel {
   #manuallyMarked?: boolean;
 
   /**
+   * Clear pending timers and voice state held by this channel
+   * @internal
+   */
+  _dispose(): void {
+    for (const timer of Object.values(this._typingTimers)) clearTimeout(timer);
+    this._typingTimers = {};
+    clearTimeout(this.#ackTimeout);
+    this.#ackTimeout = undefined;
+    clearTimeout(this.#slowmodeTimeout);
+    this.#slowmodeTimeout = undefined;
+    this.voiceParticipants.clear();
+  }
+
+  /**
    * Mark a channel as read
    * @param message Last read message or its ID
    * @param skipRateLimiter Whether to skip the internal rate limiter
@@ -739,6 +754,10 @@ export class Channel {
     skipRequest?: boolean,
     skipNextMarking?: boolean,
   ): Promise<void> {
+    // Nothing to acknowledge on a disposed client, and continuing would
+    // re-arm the ack timer and touch the closed unread collection
+    if (this.#collection.client.disposed) return;
+
     if (!message && this.#manuallyMarked) {
       this.#manuallyMarked = false;
       return;

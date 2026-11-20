@@ -216,6 +216,7 @@ export class Client extends AsyncEventEmitter<Events> {
   readonly entitlements: Accessor<ProtocolV1["types"]["entitlement"][]>;
   #setEntitlements: Setter<ProtocolV1["types"]["entitlement"][]>;
   #reconnectTimeout: number | undefined;
+  #disposed = false;
 
   /**
    * Server and roles to calculate permissions as, for previewing a role
@@ -417,6 +418,7 @@ export class Client extends AsyncEventEmitter<Events> {
    * Connect to Revolt
    */
   connect(): void {
+    if (this.#disposed) return;
     clearTimeout(this.#reconnectTimeout);
     this.#setReady(false);
     this.events.connect(
@@ -520,12 +522,64 @@ export class Client extends AsyncEventEmitter<Events> {
    * This function prepares the client for disposal by removing all event listeners and killing the events socket.
    */
   async logout(): Promise<void> {
-    await this.api.post("/auth/session/logout");
+    if (this.#disposed) return;
+    try {
+      await this.api.post("/auth/session/logout");
+    } finally {
+      this.dispose();
+    }
+  }
+
+  /**
+   * Whether this client has been disposed
+   */
+  get disposed(): boolean {
+    return this.#disposed;
+  }
+
+  /**
+   * Dispose of this client
+   *
+   * Stops any pending reconnects and timers, removes all event listeners and kills the events socket,
+   * so that the client can be garbage collected. The client must not be used after calling this.
+   * Calling this more than once is a no-op.
+   */
+  dispose(): void {
+    if (this.#disposed) return;
+    this.#disposed = true;
+
+    clearTimeout(this.#reconnectTimeout);
+    this.#reconnectTimeout = undefined;
+
+    // Remove listeners before closing the socket so nobody observes the disconnect
     this.events.removeAllListeners();
     this.removeAllListeners();
     this.events.disconnect();
+
+    for (const channel of this.channels.values()) channel._dispose();
+
+    this.#setReady(false);
     this.#setEntitlements([]);
     this.#setViewAs(undefined);
+
+    // Release cached data. If something outside our control (e.g. a detached
+    // DOM node held by the browser) still references this client, it then
+    // pins an empty shell rather than the whole account's state.
+    // Deferred so UI still being torn down doesn't observe empty collections.
+    setTimeout(() =>
+      batch(() => {
+        this.bots._clear();
+        this.channels._clear();
+        this.channelUnreads._clear();
+        this.channelWebhooks._clear();
+        this.emojis._clear();
+        this.messages._clear();
+        this.servers._clear();
+        this.serverMembers._clear();
+        this.sessions._clear();
+        this.users._clear();
+      }),
+    );
   }
 
   /**
