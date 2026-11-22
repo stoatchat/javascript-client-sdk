@@ -566,6 +566,10 @@ export class Client extends AsyncEventEmitter<Events> {
       this.#setViewAs(undefined);
     });
 
+    this.user = undefined;
+    this.#session = undefined;
+    this.#updateHeaders();
+
     const collections = [
       this.bots,
       this.channels,

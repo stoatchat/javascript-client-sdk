@@ -127,7 +127,11 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
   constructor() {
     super();
     this.getUnderlyingObject = (key) => this.#storage.get(key) ?? ({} as V);
-    this.updateUnderlyingObject = this.#storage.set;
+    const set = this.#storage.set;
+    // Wrapper function that makes the update a no-op if this collection is closed.
+    this.updateUnderlyingObject = ((...args: Parameters<typeof set>) => {
+      if (!this.#closed) set(...args);
+    }) as typeof set;
   }
 
   /**
@@ -154,7 +158,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    */
   delete(id: string): void {
     this.#objects.delete(id);
-    this.updateUnderlyingObject(id, undefined as never);
+    this.#storage.set(id, undefined as never);
   }
 
   /**
@@ -178,9 +182,8 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
   _clear(): boolean {
     if (!this.#closed) return false;
     for (const id of [...this.#objects.keys()]) {
-      this.updateUnderlyingObject(id, undefined as never);
+      this.delete(id);
     }
-    this.#objects.clear();
     return true;
   }
 
