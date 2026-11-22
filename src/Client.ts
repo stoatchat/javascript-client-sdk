@@ -196,6 +196,7 @@ export class Client extends AsyncEventEmitter<Events> {
 
   readonly configuration: RevoltConfig | undefined;
   #configLock?: Promise<void>;
+  #configRes?: () => void;
   #session: Session | undefined;
   user: User | undefined;
 
@@ -440,14 +441,33 @@ export class Client extends AsyncEventEmitter<Events> {
     if (!this.#configLock && !this.configuration) {
       //Create promise lock to avoid race condition
       this.#configLock = (async () => {
+        let cfg, err;
+        await new Promise<void>((res) => {
+          this.#configRes = res;
+          this.api
+            .get("/")
+            .then((c) => ((cfg = c), res()))
+            .catch((e) => ((err = e), res()));
+        });
+        if (this.configuration) return;
+        if (err) throw err;
         //@ts-expect-error readonly override
-        this.configuration = await this.api.get("/");
-        preConfig?.(this.configuration);
+        this.configuration = cfg;
+        preConfig?.(cfg!);
         this.#setConfigured(true);
-        this.#configLock = undefined;
+        this.#configLock = this.#configRes = undefined;
       })();
     }
     return this.#configLock;
+  }
+
+  /** Manually set the server config - This instantly resolves any awaiting initConfig() calls. */
+  setConfig(config: RevoltConfig) {
+    //@ts-expect-error readonly override
+    this.configuration = config;
+    this.#setConfigured(true);
+    this.#configRes?.();
+    this.#configLock = this.#configRes = undefined;
   }
 
   /**
