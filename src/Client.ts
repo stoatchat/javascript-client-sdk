@@ -199,6 +199,7 @@ export class Client extends AsyncEventEmitter<Events> {
   #session: Session | undefined;
   user: User | undefined;
 
+  ready: Accessor<boolean>;
   #ready: Accessor<boolean>;
   #setReady: Setter<boolean>;
 
@@ -283,6 +284,7 @@ export class Client extends AsyncEventEmitter<Events> {
     const [ready, setReady] = createSignal(false);
     this.#ready = ready;
     this.#setReady = setReady;
+    this.ready = () => !this.#disposed && this.#ready();
 
     const [connectionFailureCount, setConnectionFailureCount] = createSignal(0);
     this.connectionFailureCount = connectionFailureCount;
@@ -346,10 +348,6 @@ export class Client extends AsyncEventEmitter<Events> {
     this.events.on("event", (event) =>
       handleEvent(this, event, this.#setReady),
     );
-  }
-
-  get ready(): Accessor<boolean> {
-    return () => !this.#disposed && this.#ready();
   }
 
   /**
