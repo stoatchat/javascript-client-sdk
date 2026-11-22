@@ -199,7 +199,7 @@ export class Client extends AsyncEventEmitter<Events> {
   #session: Session | undefined;
   user: User | undefined;
 
-  ready: Accessor<boolean>;
+  readonly ready: Accessor<boolean>;
   #ready: Accessor<boolean>;
   #setReady: Setter<boolean>;
 
