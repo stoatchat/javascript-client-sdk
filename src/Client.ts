@@ -529,6 +529,8 @@ export class Client extends AsyncEventEmitter<Events> {
     if (this.#disposed) return;
     try {
       await this.api.post("/auth/session/logout");
+    } catch {
+      // Ignore errors, low risk/priority.
     } finally {
       this.dispose();
     }

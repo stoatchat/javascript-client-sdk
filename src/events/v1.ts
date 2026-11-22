@@ -400,7 +400,7 @@ export async function handleEvent(
           const channel = client.channels.get(event.channel);
           if (!channel) return;
 
-          const isOwn = event.author === client.user!.id;
+          const isOwn = event.author && event.author === client.user?.id;
 
           // Capture the ack position and last message before they are updated
           const previousLastId = channel.lastMessageId;
@@ -425,7 +425,8 @@ export async function handleEvent(
               void channel.ack(event._id, false, true);
             }
           } else if (
-            event.mentions?.includes(client.user!.id) &&
+            client.user &&
+            event.mentions?.includes(client.user?.id) &&
             client.options.syncUnreads
           ) {
             const unread = client.channelUnreads.for(channel);
@@ -898,7 +899,7 @@ export async function handleEvent(
       break;
     }
     case "ServerMemberLeave": {
-      if (event.user && event.user === client.user!.id) {
+      if (event.user && event.user === client.user?.id) {
         handleEvent(
           client,
           {

@@ -303,7 +303,7 @@ export class Channel {
    */
   get unread(): boolean {
     if (
-      this.#collection.client.disposed ||
+      this.#collection.closed ||
       !this.lastMessageId ||
       this.type === "SavedMessages" ||
       this.#collection.client.options.channelExclusiveMuted(this)
