@@ -368,7 +368,6 @@ export async function handleEvent(
 
       if (client.options.syncUnreads) {
         await client.channelUnreads.sync();
-        if (client.disposed) return;
       }
 
       setReady(true);
@@ -632,7 +631,6 @@ export async function handleEvent(
         }
 
         const user = await client.users.fetch(event.user);
-        if (client.disposed) return;
         client.emit("channelGroupJoin", channel, user);
       }
       break;
@@ -844,7 +842,6 @@ export async function handleEvent(
         if (!client.users.has(id.user)) {
           if (client.options.eagerFetching) {
             await client.users.fetch(id.user);
-            if (client.disposed) return;
           }
         }
 

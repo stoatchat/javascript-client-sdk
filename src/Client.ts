@@ -39,6 +39,7 @@ import type { HydratedMessage } from "./hydration/message.js";
 import type { HydratedServer } from "./hydration/server.js";
 import type { HydratedServerMember } from "./hydration/serverMember.js";
 import type { HydratedUser } from "./hydration/user.js";
+import { ClassCollection } from "./index.js";
 import {
   RE_CHANNELS,
   RE_CUSTOM_EMOJI,
@@ -199,7 +200,7 @@ export class Client extends AsyncEventEmitter<Events> {
   #session: Session | undefined;
   user: User | undefined;
 
-  readonly ready: Accessor<boolean>;
+  #ready: Accessor<boolean>;
   #setReady: Setter<boolean>;
 
   readonly configured: Accessor<boolean>;
@@ -281,7 +282,7 @@ export class Client extends AsyncEventEmitter<Events> {
     this.#setConfigured = setConfigured;
 
     const [ready, setReady] = createSignal(false);
-    this.ready = ready;
+    this.#ready = ready;
     this.#setReady = setReady;
 
     const [connectionFailureCount, setConnectionFailureCount] = createSignal(0);
@@ -346,6 +347,10 @@ export class Client extends AsyncEventEmitter<Events> {
     this.events.on("event", (event) =>
       handleEvent(this, event, this.#setReady),
     );
+  }
+
+  get ready(): boolean {
+    return !this.#disposed && this.#ready();
   }
 
   /**
@@ -519,7 +524,8 @@ export class Client extends AsyncEventEmitter<Events> {
   /**
    * Log out of current session
    *
-   * This function prepares the client for disposal by removing all event listeners and killing the events socket.
+   * This function fully disposes the client by removing all event listeners
+   * and killing the events socket.
    */
   async logout(): Promise<void> {
     if (this.#disposed) return;
@@ -556,11 +562,24 @@ export class Client extends AsyncEventEmitter<Events> {
     this.removeAllListeners();
     this.events.disconnect();
 
-    for (const channel of this.channels.values()) channel._dispose();
-
     this.#setReady(false);
     this.#setEntitlements([]);
     this.#setViewAs(undefined);
+
+    const collections = [
+      this.bots,
+      this.channels,
+      this.channelUnreads,
+      this.channelWebhooks,
+      this.emojis,
+      this.messages,
+      this.servers,
+      this.serverMembers,
+      this.sessions,
+      this.users,
+    ];
+
+    for (const collection of collections) collection._close();
 
     // Release cached data. If something outside our control (e.g. a detached
     // DOM node held by the browser) still references this client, it then
@@ -568,16 +587,7 @@ export class Client extends AsyncEventEmitter<Events> {
     // Deferred so UI still being torn down doesn't observe empty collections.
     setTimeout(() =>
       batch(() => {
-        this.bots._clear();
-        this.channels._clear();
-        this.channelUnreads._clear();
-        this.channelWebhooks._clear();
-        this.emojis._clear();
-        this.messages._clear();
-        this.servers._clear();
-        this.serverMembers._clear();
-        this.sessions._clear();
-        this.users._clear();
+        for (const collection of collections) collection._clear();
       }),
     );
   }

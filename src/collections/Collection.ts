@@ -158,16 +158,27 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
   }
 
   /**
-   * Drop every object held by this collection and stop accepting new ones,
-   * so late async work (e.g. in-flight fetches) can't repopulate it
+   * Close the collection, disallowing any further creation, fetching or
+   * adding.
    * @internal
    */
-  _clear(): void {
+  _close(): void {
     this.#closed = true;
+  }
+
+  /**
+   * Drop every object held by this collection If this collection is not
+   * closed, _clear is a no-op.
+   * @returns Whether the clear ran
+   * @internal
+   */
+  _clear(): boolean {
+    if (!this.#closed) return false;
     for (const id of [...this.#objects.keys()]) {
       this.updateUnderlyingObject(id, undefined as never);
     }
     this.#objects.clear();
+    return true;
   }
 
   /**
