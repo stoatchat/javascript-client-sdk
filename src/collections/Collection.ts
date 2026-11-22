@@ -165,6 +165,10 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
     this.#closed = true;
   }
 
+  get closed(): boolean {
+    return this.#closed;
+  }
+
   /**
    * Drop every object held by this collection. If this collection is not
    * closed, _clear is a no-op.

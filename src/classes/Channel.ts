@@ -756,7 +756,7 @@ export class Channel {
   ): Promise<void> {
     // Nothing to acknowledge on a disposed client, and continuing would
     // re-arm the ack timer and touch the closed unread collection
-    if (this.#collection.client.disposed) return;
+    if (this.#collection.closed) return;
 
     if (!message && this.#manuallyMarked) {
       this.#manuallyMarked = false;
@@ -907,6 +907,7 @@ export class Channel {
   }
 
   setUserSlowmode(slowmode: UserSlowmodes) {
+    if (this.#collection.closed) return;
     if (this.#slowmodeTimeout) {
       clearTimeout(this.#slowmodeTimeout);
     }
