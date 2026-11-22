@@ -39,7 +39,6 @@ import type { HydratedMessage } from "./hydration/message.js";
 import type { HydratedServer } from "./hydration/server.js";
 import type { HydratedServerMember } from "./hydration/serverMember.js";
 import type { HydratedUser } from "./hydration/user.js";
-import { ClassCollection } from "./index.js";
 import {
   RE_CHANNELS,
   RE_CUSTOM_EMOJI,
@@ -349,8 +348,8 @@ export class Client extends AsyncEventEmitter<Events> {
     );
   }
 
-  get ready(): boolean {
-    return !this.#disposed && this.#ready();
+  get ready(): Accessor<boolean> {
+    return () => !this.#disposed && this.#ready();
   }
 
   /**
@@ -525,7 +524,8 @@ export class Client extends AsyncEventEmitter<Events> {
    * Log out of current session
    *
    * This function fully disposes the client by removing all event listeners
-   * and killing the events socket.
+   * and killing the events socket. It is disposed regardless of whether the
+   * logout request is successful or not.
    */
   async logout(): Promise<void> {
     if (this.#disposed) return;
@@ -562,9 +562,11 @@ export class Client extends AsyncEventEmitter<Events> {
     this.removeAllListeners();
     this.events.disconnect();
 
-    this.#setReady(false);
-    this.#setEntitlements([]);
-    this.#setViewAs(undefined);
+    batch(() => {
+      this.#setReady(false);
+      this.#setEntitlements([]);
+      this.#setViewAs(undefined);
+    });
 
     const collections = [
       this.bots,

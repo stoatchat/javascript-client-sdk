@@ -158,8 +158,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
   }
 
   /**
-   * Close the collection, disallowing any further creation, fetching or
-   * adding.
+   * Close the collection, disallowing any further creation or adding.
    * @internal
    */
   _close(): void {
@@ -167,7 +166,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
   }
 
   /**
-   * Drop every object held by this collection If this collection is not
+   * Drop every object held by this collection. If this collection is not
    * closed, _clear is a no-op.
    * @returns Whether the clear ran
    * @internal
