@@ -241,6 +241,13 @@ export class Channel {
   }
 
   /**
+   * Whether we can see this channel, taking any role preview into account
+   */
+  get isVisible(): boolean {
+    return !this.server?.previewRoles || this.havePermission("ViewChannel");
+  }
+
+  /**
    * Permissions allowed for users in this group
    */
   get permissions(): bigint | undefined {
