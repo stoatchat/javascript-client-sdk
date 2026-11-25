@@ -55,17 +55,18 @@ export function calculatePermission(
   if (user?.privileged) {
     return Permission.GrantAllSafe;
   }
-  if (!user) return 0n;
+  // The role preview stand-in has no user, which is expected
+  if (!user && !options?.member) return 0n;
 
   if (target instanceof Server) {
     // 1. Check if owner.
-    if (target.ownerId === user.id) {
+    if (target.ownerId === user?.id) {
       return Permission.GrantAllSafe;
     } else {
       // 2. Get ServerMember.
       const member = options?.member ??
         client.serverMembers.getByKey({
-          user: user.id,
+          user: user!.id,
           server: target.id,
         }) ?? { roles: null, timeout: null };
 
@@ -111,7 +112,7 @@ export function calculatePermission(
       }
       case "Group": {
         // 2. Check if user is owner.
-        if (target.ownerId === user.id) {
+        if (target.ownerId === user?.id) {
           return Permission.GrantAllSafe;
         } else {
           // 3. Pull out group permissions.
@@ -130,7 +131,7 @@ export function calculatePermission(
           // 4. Get ServerMember.
           const member = options?.member ??
             client.serverMembers.getByKey({
-              user: user.id,
+              user: user!.id,
               server: server.id,
             }) ?? { roles: null, timeout: null };
 

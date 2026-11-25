@@ -144,9 +144,10 @@ export class Server {
     const channelIds = this.#collection.getUnderlyingObject(this.id).channelIds;
     if (!channelIds) return [];
 
+    // While previewing a role, only channels it can see are listed
     return [...channelIds.values()]
       .map((id) => this.#collection.client.channels.get(id)!)
-      .filter((x) => x);
+      .filter((x) => x?.isVisible);
   }
 
   /**
@@ -273,9 +274,7 @@ export class Server {
    * Default channel for this server
    */
   get defaultChannel(): Channel | undefined {
-    return this.orderedChannels
-      .flatMap((cat) => cat.channels)
-      .find((channel) => this.#previewCanView(channel));
+    return this.orderedChannels.find((cat) => cat.channels.length)?.channels[0];
   }
 
   /**
@@ -296,9 +295,7 @@ export class Server {
    * @returns Whether the server is unread
    */
   get unread(): boolean {
-    return !!this.channels.find(
-      (channel) => channel.unread && this.#previewCanView(channel),
-    );
+    return !!this.channels.find((channel) => channel.unread);
   }
 
   /**
@@ -306,9 +303,9 @@ export class Server {
    * @returns Array of message IDs which are unread
    */
   get mentions(): string[] {
-    const arr = this.channels
-      .filter((channel) => this.#previewCanView(channel))
-      .map((channel) => Array.from(channel.mentions?.values() ?? []));
+    const arr = this.channels.map((channel) =>
+      Array.from(channel.mentions?.values() ?? []),
+    );
 
     return ([] as string[]).concat(...arr);
   }
@@ -346,10 +343,32 @@ export class Server {
   }
 
   /**
-   * Whether a channel is visible to the roles we are previewing, if any
+   * Whether we own this server, which a role preview suspends
    */
-  #previewCanView(channel: Channel): boolean {
-    return !this.previewRoles || channel.havePermission("ViewChannel");
+  get hasOwnerPrivileges(): boolean {
+    return (
+      this.ownerId === this.#collection.client.user?.id && !this.previewRoles
+    );
+  }
+
+  /**
+   * Whether changes to this server are blocked, such as while previewing a role
+   */
+  get readOnly(): boolean {
+    return !!this.previewRoles;
+  }
+
+  /**
+   * Whether we can preview a role, or Everyone if no role is given,
+   * judged by our real roles rather than any active preview
+   */
+  canPreviewRole(roleId?: string): boolean {
+    const member = this.member;
+    if (!member?.hasPermission(this, "ManageRole")) return false;
+    if (!roleId) return true;
+
+    const rank = this.roles.get(roleId)?.rank;
+    return rank !== undefined && rank > member.realRanking;
   }
 
   /**
